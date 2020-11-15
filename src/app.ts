@@ -1,4 +1,4 @@
-import { helloWorld } from './core/hello-world';
+import { debug } from './debug/debug';
 
 export function start(mainCallBack: () => (Promise<any> | any)) {
   const ENVIRONMENT: 'browser' | 'nodejs' = ('window' in globalThis) ? 'browser' : 'nodejs';
@@ -38,7 +38,7 @@ export function start(mainCallBack: () => (Promise<any> | any)) {
   }
 }
 
-start(helloWorld);
+start(debug);
 
 
 

@@ -1,11 +1,11 @@
 import { INotificationObserverLike } from '../notification-observer/notification-observer-types';
 import { TraitNotificationObservableAddObserver } from './traits/trait-notification-observable-add-observer';
 import { TObservableCreateFunction } from '../../../core/observable/class/observable-class';
-import { TEventMap, TraitIsImplementedBy } from '@lifaon/traits';
+import { TGenericEventMap, TraitIsImplementedBy } from '@lifaon/traits';
 import { INotificationLike } from '../../../../notification/notification-types';
 import { IObservableLike } from '../../../core/observable/observable-types';
 
-export interface INotificationObservableLike<GEventMap extends TEventMap> extends IObservableLike<TInferNotificationObserversFromEventMap<GEventMap>>,
+export interface INotificationObservableLike<GEventMap extends TGenericEventMap> extends IObservableLike<TInferNotificationObserversFromEventMap<GEventMap>>,
   TraitNotificationObservableAddObserver<any, TInferNotificationObserversFromEventMap<GEventMap>> {
 }
 
@@ -17,23 +17,23 @@ export type TInferNotificationObservableLikeGEventMap<GNotificationObservableLik
     ? GEventMap
     : never;
 
-export function IsNotificationObservableLike<GEventMap extends TEventMap>(value: any): value is INotificationObservableLike<GEventMap> {
+export function IsNotificationObservableLike<GEventMap extends TGenericEventMap>(value: any): value is INotificationObservableLike<GEventMap> {
   return TraitIsImplementedBy(TraitNotificationObservableAddObserver, value);
 }
 
 /** TYPES **/
 
-export type TInferNotificationsFromEventMap<GEventMap extends TEventMap> = {
-  [GKey in keyof TEventMap]: GKey extends string
-    ? INotificationLike<GKey, TEventMap[GKey]>
+export type TInferNotificationsFromEventMap<GEventMap extends TGenericEventMap> = {
+  [GKey in keyof TGenericEventMap]: GKey extends string
+    ? INotificationLike<GKey, TGenericEventMap[GKey]>
     : never;
-}[keyof TEventMap];
+}[keyof TGenericEventMap];
 
-export type TInferNotificationObserversFromEventMap<GEventMap extends TEventMap> = {
-  [GKey in keyof TEventMap]: GKey extends string
-    ? INotificationObserverLike<GKey, TEventMap[GKey]>
+export type TInferNotificationObserversFromEventMap<GEventMap extends TGenericEventMap> = {
+  [GKey in keyof TGenericEventMap]: GKey extends string
+    ? INotificationObserverLike<GKey, TGenericEventMap[GKey]>
     : never;
-}[keyof TEventMap];
+}[keyof TGenericEventMap];
 
 
-export type TNotificationObservableCreateFunction<GEventMap extends TEventMap> = TObservableCreateFunction<TInferNotificationObserversFromEventMap<GEventMap>>;
+export type TNotificationObservableCreateFunction<GEventMap extends TGenericEventMap> = TObservableCreateFunction<TInferNotificationObserversFromEventMap<GEventMap>>;

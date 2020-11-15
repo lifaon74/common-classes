@@ -1,9 +1,9 @@
 import { INotificationObservableStruct } from './notification-observable-struct';
 import { IObservableEventMap } from '../../../../core/observable/observable-types';
 import { TInferNotificationObserversFromEventMap } from '../notification-observable-types';
-import { TEventMap, TraitEventListenerDispatch } from '@lifaon/traits';
+import { TGenericEventMap, TraitEventListenerDispatch } from '@lifaon/traits';
 
-export interface INotificationObservableStructWithDispatch<GEventMap extends TEventMap> extends INotificationObservableStruct<GEventMap>,
+export interface INotificationObservableStructWithDispatch<GEventMap extends TGenericEventMap> extends INotificationObservableStruct<GEventMap>,
   TraitEventListenerDispatch<any, IObservableEventMap<TInferNotificationObserversFromEventMap<GEventMap>>> {
 }
 

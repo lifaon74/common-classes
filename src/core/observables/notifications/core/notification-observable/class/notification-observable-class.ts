@@ -9,13 +9,13 @@ import {
   TInferNotificationObserversFromEventMap, TNotificationObservableCreateFunction,
 } from '../notification-observable-types';
 import {
-  AssembleTraitImplementations, CreatePrivateContext, OverrideTraitImplementations, TEventMap, TInferEventMapKeys
+  AssembleTraitImplementations, CreatePrivateContext, OverrideTraitImplementations, TGenericEventMap, TInferEventMapKeys
 } from '@lifaon/traits';
 
 
 /** CONSTRUCTOR **/
 
-export function ConstructNotificationObservable<GEventMap extends TEventMap>(
+export function ConstructNotificationObservable<GEventMap extends TGenericEventMap>(
   instance: INotificationObservable<GEventMap>,
   create?: TNotificationObservableCreateFunction<GEventMap>,
 ): void {
@@ -32,13 +32,13 @@ export function ConstructNotificationObservable<GEventMap extends TEventMap>(
 
 /** CLASS **/
 
-export interface INotificationObservable<GEventMap extends TEventMap> extends INotificationObservableStruct<GEventMap>,
+export interface INotificationObservable<GEventMap extends TGenericEventMap> extends INotificationObservableStruct<GEventMap>,
   ImplTraitAddObserverForNotificationObservableStruct<INotificationObservable<GEventMap>>,
   Omit<IObservable<TInferNotificationObserversFromEventMap<GEventMap>>, 'addObserver'> { // TODO create a type to handle this case
 }
 
 export interface IAssembledNotificationObservableImplementations {
-  new<GEventMap extends TEventMap>(): INotificationObservable<GEventMap>;
+  new<GEventMap extends TGenericEventMap>(): INotificationObservable<GEventMap>;
 }
 
 export const NotificationObservableImplementationsCollection = OverrideTraitImplementations(ObservableImplementationsCollection, [
@@ -48,7 +48,7 @@ export const NotificationObservableImplementationsCollection = OverrideTraitImpl
 const AssembledNotificationObservableImplementations = AssembleTraitImplementations<IAssembledNotificationObservableImplementations>(NotificationObservableImplementationsCollection);
 
 
-export class NotificationObservable<GEventMap extends TEventMap> extends AssembledNotificationObservableImplementations<GEventMap> implements INotificationObservable<GEventMap> {
+export class NotificationObservable<GEventMap extends TGenericEventMap> extends AssembledNotificationObservableImplementations<GEventMap> implements INotificationObservable<GEventMap> {
   readonly [NOTIFICATION_OBSERVABLE_PRIVATE_CONTEXT]: INotificationObservablePrivateContext<GEventMap>;
 
   constructor(

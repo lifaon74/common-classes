@@ -1,6 +1,6 @@
 import { IObservableStruct } from '../../../../core/observable/struct/observable-struct';
 import { TInferNotificationObserversFromEventMap } from '../notification-observable-types';
-import { HasProperty, IsObject, TEventMap, TInferEventMapKeys } from '@lifaon/traits';
+import { HasProperty, IsObject, TGenericEventMap, TInferEventMapKeys } from '@lifaon/traits';
 
 
 // TODO continue here => do not inherith from IObservableStruct because we dont actually need observables[]
@@ -9,7 +9,7 @@ import { HasProperty, IsObject, TEventMap, TInferEventMapKeys } from '@lifaon/tr
 
 export const NOTIFICATION_OBSERVABLE_PRIVATE_CONTEXT: unique symbol = Symbol('notification-observable-private-context');
 
-export interface INotificationObservablePrivateContext<GEventMap extends TEventMap> {
+export interface INotificationObservablePrivateContext<GEventMap extends TGenericEventMap> {
   readonly observersMap: Map<TInferEventMapKeys<GEventMap>, TInferNotificationObserversFromEventMap<GEventMap>[]>; // map from a name to a list of notifications observers
 }
 
@@ -18,7 +18,7 @@ export type TNotificationObservablePrivateContextFromGSelf<GSelf extends TGeneri
 
 /** STRUCT DEFINITION **/
 
-export interface INotificationObservableStruct<GEventMap extends TEventMap> extends IObservableStruct<TInferNotificationObserversFromEventMap<GEventMap>> {
+export interface INotificationObservableStruct<GEventMap extends TGenericEventMap> extends IObservableStruct<TInferNotificationObserversFromEventMap<GEventMap>> {
   readonly [NOTIFICATION_OBSERVABLE_PRIVATE_CONTEXT]: INotificationObservablePrivateContext<GEventMap>;
 }
 
@@ -30,7 +30,7 @@ export type TInferNotificationObservableStructGEventMap<GNotificationObservableS
     : never;
 
 
-export function IsNotificationObservableStruct<GEventMap extends TEventMap>(value: any): value is INotificationObservableStruct<GEventMap> {
+export function IsNotificationObservableStruct<GEventMap extends TGenericEventMap>(value: any): value is INotificationObservableStruct<GEventMap> {
   return IsObject(value)
     && HasProperty(value, NOTIFICATION_OBSERVABLE_PRIVATE_CONTEXT);
 }

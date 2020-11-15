@@ -3,7 +3,7 @@ import { TGenericObserverLike, TInferObserverLikeGValue } from '../../observer/o
 import { ObservableStructDispatchAll } from '../struct/functions/observable-struct-functions';
 import {
   ConstructEventListener, EventListenerImplementationsCollection, IEventListener,
-} from '../../../../event-listener/class/event-listener-class';
+} from '../../../../event-listener/raw/class/event-listener-class';
 import { ImplTraitIsActiveForObservableStruct } from '../struct/implementations/observable-struct-is-active-implementation';
 import { ImplTraitAddObserverForObservableStruct } from '../struct/implementations/observable-struct-add-observer-implementation';
 import { ImplTraitRemoveObserverForObservableStruct } from '../struct/implementations/observable-struct-remove-observer-implementation';

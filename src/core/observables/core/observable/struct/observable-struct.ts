@@ -1,5 +1,5 @@
 import { TGenericObserverLike } from '../../observer/observer-types';
-import { IEventListenerStruct } from '../../../../event-listener/struct/event-listener-struct';
+import { IEventListenerStruct } from '../../../../event-listener/raw/struct/event-listener-struct';
 import { IObservableEventMap } from '../observable-types';
 import { HasProperty, IsObject } from '@lifaon/traits';
 
