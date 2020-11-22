@@ -4,7 +4,4 @@ import { Trait, TraitEmit } from '@lifaon/traits';
 export abstract class TraitObserverEmit<GSelf, GValue> extends TraitEmit<GSelf, GValue, void> {
 }
 
-export type TInferTraitObserverEmitGValue<GTrait extends TraitObserverEmit<any, any>> =
-  GTrait extends TraitObserverEmit<any, infer GValue>
-    ? GValue
-    : never;
+export type TGenericTraitObserverEmit = TraitObserverEmit<any, any>;

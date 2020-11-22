@@ -1,8 +1,6 @@
 import { IPipePrivateContext, IPipeStruct, PIPE_PRIVATE_CONTEXT } from '../struct/pipe-struct';
-import {
-  IsObservableLike, TGenericObservableLike, TInferObservableLikeGObserver,
-} from '../../observable/observable-types';
-import { IsObserverLike } from '../../observer/observer-types';
+import { IObservableLike, IsObservableLike, } from '../../observable/observable-types';
+import { IsObserverLike, TGenericObserverLike } from '../../observer/observer-types';
 import { ImplTraitToggleForPipeStruct } from '../struct/implementations/pipe-struct-toggle-implementation';
 import { ImplTraitGetObservableForPipeStruct } from '../struct/implementations/pipe-struct-get-observable-implementation';
 import { ImplTraitGetObserverForPipeStruct } from '../struct/implementations/pipe-struct-get-observer-implementation';
@@ -13,7 +11,7 @@ import { AssembleTraitImplementations, CreatePrivateContext } from '@lifaon/trai
 
 /** CONSTRUCTOR **/
 
-export function ConstructPipe<GObservable extends TGenericObservableLike, GObserver extends TInferObservableLikeGObserver<GObservable>>(
+export function ConstructPipe<GObservable extends IObservableLike<GObserver>, GObserver extends TGenericObserverLike>(
   instance: IPipeStruct<GObservable, GObserver>,
   observable: GObservable,
   observer: GObserver,
@@ -39,31 +37,41 @@ export function ConstructPipe<GObservable extends TGenericObservableLike, GObser
 
 /** CLASS **/
 
-export interface IPipe<GObservable extends TGenericObservableLike, GObserver extends TInferObservableLikeGObserver<GObservable>> extends IPipeStruct<GObservable, GObserver>,
-  ImplTraitGetObservableForPipeStruct<IPipe<GObservable, GObserver>>,
-  ImplTraitGetObserverForPipeStruct<IPipe<GObservable, GObserver>>,
+export interface IPipeImplementations<GObservable extends IObservableLike<GObserver>, GObserver extends TGenericObserverLike> extends
+  // own implementations coming from activable
   ImplTraitIsActivatedForPipeStruct<IPipe<GObservable, GObserver>>,
   ImplTraitActivateForPipeStruct<IPipe<GObservable, GObserver>>,
   ImplTraitDeactivateForPipeStruct<IPipe<GObservable, GObserver>>,
-  ImplTraitToggleForPipeStruct<IPipe<GObservable, GObserver>> {
+  ImplTraitToggleForPipeStruct<IPipe<GObservable, GObserver>>,
+  // own implementations
+  ImplTraitGetObservableForPipeStruct<IPipe<GObservable, GObserver>, GObservable>,
+  ImplTraitGetObserverForPipeStruct<IPipe<GObservable, GObserver>, GObserver>
+  //
+{
 }
 
-export interface IAssembledPipeImplementations {
-  new<GObservable extends TGenericObservableLike, GObserver extends TInferObservableLikeGObserver<GObservable>>(): IPipe<GObservable, GObserver>;
-}
-
-export const PipeImplementationsCollection = [
-  ImplTraitGetObservableForPipeStruct,
-  ImplTraitGetObserverForPipeStruct,
+export const PipeImplementations = [
+  // own implementations coming from activable
   ImplTraitIsActivatedForPipeStruct,
   ImplTraitActivateForPipeStruct,
   ImplTraitDeactivateForPipeStruct,
   ImplTraitToggleForPipeStruct,
+  // own implementations
+  ImplTraitGetObservableForPipeStruct,
+  ImplTraitGetObserverForPipeStruct,
 ];
 
-const AssembledPipeImplementations = AssembleTraitImplementations<IAssembledPipeImplementations>(PipeImplementationsCollection);
+export interface IPipeImplementationsConstructor {
+  new<GObservable extends IObservableLike<GObserver>, GObserver extends TGenericObserverLike>(): IPipeImplementations<GObservable, GObserver>;
+}
 
-export class Pipe<GObservable extends TGenericObservableLike, GObserver extends TInferObservableLikeGObserver<GObservable>> extends AssembledPipeImplementations<GObservable, GObserver> implements IPipe<GObservable, GObserver> {
+
+export interface IPipe<GObservable extends IObservableLike<GObserver>, GObserver extends TGenericObserverLike> extends IPipeStruct<GObservable, GObserver>, IPipeImplementations<GObservable, GObserver> {
+}
+
+const PipeImplementationsConstructor = AssembleTraitImplementations<IPipeImplementationsConstructor>(PipeImplementations);
+
+export class Pipe<GObservable extends IObservableLike<GObserver>, GObserver extends TGenericObserverLike> extends PipeImplementationsConstructor<GObservable, GObserver> implements IPipe<GObservable, GObserver> {
   readonly [PIPE_PRIVATE_CONTEXT]: IPipePrivateContext<GObservable, GObserver>;
 
   constructor(

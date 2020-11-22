@@ -61,23 +61,29 @@ export function ConstructReason<GCode>(
 
 /** CLASS **/
 
-export interface IReason<GCode> extends IReasonStruct<GCode>,
+export interface IReasonImplementations<GCode> extends
+  // implementations
   ImplTraitGetCodeForReasonStruct<IReason<GCode>>,
   ImplTraitGetMessageForReasonStruct<IReason<GCode>>,
-  ImplTraitGetStackForReasonStruct<IReason<GCode>> {
+  ImplTraitGetStackForReasonStruct<IReason<GCode>>
+  //
+{
 }
 
-export interface IAssembledReasonImplementations {
-  new<GCode>(): IReason<GCode>;
-}
-
-export const ReasonImplementationsCollection = [
+export const ReasonImplementations = [
   ImplTraitGetCodeForReasonStruct,
   ImplTraitGetMessageForReasonStruct,
   ImplTraitGetStackForReasonStruct,
 ];
 
-const AssembledReasonImplementations = AssembleTraitImplementations<IAssembledReasonImplementations>(ReasonImplementationsCollection);
+export interface IReasonImplementationsConstructor {
+  new<GCode>(): IReasonImplementations<GCode>;
+}
+
+export interface IReason<GCode> extends IReasonStruct<GCode>, IReasonImplementations<GCode> {
+}
+
+const ReasonImplementationsConstructor = AssembleTraitImplementations<IReasonImplementationsConstructor>(ReasonImplementations);
 
 export interface IReasonConstructor {
   new(message: string): IReason<'unknown'>;
@@ -89,7 +95,7 @@ export interface IReasonConstructor {
   new<GCode>(options: IReasonOptionsWithCode<GCode>): IReason<GCode>;
 }
 
-export const Reason: IReasonConstructor = class Reason<GCode> extends AssembledReasonImplementations<GCode> implements IReason<GCode> {
+export const Reason: IReasonConstructor = class Reason<GCode> extends ReasonImplementationsConstructor<GCode> implements IReason<GCode> {
   readonly [REASON_PRIVATE_CONTEXT]: IReasonPrivateContext<GCode>;
 
   constructor(message: string);

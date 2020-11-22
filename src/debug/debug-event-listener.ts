@@ -1,6 +1,9 @@
 import { EventListener } from '../core/event-listener/raw/class/event-listener-class';
-import { TKeyValueMapToKeyValueTupleUnion } from '@lifaon/traits';
+import {
+  EventListenerOnceQueued, EventListenerOnWithEmulatedQueuedUnsubscribe, TKeyValueMapToKeyValueTupleUnion
+} from '@lifaon/traits';
 import { EventListenerFromEventTarget } from '../core/event-listener/from-event-target/class/event-listener-from-event-target-class';
+import { Queue } from '../core/queue/class/queue-class';
 
 export async function debugBrowserEventListener() {
   const event1_1 = () => {
@@ -52,30 +55,39 @@ export async function debugEventListener1() {
   // const a: TInferKeyValueTupleUnionGKey<KVUnion>;
   const eventListener = new EventListener<KVUnion>();
 
-  eventListener
-    .once('event1', (value: number) => {
-      console.log('event1 once');
-    });
 
-  let queue = Promise.resolve();
+
+
+  let queue = new Queue();
 
   queue = queue
-    .then(() => {
-      const undo1 = eventListener.on('event1', (value: number) => {
-        queue = queue
-          .then(undo1)
-          .then(() => {
+    .queue(() => {
+      return EventListenerOnceQueued(eventListener, 'event1', (value: number) => {
+        console.log('event1 once - 1', value);
+      }).then(() => {});
+    })
+    .queue(() => {
+      const unsubscribe = EventListenerOnWithEmulatedQueuedUnsubscribe(eventListener, 'event1', (value: number) => {
+        console.log('event1 once - 2', value);
+        unsubscribe();
+      });
+    })
+    .queue(() => {
+      const unsubscribe = eventListener.on('event1', (value: number) => {
+         queue
+          .queue(unsubscribe)
+          .queue(() => {
             eventListener.dispatch('event1', 2);
           });
         console.log('event1-1', value);
       });
     })
-    .then(() => {
+    .queue(() => {
       eventListener.on('event1', (value: number) => {
         console.log('event1-2', value);
       });
     })
-    .then(() => {
+    .queue(() => {
       eventListener.dispatch('event1', 1);
     });
 
@@ -88,7 +100,7 @@ export async function debugEventListener2() {
   const eventListener = new EventListenerFromEventTarget<KVUnion>(window);
 
   eventListener
-    .once('click', (event: MouseEvent) => {
+    .on('click', (event: MouseEvent) => {
       console.log(event);
     });
 
@@ -99,7 +111,7 @@ export async function debugEventListener2() {
 export async function debugEventListener() {
   // console.log('debugEventListener');
   //  await debugBrowserEventListener();
-  // await debugEventListener1();
+  await debugEventListener1();
   await debugEventListener2();
 }
 

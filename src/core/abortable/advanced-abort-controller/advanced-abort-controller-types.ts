@@ -1,6 +1,6 @@
 import { TraitIsImplementedBy } from '@lifaon/traits';
 import {
-  IAdvancedAbortSignalLike, TGenericAdvancedAbortSignalLike
+  IAdvancedAbortSignalLikeWithEvents, TGenericAdvancedAbortSignalLike
 } from '../advanced-abort-signal/advanced-abort-signal-types';
 import {
   TInferTraitAdvancedAbortControllerGetSignalGSignal, TraitAdvancedAbortControllerGetSignal
@@ -22,5 +22,5 @@ export function IsAdvancedAbortControllerLike<GSignal extends TGenericAdvancedAb
 
 /** TYPES **/
 
-export type TAbortSignalLike = AbortSignal | IAdvancedAbortSignalLike;
+export type TAbortSignalLike = AbortSignal | IAdvancedAbortSignalLikeWithEvents;
 export type TAbortSignalLikeOrUndefined = TAbortSignalLike | undefined;

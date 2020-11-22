@@ -5,11 +5,11 @@ import {
 import { TraitAdvancedAbortSignalWrapFetchArguments } from './trait-advanced-abort-signal-wrap-fetch-arguments';
 
 
-export interface ITraitAdvancedAbortSignalWrapFetchArgumentsGSelfConstraint extends ILinkAdvancedAbortSignalWithFetchArgumentsAdvancedAbortSignal {
+export interface ITraitAdvancedAbortSignalWrapFetchArgumentsUsingToAbortControllerGSelfConstraint extends ILinkAdvancedAbortSignalWithFetchArgumentsAdvancedAbortSignal {
 }
 
 @Trait()
-export abstract class TraitAdvancedAbortSignalWrapFetchArgumentsUsingToAbortController<GSelf extends ITraitAdvancedAbortSignalWrapFetchArgumentsGSelfConstraint> extends TraitAdvancedAbortSignalWrapFetchArguments<GSelf> {
+export abstract class TraitAdvancedAbortSignalWrapFetchArgumentsUsingToAbortController<GSelf extends ITraitAdvancedAbortSignalWrapFetchArgumentsUsingToAbortControllerGSelfConstraint> extends TraitAdvancedAbortSignalWrapFetchArguments<GSelf> {
   wrapFetchArguments(
     this: GSelf,
     requestInfo: RequestInfo, requestInit?: RequestInit

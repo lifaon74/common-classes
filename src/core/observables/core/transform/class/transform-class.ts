@@ -32,23 +32,31 @@ export function ConstructTransform<GObserver extends TGenericObserverLike, GObse
 
 /** CLASS **/
 
-export interface ITransform<GObserver extends TGenericObserverLike, GObservable extends TGenericObservableLike> extends ITransformStruct<GObserver, GObservable>,
-  ImplTraitGetObservableForTransformStruct<ITransform<GObserver, GObservable>>,
-  ImplTraitGetObserverForTransformStruct<ITransform<GObserver, GObservable>> {
+export interface ITransformImplementation<GObserver extends TGenericObserverLike, GObservable extends TGenericObservableLike> extends
+  // implementations
+  ImplTraitGetObservableForTransformStruct<ITransform<GObserver, GObservable>, GObservable>,
+  ImplTraitGetObserverForTransformStruct<ITransform<GObserver, GObservable>, GObserver>
+  //
+{
 }
 
-export interface IAssembledTransformImplementations {
-  new<GObserver extends TGenericObserverLike, GObservable extends TGenericObservableLike>(): ITransform<GObserver, GObservable>;
-}
-
-export const TransformImplementationsCollection = [
+export const TransformImplementations = [
   ImplTraitGetObservableForTransformStruct,
   ImplTraitGetObserverForTransformStruct,
 ];
 
-const AssembledTransformImplementations = AssembleTraitImplementations<IAssembledTransformImplementations>(TransformImplementationsCollection);
 
-export class Transform<GObserver extends TGenericObserverLike, GObservable extends TGenericObservableLike> extends AssembledTransformImplementations<GObserver, GObservable> implements ITransform<GObserver, GObservable> {
+export interface ITransformImplementationsConstructor {
+  new<GObserver extends TGenericObserverLike, GObservable extends TGenericObservableLike>(): ITransformImplementation<GObserver, GObservable>;
+}
+
+
+export interface ITransform<GObserver extends TGenericObserverLike, GObservable extends TGenericObservableLike> extends ITransformStruct<GObserver, GObservable>, ITransformImplementation<GObserver, GObservable> {
+}
+
+const TransformImplementationsConstructor = AssembleTraitImplementations<ITransformImplementationsConstructor>(TransformImplementations);
+
+export class Transform<GObserver extends TGenericObserverLike, GObservable extends TGenericObservableLike> extends TransformImplementationsConstructor<GObserver, GObservable> implements ITransform<GObserver, GObservable> {
   readonly [TRANSFORM_PRIVATE_CONTEXT]: ITransformPrivateContext<GObserver, GObservable>;
 
   constructor(

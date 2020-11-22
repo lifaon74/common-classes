@@ -1,37 +1,27 @@
-import {
-  IPipeThroughPrivateContext, IPipeThroughStruct, PIPE_THROUGH_PRIVATE_CONTEXT, TGenericPipeThroughStruct,
-} from '../pipe-through-struct';
-import { TGenericObservableLike } from '../../../observable/observable-types';
-import { ITransformLike } from '../../../transform/transform-types';
-import { TGenericObserverLike } from '../../../observer/observer-types';
-import { Impl, TraitActivate, TraitEventListenerOn } from '@lifaon/traits';
+import { IPipeThroughPrivateContext, IPipeThroughStruct, PIPE_THROUGH_PRIVATE_CONTEXT, } from '../pipe-through-struct';
+import { Impl, TraitActivate } from '@lifaon/traits';
+import { TGenericObservableLikeWithEventListenerOnForActiveAndInactive } from '../../pipe-through-types';
+import { TGenericPipeLike } from '../../../pipe/pipe-types';
+import { TEventListenerOnUnsubscribe } from '@lifaon/traits/src/built-in-traits/event-listener/event-listener-types';
 
-export interface TImplTraitActivateForPipeThroughStructGSelfConstraint<GSelf extends TGenericPipeThroughStruct> extends IPipeThroughStruct<TGenericObservableLike, TGenericTransformWithObservableHavingEventListenerOn> {
-
-}
-
-type TGenericTransformWithObservableHavingEventListenerOn = ITransformLike<TGenericObserverLike, TGenericObservableLikeWithEventListenerOn>;
-
-interface TGenericObservableLikeWithEventListenerOnEventMap {
-  'active': void;
-  'inactive': void;
-}
-
-export interface TGenericObservableLikeWithEventListenerOn extends TGenericObservableLike, TraitEventListenerOn<any, TGenericObservableLikeWithEventListenerOnEventMap> {
-}
 
 @Impl()
-export class ImplTraitActivateForPipeThroughStruct<GSelf extends TImplTraitActivateForPipeThroughStructGSelfConstraint<GSelf>> extends TraitActivate<GSelf, GSelf> {
+export class ImplTraitActivateForPipeThroughStruct<// generics
+  GSelf extends IPipeThroughStruct<TGenericPipeLike, GObservable>,
+  GObservable extends TGenericObservableLikeWithEventListenerOnForActiveAndInactive
+//
+  > extends TraitActivate<GSelf, GSelf> {
   activate(this: GSelf): GSelf {
-    const context: IPipeThroughPrivateContext<TGenericObservableLike, TGenericTransformWithObservableHavingEventListenerOn> = this[PIPE_THROUGH_PRIVATE_CONTEXT];
+    const context: IPipeThroughPrivateContext<TGenericPipeLike, GObservable> = this[PIPE_THROUGH_PRIVATE_CONTEXT];
     if (context.undo === null) {
-      const undoActiveListener = context.observable.on('active', () => context.pipe.activate());
-      const undoInactiveListener = context.observable.on('inactive', () => context.pipe.deactivate());
+      const observable: GObservable = context.observable;
+      const undoActiveListener: TEventListenerOnUnsubscribe = observable.on('active', () => context.pipe.activate());
+      const undoInactiveListener: TEventListenerOnUnsubscribe = observable.on('inactive', () => context.pipe.deactivate());
       context.undo = () => {
         undoActiveListener();
         undoInactiveListener();
       };
-      if (context.observable.isActive()) {
+      if (observable.isActive()) {
         context.pipe.activate();
       }
     }

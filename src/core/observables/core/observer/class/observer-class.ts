@@ -24,21 +24,29 @@ export function ConstructObserver<GValue>(
 
 /** CLASS **/
 
-export interface IObserver<GValue> extends IObserverStruct<GValue>,
-  ImplTraitEmitForObserverStruct<IObserver<GValue>> {
+export interface IObserverImplementations<GValue> extends
+  // implementations
+  ImplTraitEmitForObserverStruct<IObserver<GValue>, GValue>
+  //
+{
 }
 
-export interface IAssembledObserverImplementations {
-  new<GValue>(): IObserver<GValue>;
-}
-
-export const ObserverImplementationsCollection = [
+export const ObserverImplementations = [
   ImplTraitEmitForObserverStruct,
 ];
 
-const AssembledObserverImplementations = AssembleTraitImplementations<IAssembledObserverImplementations>(ObserverImplementationsCollection);
 
-export class Observer<GValue> extends AssembledObserverImplementations<GValue> implements IObserver<GValue> {
+export interface IObserverImplementationsConstructor {
+  new<GValue>(): IObserverImplementations<GValue>;
+}
+
+
+export interface IObserver<GValue> extends IObserverStruct<GValue>, IObserverImplementations<GValue> {
+}
+
+const ObserverImplementationsConstructor = AssembleTraitImplementations<IObserverImplementationsConstructor>(ObserverImplementations);
+
+export class Observer<GValue> extends ObserverImplementationsConstructor<GValue> implements IObserver<GValue> {
   readonly [OBSERVER_PRIVATE_CONTEXT]: IObserverPrivateContext<GValue>;
 
   constructor(emit: TObserverEmitFunction<GValue>) {

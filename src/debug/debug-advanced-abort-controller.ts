@@ -4,6 +4,12 @@ import {
   TTraitAdvancedAbortSignalWrapPromiseOnAborted,
   TTraitAdvancedAbortSignalWrapPromiseOnFulfilled, TTraitAdvancedAbortSignalWrapPromiseOnRejected
 } from '../core/abortable/advanced-abort-signal/traits/trait-advanced-abort-signal-wrap-promise/trait-advanced-abort-signal-wrap-promise';
+import { Reason } from '../core/reason/class/reason-class';
+import { TraitIsImplementedBy } from '@lifaon/traits';
+import { TraitReasonGetStack } from '../core/reason/traits/trait-reason-get-stack';
+import { noopOnAborted } from '../core/abortable/advanced-abort-signal/traits/trait-advanced-abort-signal-wrap-function/function/noop-on-aborted';
+import { throwOnAborted } from '../core/abortable/advanced-abort-signal/traits/trait-advanced-abort-signal-wrap-function/function/throw-on-aborted';
+
 
 
 // https://github.com/lifaon74/observables/blob/master/src/misc/advanced-abort-controller/advanced-abort-signal/types.ts
@@ -32,18 +38,6 @@ export function debugAdvancedAbortController1() {
       );
   };
 
-  // signal
-  //   .on('abort', (reason: any) => {
-  //     console.log('aborted !', reason);
-  //   });
-  //
-  // fetch('https://www.w3.org/TR/PNG/iso_8859-1.txt', { mode: 'no-cors', signal: signal.toAbortController().signal })
-  //   .then((response: Response) => {
-  //     console.log(response);
-  //   })
-
-  const p0 = Promise.resolve<string>('a');
-
   const logPromise = <GValue>(name: string): [TTraitAdvancedAbortSignalWrapPromiseOnFulfilled<GValue>, TTraitAdvancedAbortSignalWrapPromiseOnRejected, TTraitAdvancedAbortSignalWrapPromiseOnAborted,]  => {
     return [
       (value: GValue) => {
@@ -54,13 +48,42 @@ export function debugAdvancedAbortController1() {
       },
       (reason: any) => {
         console.log('[ABORT]', name, reason);
+        if (TraitIsImplementedBy(TraitReasonGetStack, reason)) {
+          console.log(reason.getStack());
+        }
       },
     ];
   }
 
-  signal.wrapPromise(p0, ...logPromise('p1'));
 
-  controller.abort('any reason');
+  // signal
+  //   .on('abort', (reason: any) => {
+  //     console.log('aborted !', reason);
+  //   });
+  //
+  // const p0 = fetch('https://www.w3.org/TR/PNG/iso_8859-1.txt', { mode: 'no-cors', signal: signal.toAbortController().signal })
+  //   .then((response: Response) => {
+  //     console.log(response);
+  //   })
+
+  // const p0 = Promise.resolve<string>('a');
+
+  const p0 = fetch(...signal.wrapFetchArguments('https://www.w3.org/TR/PNG/iso_8859-1.txt'))
+    .then((response: Response) => {
+      console.log(response);
+    })
+
+  signal.wrapPromise(p0, ...logPromise('p0'));
+
+  const fnc = signal.wrapFunction((value: string) => {
+    console.log('value', value);
+  }, noopOnAborted);
+
+  fnc('hello 1');
+
+  controller.abort(new Reason('manual abort'));
+
+  fnc('hello 2');
 }
 
 
@@ -93,3 +116,4 @@ export function debugAdvancedAbortController1() {
 export async function debugAdvancedAbortController() {
   await debugAdvancedAbortController1();
 }
+

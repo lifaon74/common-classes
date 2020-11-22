@@ -6,7 +6,5 @@ export abstract class TraitObservableAddObserver<GSelf, GObserver extends TGener
   abstract addObserver(this: GSelf, observer: GObserver): GSelf;
 }
 
-export type TInferTraitObservableAddObserverGObserver<GTrait extends TraitObservableAddObserver<any, any>> =
-  GTrait extends TraitObservableAddObserver<any, infer GObserver>
-    ? GObserver
-    : never;
+export type TGenericTraitObservableAddObserver = TraitObservableAddObserver<any, any>;
+

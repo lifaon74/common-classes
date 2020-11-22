@@ -6,7 +6,6 @@ import { ImplTraitEventListenerIsDispatchingForEventListenerStruct } from '../st
 import {
   AssembleTraitImplementations, CreatePrivateContext, TGenericKeyValueTupleUnion, TInferKeyValueTupleUnionGKey,
 } from '@lifaon/traits';
-import { ImplTraitEventListenerOnceForEventListenerStruct } from '../struct/implementations/event-listener-struct-once-implementation';
 import { ImplTraitEventListenerDispatchForEventListenerStruct } from '../struct/implementations/event-listener-struct-dispatch-implementation';
 
 
@@ -27,28 +26,32 @@ export function ConstructEventListener<GKeyValueTupleUnion extends TGenericKeyVa
 
 /** CLASS **/
 
-export interface IEventListener<GKeyValueTupleUnion extends TGenericKeyValueTupleUnion> extends IEventListenerStruct<GKeyValueTupleUnion>,
+export interface IEventListenerImplementations<GKeyValueTupleUnion extends TGenericKeyValueTupleUnion> extends
+  // implementations
   ImplTraitEventListenerDispatchForEventListenerStruct<IEventListener<GKeyValueTupleUnion>, GKeyValueTupleUnion>,
   ImplTraitEventListenerIsDispatchingForEventListenerStruct<IEventListener<GKeyValueTupleUnion>>,
-  ImplTraitEventListenerOnForEventListenerStruct<IEventListener<GKeyValueTupleUnion>, GKeyValueTupleUnion>,
-  ImplTraitEventListenerOnceForEventListenerStruct<IEventListener<GKeyValueTupleUnion>, GKeyValueTupleUnion> {
+  ImplTraitEventListenerOnForEventListenerStruct<IEventListener<GKeyValueTupleUnion>, GKeyValueTupleUnion>
+  //
+{
 }
 
-
-export interface IAssembledEventListenerImplementations {
-  new<GKeyValueTupleUnion extends TGenericKeyValueTupleUnion>(): IEventListener<GKeyValueTupleUnion>;
-}
-
-export const EventListenerImplementationsCollection = [
+export const EventListenerImplementations = [
   ImplTraitEventListenerDispatchForEventListenerStruct,
   ImplTraitEventListenerIsDispatchingForEventListenerStruct,
   ImplTraitEventListenerOnForEventListenerStruct,
-  ImplTraitEventListenerOnceForEventListenerStruct,
 ];
 
-const AssembledEventListenerImplementations = AssembleTraitImplementations<IAssembledEventListenerImplementations>(EventListenerImplementationsCollection);
+export interface IEventListenerImplementationsConstructor {
+  new<GKeyValueTupleUnion extends TGenericKeyValueTupleUnion>(): IEventListenerImplementations<GKeyValueTupleUnion>;
+}
 
-export class EventListener<GKeyValueTupleUnion extends TGenericKeyValueTupleUnion> extends AssembledEventListenerImplementations<GKeyValueTupleUnion> implements IEventListener<GKeyValueTupleUnion> {
+
+export interface IEventListener<GKeyValueTupleUnion extends TGenericKeyValueTupleUnion> extends IEventListenerStruct<GKeyValueTupleUnion>, IEventListenerImplementations<GKeyValueTupleUnion> {
+}
+
+const EventListenerImplementationsConstructor = AssembleTraitImplementations<IEventListenerImplementationsConstructor>(EventListenerImplementations);
+
+export class EventListener<GKeyValueTupleUnion extends TGenericKeyValueTupleUnion> extends EventListenerImplementationsConstructor<GKeyValueTupleUnion> implements IEventListener<GKeyValueTupleUnion> {
   readonly [EVENT_LISTENER_PRIVATE_CONTEXT]: IEventListenerPrivateContext<GKeyValueTupleUnion>;
 
   constructor() {

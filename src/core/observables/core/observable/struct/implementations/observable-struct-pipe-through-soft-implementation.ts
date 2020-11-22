@@ -1,7 +1,7 @@
 import { TGenericObservableLike } from '../../observable-types';
-import { TraitObservablePipeThroughSoft } from '../../traits/trait-observable-pipe-through-soft';
 import { Impl } from '@lifaon/traits';
+import { TraitObservablePipeThroughSoftUsingPipeThroughClass } from '../../traits/trait-observable-pipe-through/trait-observable-pipe-through-soft-using-pipe-through-class';
 
 @Impl()
-export class ImplTraitObservablePipeThroughSoftForObservableStruct<GSelf extends TGenericObservableLike> extends TraitObservablePipeThroughSoft<GSelf> {
+export class ImplTraitObservablePipeThroughSoftForObservableStruct<GSelf extends TGenericObservableLike> extends TraitObservablePipeThroughSoftUsingPipeThroughClass<GSelf> {
 }

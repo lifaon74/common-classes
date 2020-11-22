@@ -4,6 +4,7 @@ import {
 import { ImplTraitGetNameForNotificationStruct } from '../struct/implementations/notification-struct-get-name-implementation';
 import { ImplTraitGetValueForNotificationStruct } from '../struct/implementations/notification-struct-get-value-implementation';
 import { AssembleTraitImplementations, CreatePrivateContext } from '@lifaon/traits';
+import { TGenericEventLike } from '../../event-listener/event-listener-types';
 
 /** CONSTRUCTOR **/
 
@@ -28,29 +29,30 @@ export function ConstructNotification<GName extends string, GValue>(
 
 /** CLASS **/
 
-export interface INotification<GName extends string, GValue> extends INotificationStruct<GName, GValue>,
+export interface INotificationImplementations<GName extends string, GValue> extends
+  // implementations
   ImplTraitGetNameForNotificationStruct<INotification<GName, GValue>>,
   ImplTraitGetValueForNotificationStruct<INotification<GName, GValue>> {
 }
 
-export interface IAssembledNotificationImplementations {
-  new<GName extends string, GValue>(): INotification<GName, GValue>;
-}
-
-export const NotificationImplementationsCollection = [
+export const NotificationImplementations = [
   ImplTraitGetNameForNotificationStruct,
   ImplTraitGetValueForNotificationStruct,
 ];
 
-const AssembledNotificationImplementations = AssembleTraitImplementations<IAssembledNotificationImplementations>(NotificationImplementationsCollection);
-
-// TODO temporally only !!!!
-export interface IEventLike extends Event {
+export interface INotificationImplementationsConstructor {
+  new<GName extends string, GValue>(): INotificationImplementations<GName, GValue>;
 }
 
-export class Notification<GName extends string, GValue> extends AssembledNotificationImplementations<GName, GValue> implements INotification<GName, GValue> {
+export interface INotification<GName extends string, GValue> extends INotificationStruct<GName, GValue>, INotificationImplementations<GName, GValue> {
+}
 
-  static fromEvent<GName extends string, GEvent extends IEventLike>(event: GEvent): INotification<GName, GEvent> {
+const NotificationImplementationsConstructor = AssembleTraitImplementations<INotificationImplementationsConstructor>(NotificationImplementations);
+
+
+export class Notification<GName extends string, GValue> extends NotificationImplementationsConstructor<GName, GValue> implements INotification<GName, GValue> {
+
+  static fromEvent<GName extends string, GEvent extends TGenericEventLike>(event: GEvent): INotification<GName, GEvent> {
     return new Notification<GName, GEvent>(event.type as GName, event);
   }
 

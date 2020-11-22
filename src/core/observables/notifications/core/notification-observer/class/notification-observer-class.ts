@@ -2,9 +2,7 @@ import {
   INotificationObserverPrivateContext, INotificationObserverStruct, NOTIFICATION_OBSERVER_PRIVATE_CONTEXT,
 } from '../struct/notification-observer-struct';
 import { ImplTraitGetNameForNotificationObserverStruct } from '../struct/implementations/notification-observer-struct-get-name-implementation';
-import {
-  ConstructObserver, IObserver, ObserverImplementationsCollection,
-} from '../../../../core/observer/class/observer-class';
+import { ConstructObserver, IObserver, ObserverImplementations, } from '../../../../core/observer/class/observer-class';
 import { TNotificationObserverCallback } from '../notification-observer-types';
 import { AssembleTraitImplementations, CreatePrivateContext } from '@lifaon/traits';
 import { INotificationLike } from '../../../../../notification/notification-types';
@@ -43,7 +41,7 @@ export interface IAssembledNotificationObserverImplementations {
 }
 
 export const NotificationObserverImplementationsCollection = [
-  ...ObserverImplementationsCollection,
+  ...ObserverImplementations,
   ImplTraitGetNameForNotificationObserverStruct,
 ];
 

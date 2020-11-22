@@ -16,3 +16,7 @@ export function IsEventListenerLike<GKeyValueTupleUnion extends TGenericKeyValue
 
 /** TYPES **/
 
+export interface IEventLike extends Pick<Event, 'type'> {
+}
+
+export type TGenericEventLike = IEventLike;

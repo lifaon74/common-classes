@@ -1,9 +1,13 @@
 import { TraitActivate, TraitDeactivate, TraitIsActivated, TraitIsImplementedBy, TraitToggle } from '@lifaon/traits';
 
-export interface IActivableLike<GReturn> extends TraitIsActivated<any>,
+export interface IActivableLike<GReturn> extends
+  // traits
+  TraitIsActivated<any>,
   TraitActivate<any, GReturn>,
   TraitDeactivate<any, GReturn>,
-  TraitToggle<any, GReturn> {
+  TraitToggle<any, GReturn>
+  //
+{
 }
 
 export function IsActivableLike<GReturn>(value: any): value is IActivableLike<GReturn> {

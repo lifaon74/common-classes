@@ -1,5 +1,9 @@
-import { EventListenerOnWithAsyncUnsubscribe, Trait, TraitEventListenerOn } from '@lifaon/traits';
-import { TEventListenerOnUnsubscribeAsync } from '@lifaon/traits/src/build-in-traits/event-listener/trait-event-listener-on/event-listener-on-with-async-unsubscribe';
+import {
+  EventListenerAwaitUntilNotDispatching,
+  EventListenerOnceQueued, TEventListenerOnUnsubscribe,
+  Trait, TraitEventListenerIsDispatching,
+  TraitEventListenerOn
+} from '@lifaon/traits';
 import { TAdvancedAbortSignalKeyValueTupleUnion } from '../../advanced-abort-signal-types';
 import {
   TraitAdvancedAbortSignalWrapPromise, TTraitAdvancedAbortSignalWrapPromiseOnAborted,
@@ -7,7 +11,6 @@ import {
 } from './trait-advanced-abort-signal-wrap-promise';
 import { TraitAdvancedAbortSignalIsAborted } from '../trait-advanced-abort-signal-is-aborted';
 import { TraitAdvancedAbortSignalGetReason } from '../trait-advanced-abort-signal-get-reason';
-import { TraitEventListenerIsDispatching } from '@lifaon/traits/src/build-in-traits/event-listener/trait-event-listener-is-dispatching/trait-event-listener-is-dispatching';
 
 export interface ITraitAdvancedAbortSignalWrapPromiseUsingAndIsAbortedAndOnAndIsDispatchingGSelfConstraint extends TraitAdvancedAbortSignalGetReason<any>,
   TraitAdvancedAbortSignalIsAborted<any>,
@@ -16,7 +19,7 @@ export interface ITraitAdvancedAbortSignalWrapPromiseUsingAndIsAbortedAndOnAndIs
 }
 
 @Trait()
-export abstract class TraitAdvancedAbortSignalWrapPromiseUsingGetReasonAndIsAbortedAndOnAndIsDispatching<GSelf extends ITraitAdvancedAbortSignalWrapPromiseUsingAndIsAbortedAndOnAndIsDispatchingGSelfConstraint>  extends TraitAdvancedAbortSignalWrapPromise<GSelf> {
+export abstract class TraitAdvancedAbortSignalWrapPromiseUsingGetReasonAndIsAbortedAndOnAndIsDispatching<GSelf extends ITraitAdvancedAbortSignalWrapPromiseUsingAndIsAbortedAndOnAndIsDispatchingGSelfConstraint> extends TraitAdvancedAbortSignalWrapPromise<GSelf> {
   wrapPromise<GValue>(
     this: GSelf,
     promise: Promise<GValue>,
@@ -27,25 +30,31 @@ export abstract class TraitAdvancedAbortSignalWrapPromiseUsingGetReasonAndIsAbor
     if (this.isAborted()) {
       onAborted(this.getReason());
     } else {
-      const unsubscribe: TEventListenerOnUnsubscribeAsync = EventListenerOnWithAsyncUnsubscribe<TAdvancedAbortSignalKeyValueTupleUnion, 'abort'>(
-        this,
-        'abort',
-        () => {
-          unsubscribe();
+      let done: boolean = false;
+
+      const clear = () => {
+        done = true;
+        EventListenerAwaitUntilNotDispatching(this, unsubscribe);
+      };
+
+      const unsubscribe: TEventListenerOnUnsubscribe = this.on('abort', () => {
+        if (!done) {
+          clear();
           onAborted(this.getReason());
         }
-      );
+      });
+
       promise
         .then(
           (value: GValue) => {
-            if (!this.isAborted()) {
-              unsubscribe();
+            if (!done) {
+              clear();
               onFulfilled(value);
             }
           },
           (error: any) => {
-            if (!this.isAborted()) {
-              unsubscribe();
+            if (!done) {
+              clear();
               onRejected(error);
             }
           },

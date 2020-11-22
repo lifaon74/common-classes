@@ -5,15 +5,14 @@ import {
   IAdvancedAbortSignalLike, IsAdvancedAbortSignalLike, TAdvancedAbortSignalKeyValueTupleUnion
 } from '../../../advanced-abort-signal/advanced-abort-signal-types';
 import { AbortReason } from '../../../../reason/class/built-in/abort-reason';
-import { EventListener } from '../../../../event-listener/raw/class/event-listener-class';
-import { TKeyValueMapToKeyValueTupleUnion } from '@lifaon/traits';
+import {
+  EventListenerOnWithAsyncUnsubscribe, TraitEventListenerIsDispatching, TraitEventListenerOn, TEventListenerOnUnsubscribeAsync
+} from '@lifaon/traits';
 import { EventListenerFromEventTarget } from '../../../../event-listener/from-event-target/class/event-listener-from-event-target-class';
-import { IEventListenerLike } from '../../../../event-listener/event-listener-types';
 
 export function AdvancedAbortControllerFromAbortSignals(
   signals: TAbortSignalLikeOrUndefined[]
 ): AdvancedAbortController {
-  // throw 'TODO'; // TODO
   const advancedAbortController: AdvancedAbortController = new AdvancedAbortController();
 
   const _signals: TAbortSignalLike[] = signals
@@ -45,68 +44,40 @@ export function AdvancedAbortControllerFromAbortSignals(
 
   /* no signal aborted yet */
 
-  // TODO continue here
-  const signalObservers: TSignalObserver[] = _signals.map((signal: TAbortSignalLike) => {
-    const eventListener: IAdvancedAbortSignalLike = (
+  const clear = () => {
+    for (let i = 0, l = unsubscribeSignalList.length; i < l; i++) {
+      unsubscribeSignalList[i]();
+    }
+    unsubscribeOwnSignal();
+  };
+
+  // in the case of our instance.signal is aborted, it's no more required to listen to 'abort' from input 'signal'
+  const unsubscribeOwnSignal: TEventListenerOnUnsubscribeAsync = EventListenerOnWithAsyncUnsubscribe<TAdvancedAbortSignalKeyValueTupleUnion, 'abort'>(
+    advancedAbortController.getSignal(),
+    'abort',
+    clear
+  );
+
+  const unsubscribeSignalList: TEventListenerOnUnsubscribeAsync[] = _signals.map((signal: TAbortSignalLike) => {
+    interface TEventListener extends TraitEventListenerOn<any, TAdvancedAbortSignalKeyValueTupleUnion>, TraitEventListenerIsDispatching<any> {
+    }
+
+    const eventListener: TEventListener = (
       IsAbortSignal(signal)
         ? new EventListenerFromEventTarget<TAdvancedAbortSignalKeyValueTupleUnion>(signal)
         : signal
     );
-    return observable.addListener('abort', () => {
-      clear();
-      abort(signal);
-    });
+
+    return EventListenerOnWithAsyncUnsubscribe<TAdvancedAbortSignalKeyValueTupleUnion, 'abort'>(
+      eventListener,
+      'abort',
+      () => {
+        clear();
+        abort(signal);
+      }
+    );
   });
 
-
-  const clear = () => {
-    for (let i = 0, l = signalObservers.length; i < l; i++) {
-      signalObservers[i].deactivate();
-    }
-    signalListener.deactivate();
-  };
-
-  // in the case of our instance.signal is aborted, it's no more required to listen to 'abort' from input 'signal'
-  const signalListener: INotificationsObserver<'abort', any> = advancedAbortController.signal.addListener('abort', clear);
-
-  // activate all
-  for (let i = 0, l = signalObservers.length; i < l; i++) {
-    signalObservers[i].activate();
-  }
-  signalListener.activate();
-
-
-  // type TSignalObserver = INotificationsObserver<'abort', void>;
-  // type TSignalObservable = IBaseNotificationsObservable<'abort', void>;
-  //
-  // const signalObservers: TSignalObserver[] = _signals.map((signal: TAbortSignalLike) => {
-  //   const observable: TSignalObservable = (
-  //     IsAbortSignal(signal)
-  //       ? new EventsObservable<AbortSignalEventMap>(signal)
-  //       : signal
-  //   ) as TSignalObservable;
-  //   return observable.addListener('abort', () => {
-  //     clear();
-  //     abort(signal);
-  //   });
-  // });
-  //
-  //
-  // const clear = () => {
-  //   for (let i = 0, l = signalObservers.length; i < l; i++) {
-  //     signalObservers[i].deactivate();
-  //   }
-  //   signalListener.deactivate();
-  // };
-  //
-  // // in the case of our instance.signal is aborted, it's no more required to listen to 'abort' from input 'signal'
-  // const signalListener: INotificationsObserver<'abort', any> = instance.signal.addListener('abort', clear);
-  //
-  // // activate all
-  // for (let i = 0, l = signalObservers.length; i < l; i++) {
-  //   signalObservers[i].activate();
-  // }
-  // signalListener.activate();
 
   return advancedAbortController;
 }

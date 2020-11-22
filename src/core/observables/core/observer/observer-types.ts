@@ -1,4 +1,4 @@
-import { TInferTraitObserverEmitGValue, TraitObserverEmit } from './traits/trait-observer-emit';
+import { TraitObserverEmit } from './traits/trait-observer-emit';
 import { TraitIsImplementedBy } from '@lifaon/traits';
 
 export interface IObserverLike<GValue> extends TraitObserverEmit<any, GValue> {
@@ -6,7 +6,10 @@ export interface IObserverLike<GValue> extends TraitObserverEmit<any, GValue> {
 
 export type TGenericObserverLike = IObserverLike<any>;
 
-export type TInferObserverLikeGValue<GObserverLike extends TGenericObserverLike> = TInferTraitObserverEmitGValue<GObserverLike>;
+export type TInferObserverLikeGValue<GObserver extends TGenericObserverLike> =
+  GObserver extends IObserverLike<infer GValue>
+    ? GValue
+    : never;
 
 export function IsObserverLike<GValue>(value: any): value is IObserverLike<GValue> {
   return TraitIsImplementedBy(TraitObserverEmit, value);

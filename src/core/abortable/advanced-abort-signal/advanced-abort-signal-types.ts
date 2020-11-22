@@ -1,9 +1,11 @@
-import { TKeyValueTuple, TraitIsImplementedBy } from '@lifaon/traits';
+import { TKeyValueTuple, TraitEventListenerOn, TraitIsImplementedBy, TraitEventListenerIsDispatching } from '@lifaon/traits';
 import { TraitAdvancedAbortSignalIsAborted } from './traits/trait-advanced-abort-signal-is-aborted';
 import { TraitAdvancedAbortSignalGetReason } from './traits/trait-advanced-abort-signal-get-reason';
 
-export interface IAdvancedAbortSignalLike extends TraitAdvancedAbortSignalIsAborted<any>,
-  TraitAdvancedAbortSignalGetReason<any> {
+/** ADVANCED ABORT SIGNAL LIKE **/
+
+export interface IAdvancedAbortSignalLike extends TraitAdvancedAbortSignalGetReason<any>,
+  TraitAdvancedAbortSignalIsAborted<any> {
 }
 
 export type TGenericAdvancedAbortSignalLike = IAdvancedAbortSignalLike;
@@ -12,6 +14,21 @@ export type TGenericAdvancedAbortSignalLike = IAdvancedAbortSignalLike;
 export function IsAdvancedAbortSignalLike(value: any): value is IAdvancedAbortSignalLike {
   return TraitIsImplementedBy(TraitAdvancedAbortSignalGetReason, value)
     && TraitIsImplementedBy(TraitAdvancedAbortSignalIsAborted, value);
+}
+
+/** ADVANCED ABORT SIGNAL LIKE WITH EVENTS **/
+
+export interface IAdvancedAbortSignalLikeWithEvents extends IAdvancedAbortSignalLike,
+  TraitEventListenerOn<any, TAdvancedAbortSignalKeyValueTupleUnion>,
+  TraitEventListenerIsDispatching<any> {
+}
+
+export type TGenericAdvancedAbortSignalLikeWithEvents = IAdvancedAbortSignalLikeWithEvents;
+
+export function IsAdvancedAbortSignalLikeWithEvents(value: any): value is TGenericAdvancedAbortSignalLikeWithEvents {
+  return IsAdvancedAbortSignalLike(value)
+    && TraitIsImplementedBy(TraitEventListenerOn, value)
+    && TraitIsImplementedBy(TraitEventListenerIsDispatching, value);
 }
 
 

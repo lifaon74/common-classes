@@ -14,9 +14,13 @@ import { ConstructEventListener } from '../../../event-listener/raw/class/event-
 import { ImplTraitEventListenerIsDispatchingForEventListenerStruct } from '../../../event-listener/raw/struct/implementations/event-listener-struct-is-dispatching-implementation';
 import { ImplTraitEventListenerOnForEventListenerStruct } from '../../../event-listener/raw/struct/implementations/event-listener-struct-on-implementation';
 import { ImplTraitEventListenerDispatchForEventListenerStruct } from '../../../event-listener/raw/struct/implementations/event-listener-struct-dispatch-implementation';
-import { ImplTraitEventListenerOnceForEventListenerStruct } from '../../../event-listener/raw/struct/implementations/event-listener-struct-once-implementation';
 import { ImplTraitToAbortControllerForAdvancedAbortSignalStruct } from '../struct/implementations/advanced-abort-signal-struct-to-abort-controller';
 import { ImplTraitWrapPromiseForAdvancedAbortSignalStruct } from '../struct/implementations/advanced-abort-signal-struct-wrap-promise-implementation';
+import {
+  EVENT_LISTENER_PRIVATE_CONTEXT, IEventListenerPrivateContext
+} from '../../../event-listener/raw/struct/event-listener-struct';
+import { ImplTraitWrapFetchArgumentsForAdvancedAbortSignalStruct } from '../struct/implementations/advanced-abort-signal-struct-wrap-fetch-arguments-implementation';
+import { ImplTraitWrapFunctionForAdvancedAbortSignalStruct } from '../struct/implementations/advanced-abort-signal-struct-wrap-function-implementation';
 
 
 /** CONSTRUCTOR **/
@@ -48,7 +52,7 @@ export function ConstructAdvancedAbortSignal(
           TraitEventListenerDispatch,
           'dispatch',
           ['abort', reason],
-          ImplTraitEventListenerDispatchForEventListenerStruct as any // WARN
+          ImplTraitEventListenerDispatchForEventListenerStruct
         );
       }
     });
@@ -59,34 +63,48 @@ export function ConstructAdvancedAbortSignal(
 
 /** CLASS **/
 
-export interface IAdvancedAbortSignal extends IAdvancedAbortSignalStruct,
+export interface IAdvancedAbortSignalImplementations extends
+  // event listener implementations
   ImplTraitEventListenerIsDispatchingForEventListenerStruct<IAdvancedAbortSignal>,
   ImplTraitEventListenerOnForEventListenerStruct<IAdvancedAbortSignal, TAdvancedAbortSignalKeyValueTupleUnion>,
-  ImplTraitEventListenerOnceForEventListenerStruct<IAdvancedAbortSignal, TAdvancedAbortSignalKeyValueTupleUnion>,
+  // own implementations
+
   ImplTraitGetReasonForAdvancedAbortSignalStruct<IAdvancedAbortSignal>,
   ImplTraitIsAbortedForAdvancedAbortSignalStruct<IAdvancedAbortSignal>,
   ImplTraitToAbortControllerForAdvancedAbortSignalStruct<IAdvancedAbortSignal>,
-  ImplTraitWrapPromiseForAdvancedAbortSignalStruct<IAdvancedAbortSignal> {
+  ImplTraitWrapPromiseForAdvancedAbortSignalStruct<IAdvancedAbortSignal>,
+  ImplTraitWrapFunctionForAdvancedAbortSignalStruct<IAdvancedAbortSignal>,
+  ImplTraitWrapFetchArgumentsForAdvancedAbortSignalStruct<IAdvancedAbortSignal>
+  //
+{
 }
 
-
-export interface IAssembledAdvancedAbortSignalImplementations {
-  new(): IAdvancedAbortSignal;
-}
-
-export const AdvancedAbortSignalImplementationsCollection = [
+export const AdvancedAbortSignalImplementations = [
+  // event listener implementations
   ImplTraitEventListenerIsDispatchingForEventListenerStruct,
   ImplTraitEventListenerOnForEventListenerStruct,
-  ImplTraitEventListenerOnceForEventListenerStruct,
+
+  // own implementations
   ImplTraitGetReasonForAdvancedAbortSignalStruct,
   ImplTraitIsAbortedForAdvancedAbortSignalStruct,
   ImplTraitToAbortControllerForAdvancedAbortSignalStruct,
   ImplTraitWrapPromiseForAdvancedAbortSignalStruct,
+  ImplTraitWrapFunctionForAdvancedAbortSignalStruct,
+  ImplTraitWrapFetchArgumentsForAdvancedAbortSignalStruct,
 ];
 
-const AssembledAdvancedAbortSignalImplementations = AssembleTraitImplementations<IAssembledAdvancedAbortSignalImplementations>(AdvancedAbortSignalImplementationsCollection);
+export interface IAdvancedAbortSignalImplementationsConstructor {
+  new(): IAdvancedAbortSignalImplementations;
+}
 
-export class AdvancedAbortSignal extends AssembledAdvancedAbortSignalImplementations implements IAdvancedAbortSignal {
+
+export interface IAdvancedAbortSignal extends IAdvancedAbortSignalStruct, IAdvancedAbortSignalImplementations {
+}
+
+const AdvancedAbortSignalImplementationsConstructor = AssembleTraitImplementations<IAdvancedAbortSignalImplementationsConstructor>(AdvancedAbortSignalImplementations);
+
+export class AdvancedAbortSignal extends AdvancedAbortSignalImplementationsConstructor implements IAdvancedAbortSignal {
+  readonly [EVENT_LISTENER_PRIVATE_CONTEXT]: IEventListenerPrivateContext<TAdvancedAbortSignalKeyValueTupleUnion>;
   readonly [ADVANCED_ABORT_SIGNAL_PRIVATE_CONTEXT]: IAdvancedAbortSignalPrivateContext;
 
   constructor(create: TAdvancedAbortSignalCreateFunction) {

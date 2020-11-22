@@ -1,42 +1,29 @@
-import { TGenericObservableLike, TInferObservableLikeGObserver } from '../../observable/observable-types';
+import { IObservableLike, TGenericObservableLike } from '../../observable/observable-types';
 import { HasProperty, IsObject } from '@lifaon/traits';
+import { TGenericObserverLike } from '../../observer/observer-types';
 
 /** PRIVATE CONTEXT **/
 
 export const PIPE_PRIVATE_CONTEXT: unique symbol = Symbol('pipe-private-context');
 
-export interface IPipePrivateContext<GObservable extends TGenericObservableLike, GObserver extends TInferObservableLikeGObserver<GObservable>> {
+export interface IPipePrivateContext<GObservable extends IObservableLike<GObserver>, GObserver extends TGenericObserverLike> {
   readonly observable: GObservable;
   readonly observer: GObserver;
   activated: boolean;
 }
 
-export type TPipePrivateContextFromGSelf<GSelf extends TGenericPipeStruct> = IPipePrivateContext<TInferPipeStructGObservable<GSelf>, TInferPipeStructGObserver<GSelf>>;
+export type TGenericPipePrivateContext = IPipePrivateContext<TGenericObservableLike, TGenericObserverLike>;
 
 
 /** STRUCT DEFINITION **/
 
-export interface IPipeStruct<GObservable extends TGenericObservableLike, GObserver extends TInferObservableLikeGObserver<GObservable>> {
+export interface IPipeStruct<GObservable extends IObservableLike<GObserver>, GObserver extends TGenericObserverLike> {
   readonly [PIPE_PRIVATE_CONTEXT]: IPipePrivateContext<GObservable, GObserver>;
 }
 
-export type TGenericPipeStruct = IPipeStruct<any, any>;
+export type TGenericPipeStruct = IPipeStruct<TGenericObservableLike, TGenericObserverLike>;
 
-export type TInferPipeStructGObservable<GPipeStruct extends TGenericPipeStruct> =
-  GPipeStruct extends IPipeStruct<infer GObservable, any>
-    ? GObservable
-    : never;
-
-export type TInferPipeStructGObserver<GPipeStruct extends TGenericPipeStruct> =
-  GPipeStruct extends IPipeStruct<infer GObservable, infer GObserver>
-    ? (
-      GObserver extends TInferObservableLikeGObserver<GObservable>
-        ? GObserver
-        : never
-      )
-    : never;
-
-export function IsPipeStruct<GObservable extends TGenericObservableLike, GObserver extends TInferObservableLikeGObserver<GObservable>>(value: any): value is IPipeStruct<GObservable, GObserver> {
+export function IsPipeStruct<GObservable extends IObservableLike<GObserver>, GObserver extends TGenericObserverLike>(value: any): value is IPipeStruct<GObservable, GObserver> {
   return IsObject(value)
     && HasProperty(value, PIPE_PRIVATE_CONTEXT);
 }

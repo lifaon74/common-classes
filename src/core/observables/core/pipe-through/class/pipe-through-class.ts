@@ -5,36 +5,45 @@ import {
   IsObservableLike, TGenericObservableLike, TInferObservableLikeGObserver,
 } from '../../observable/observable-types';
 import { ImplTraitToggleForPipeThroughStruct } from '../struct/implementations/pipe-through-struct-toggle-implementation';
-import { ImplTraitGetObservableForPipeThroughStruct } from '../struct/implementations/pipe-through-struct-get-observable-implementation';
 import { ImplTraitIsActivatedForPipeThroughStruct } from '../struct/implementations/pipe-through-struct-is-activated-implementation';
 import { ImplTraitActivateForPipeThroughStruct } from '../struct/implementations/pipe-through-struct-activate-implementation';
 import { ImplTraitDeactivateForPipeThroughStruct } from '../struct/implementations/pipe-through-struct-deactivate-implementation';
-import { TPipeThroughLikeGTransformConstraintWithEventListenerOn } from '../pipe-through-types';
-import { IsTransformLike, TInferTransformLikeGObservable } from '../../transform/transform-types';
-import { Pipe } from '../../pipe/class/pipe-class';
 import { AssembleTraitImplementations, CreatePrivateContext } from '@lifaon/traits';
+import {
+  TGenericObservableLikeWithEventListenerOnForActiveAndInactive, TInferPipeThroughLikeFromObservableAndTransform,
+  TPipeThroughLikeGTransformConstraintWithEventListenerOn
+} from '../pipe-through-types';
+import { IPipeLike, IsPipeLike, TGenericPipeLike } from '../../pipe/pipe-types';
+import { ImplTraitGetPipeForPipeThroughStruct } from '../struct/implementations/pipe-through-struct-get-pipe-implementation';
+import { ImplTraitGetObservableForPipeThroughStruct } from '../struct/implementations/pipe-through-struct-get-observable-implementation';
+import { TInferTransformLikeGObservable } from '../../transform/transform-types';
+import { Pipe } from '../../pipe/class/pipe-class';
 
 /** CONSTRUCTOR **/
 
-export function ConstructPipeThrough<GObservable extends TGenericObservableLike, GTransform extends TPipeThroughLikeGTransformConstraintWithEventListenerOn<GObservable>>(
-  instance: IPipeThroughStruct<GObservable, GTransform>,
+export function ConstructPipeThrough<// generics
+  GPipe extends TGenericPipeLike,
+  GObservable extends TGenericObservableLikeWithEventListenerOnForActiveAndInactive
+  //
+  >(
+  instance: IPipeThroughStruct<GPipe, GObservable>,
+  pipe: GPipe,
   observable: GObservable,
-  transform: GTransform,
 ): void {
+  if (!IsPipeLike(pipe)) {
+    throw new TypeError(`The argument 'pipe' is not a Pipe.`);
+  }
+
   if (!IsObservableLike(observable)) {
     throw new TypeError(`The argument 'observable' is not an Observable.`);
   }
 
-  if (!IsTransformLike(transform)) {
-    throw new TypeError(`The argument 'transform' is not a Transform.`);
-  }
-
-  CreatePrivateContext<IPipeThroughPrivateContext<GObservable, GTransform>>(
+  CreatePrivateContext<IPipeThroughPrivateContext<GPipe, GObservable>>(
     PIPE_THROUGH_PRIVATE_CONTEXT,
     instance,
     {
-      observable: transform.getObservable() as TInferTransformLikeGObservable<GTransform>,
-      pipe: new Pipe<GObservable, TInferObservableLikeGObserver<GObservable>>(observable, transform.getObserver()),
+      pipe,
+      observable,
       undo: null,
     },
   );
@@ -42,36 +51,78 @@ export function ConstructPipeThrough<GObservable extends TGenericObservableLike,
 
 /** CLASS **/
 
-export interface IPipeThrough<GObservable extends TGenericObservableLike, GTransform extends TPipeThroughLikeGTransformConstraintWithEventListenerOn<GObservable>> extends IPipeThroughStruct<GObservable, GTransform>,
-  ImplTraitGetObservableForPipeThroughStruct<IPipeThrough<GObservable, GTransform>>,
-  ImplTraitIsActivatedForPipeThroughStruct<IPipeThrough<GObservable, GTransform>>,
-  ImplTraitActivateForPipeThroughStruct<IPipeThrough<GObservable, GTransform>>,
-  ImplTraitDeactivateForPipeThroughStruct<IPipeThrough<GObservable, GTransform>>,
-  ImplTraitToggleForPipeThroughStruct<IPipeThrough<GObservable, GTransform>> {
+export interface IPipeThroughImplementations<// generics
+  GPipe extends TGenericPipeLike,
+  GObservable extends TGenericObservableLikeWithEventListenerOnForActiveAndInactive
+  //
+  > extends
+  // own implementations coming from activable
+  ImplTraitIsActivatedForPipeThroughStruct<IPipeThrough<GPipe, GObservable>>,
+  ImplTraitActivateForPipeThroughStruct<IPipeThrough<GPipe, GObservable>, GObservable>,
+  ImplTraitDeactivateForPipeThroughStruct<IPipeThrough<GPipe, GObservable>>,
+  ImplTraitToggleForPipeThroughStruct<IPipeThrough<GPipe, GObservable>>,
+  // own implementations
+  ImplTraitGetPipeForPipeThroughStruct<IPipeThrough<GPipe, GObservable>, GPipe>,
+  ImplTraitGetObservableForPipeThroughStruct<IPipeThrough<GPipe, GObservable>, GObservable>
+  //
+{
 }
 
-export interface IAssembledPipeThroughImplementations {
-  new<GObservable extends TGenericObservableLike, GTransform extends TPipeThroughLikeGTransformConstraintWithEventListenerOn<GObservable>>(): IPipeThrough<GObservable, GTransform>;
-}
-
-export const PipeThroughImplementationsCollection = [
-  ImplTraitGetObservableForPipeThroughStruct,
+export const PipeThroughImplementations = [
+  // own implementations coming from activable
   ImplTraitIsActivatedForPipeThroughStruct,
   ImplTraitActivateForPipeThroughStruct,
   ImplTraitDeactivateForPipeThroughStruct,
   ImplTraitToggleForPipeThroughStruct,
+  // own implementations
+  ImplTraitGetPipeForPipeThroughStruct,
+  ImplTraitGetObservableForPipeThroughStruct,
 ];
 
-const AssembledPipeThroughImplementations = AssembleTraitImplementations<IAssembledPipeThroughImplementations>(PipeThroughImplementationsCollection);
+export interface IPipeThroughImplementationsConstructor {
+  new<// generics
+    GPipe extends TGenericPipeLike,
+    GObservable extends TGenericObservableLikeWithEventListenerOnForActiveAndInactive
+    //
+    >(): IPipeThroughImplementations<GPipe, GObservable>;
+}
 
-export class PipeThrough<GObservable extends TGenericObservableLike, GTransform extends TPipeThroughLikeGTransformConstraintWithEventListenerOn<GObservable>> extends AssembledPipeThroughImplementations<GObservable, GTransform> implements IPipeThrough<GObservable, GTransform> {
-  readonly [PIPE_THROUGH_PRIVATE_CONTEXT]: IPipeThroughPrivateContext<GObservable, GTransform>;
+export interface IPipeThrough<// generics
+  GPipe extends TGenericPipeLike,
+  GObservable extends TGenericObservableLikeWithEventListenerOnForActiveAndInactive
+  //
+  > extends IPipeThroughStruct<GPipe, GObservable>, IPipeThroughImplementations<GPipe, GObservable> {
+}
 
-  constructor(
+const PipeThroughImplementationsConstructor = AssembleTraitImplementations<IPipeThroughImplementationsConstructor>(PipeThroughImplementations);
+
+export class PipeThrough<// generics
+  GPipe extends TGenericPipeLike,
+  GObservable extends TGenericObservableLikeWithEventListenerOnForActiveAndInactive
+  //
+  > extends PipeThroughImplementationsConstructor<GPipe, GObservable> implements IPipeThrough<GPipe, GObservable> {
+
+  static fromTransform<GObservable extends TGenericObservableLike, GTransform extends TPipeThroughLikeGTransformConstraintWithEventListenerOn<GObservable>>(
     observable: GObservable,
     transform: GTransform,
+  ): TInferPipeThroughLikeFromObservableAndTransform<GObservable, GTransform> {
+    return new PipeThrough<IPipeLike<GObservable, TInferObservableLikeGObserver<GObservable>>, TInferTransformLikeGObservable<GTransform>>(
+      new Pipe<GObservable, TInferObservableLikeGObserver<GObservable>>(observable, transform.getObserver()),
+      transform.getObservable() as TInferTransformLikeGObservable<GTransform>,
+    );
+  }
+
+  readonly [PIPE_THROUGH_PRIVATE_CONTEXT]: IPipeThroughPrivateContext<GPipe, GObservable>;
+
+  constructor(
+    pipe: GPipe,
+    observable: GObservable,
   ) {
     super();
-    ConstructPipeThrough<GObservable, GTransform>(this, observable, transform);
+    ConstructPipeThrough<GPipe, GObservable>(
+      this,
+      pipe,
+      observable,
+    );
   }
 }

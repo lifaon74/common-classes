@@ -1,7 +1,7 @@
 import { TGenericObserverLike, TInferObserverLikeGValue } from '../../../observer/observer-types';
 import { IObservableStruct, OBSERVABLE_PRIVATE_CONTEXT } from '../observable-struct';
 
-export function ObservableStructDispatchAll<GObserver extends TGenericObserverLike>(
+export function ObservableStructEmitAll<GObserver extends TGenericObserverLike>(
   observableStruct: IObservableStruct<GObserver>,
   value: TInferObserverLikeGValue<GObserver>,
 ): void {
@@ -10,4 +10,3 @@ export function ObservableStructDispatchAll<GObserver extends TGenericObserverLi
     observers[i].emit(value);
   }
 }
-

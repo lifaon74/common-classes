@@ -4,7 +4,10 @@ import {
 } from '@lifaon/traits';
 
 
-export interface ImplTraitToggleForPipeThroughStructGSelfConstraint<GSelf extends TGenericPipeThroughStruct> extends TGenericPipeThroughStruct, TTraitToggleUsingActivateAndDeactivateGSelfConstraint<GSelf> {
+export interface ImplTraitToggleForPipeThroughStructGSelfConstraint<GSelf extends TGenericPipeThroughStruct> extends
+  //
+  TGenericPipeThroughStruct,
+  TTraitToggleUsingActivateAndDeactivateGSelfConstraint<GSelf> {
 }
 
 @Impl()

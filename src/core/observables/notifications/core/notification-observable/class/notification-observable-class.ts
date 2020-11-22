@@ -3,7 +3,7 @@ import {
 } from '../struct/notification-observable-struct';
 import { ImplTraitAddObserverForNotificationObservableStruct } from '../struct/implementations/notification-observable-struct-add-observer-implementation';
 import {
-  ConstructObservable, IObservable, ObservableImplementationsCollection,
+  ConstructObservable, IObservable, ObservableImplementations,
 } from '../../../../core/observable/class/observable-class';
 import {
   TInferNotificationObserversFromEventMap, TNotificationObservableCreateFunction,
@@ -41,7 +41,7 @@ export interface IAssembledNotificationObservableImplementations {
   new<GEventMap extends TGenericEventMap>(): INotificationObservable<GEventMap>;
 }
 
-export const NotificationObservableImplementationsCollection = OverrideTraitImplementations(ObservableImplementationsCollection, [
+export const NotificationObservableImplementationsCollection = OverrideTraitImplementations(ObservableImplementations, [
   ImplTraitAddObserverForNotificationObservableStruct,
 ]);
 

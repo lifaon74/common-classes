@@ -1,12 +1,12 @@
-import { IsObject } from '@lifaon/traits';
 import { IsAbortSignal } from '../../../../functions/is-abort-signal';
+import { IsAbortControllerSupported } from '../../../../functions/is-abort-controller-supported';
 
 
 /**
  * Returns the linked AbortSignal (if exists) of a fetch request
  */
 export function ExtractSignalFromFetchArguments(requestInfo: RequestInfo, requestInit: RequestInit = {}): AbortSignal | null {
-  if (IsObject(globalThis) && ('AbortController' in globalThis)) {
+  if (IsAbortControllerSupported()) {
     if (IsAbortSignal(requestInit.signal)) {
       return requestInit.signal;
     } else if (

@@ -30,27 +30,35 @@ export function ConstructAdvancedAbortController(
 
 /** CLASS **/
 
-export interface IAdvancedAbortController extends IAdvancedAbortControllerStruct<AdvancedAbortSignal>,
+export interface IAdvancedAbortControllerImplementations extends
+  // implementations
   ImplTraitAbortForAdvancedAbortControllerStruct<any>,
-  ImplTraitGetSignalForAdvancedAbortControllerStruct<any, AdvancedAbortSignal> {
+  ImplTraitGetSignalForAdvancedAbortControllerStruct<any, AdvancedAbortSignal>
+  //
+{
 }
 
-export interface IAssembledAdvancedAbortControllerImplementations {
-  new(): IAdvancedAbortController;
-}
-
-export const AdvancedAbortControllerImplementationsCollection = [
+export const AdvancedAbortControllerImplementations = [
   ImplTraitAbortForAdvancedAbortControllerStruct,
   ImplTraitGetSignalForAdvancedAbortControllerStruct,
 ];
 
-const AssembledAdvancedAbortControllerImplementations = AssembleTraitImplementations<IAssembledAdvancedAbortControllerImplementations>(AdvancedAbortControllerImplementationsCollection);
+export interface IAdvancedAbortControllerImplementationsConstructor {
+  new(): IAdvancedAbortController;
+}
 
-export class AdvancedAbortController extends AssembledAdvancedAbortControllerImplementations implements IAdvancedAbortController {
+
+
+export interface IAdvancedAbortController extends IAdvancedAbortControllerStruct<AdvancedAbortSignal>, IAdvancedAbortControllerImplementations {
+}
+
+const AdvancedAbortControllerImplementationsConstructor = AssembleTraitImplementations<IAdvancedAbortControllerImplementationsConstructor>(AdvancedAbortControllerImplementations);
+
+export class AdvancedAbortController extends AdvancedAbortControllerImplementationsConstructor implements IAdvancedAbortController {
   static fromAbortSignals(...signals: TAbortSignalLikeOrUndefined[]): IAdvancedAbortController {
     return AdvancedAbortControllerFromAbortSignals(signals);
   }
-  //
+
   // static timeout(timeout: number, signal?: IAdvancedAbortSignal): IAdvancedAbortController {
   //   return AdvancedAbortControllerTimeout(this, timeout, signal);
   // }

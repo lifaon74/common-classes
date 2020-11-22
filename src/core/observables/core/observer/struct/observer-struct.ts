@@ -9,9 +9,6 @@ export interface IObserverPrivateContext<GValue> {
   readonly emit: TObserverEmitFunction<GValue>;
 }
 
-export type TObserverPrivateContextFromGSelf<GSelf extends TGenericObserverStruct> = IObserverPrivateContext<TInferObserverStructGValue<GSelf>>;
-
-
 /** STRUCT DEFINITION **/
 
 export interface IObserverStruct<GValue> {
@@ -19,11 +16,6 @@ export interface IObserverStruct<GValue> {
 }
 
 export type TGenericObserverStruct = IObserverStruct<any>;
-
-export type TInferObserverStructGValue<GObserverStruct extends TGenericObserverStruct> =
-  GObserverStruct extends IObserverStruct<infer GValue>
-    ? GValue
-    : never;
 
 export function IsObserverStruct<GValue>(value: any): value is IObserverStruct<GValue> {
   return IsObject(value)
