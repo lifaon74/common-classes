@@ -1,4 +1,4 @@
-import { TGenericObservableLike } from '../../observable/observable-types';
+import { TGenericObservableLike } from '../../observable/built-in/simple/simple-observable-types';
 import { TGenericPipeLike } from '../../pipe/pipe-types';
 import { HasProperty, IsObject } from '@lifaon/traits';
 

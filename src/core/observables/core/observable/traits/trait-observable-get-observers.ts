@@ -1,4 +1,4 @@
-import { TGenericObserverLike } from '../../observer/observer-types';
+import { TGenericObserverLike } from '../../observer/built-in/default/observer-types';
 import { Trait } from '@lifaon/traits';
 
 @Trait()

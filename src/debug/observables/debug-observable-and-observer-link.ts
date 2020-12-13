@@ -1,5 +1,5 @@
 import { TimerObservable } from '../../core/observables/built-in/observables/timer-observable';
-import { Observer } from '../../core/observables/core/observer/class/observer-class';
+import { Observer } from '../../core/observables/core/observer/built-in/default/class/observer-class';
 
 
 export async function debugObservableAndObserverLink() {

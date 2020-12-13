@@ -3,9 +3,13 @@ import {
   TraitIsImplementedBy
 } from '@lifaon/traits';
 
-export interface IEventListenerLike<GKeyValueTupleUnion extends TGenericKeyValueTupleUnion> extends TraitEventListenerDispatch<any, GKeyValueTupleUnion>,
+export interface IEventListenerLike<GKeyValueTupleUnion extends TGenericKeyValueTupleUnion> extends
+  // traits
+  TraitEventListenerDispatch<any, GKeyValueTupleUnion>,
   TraitEventListenerIsDispatching<any>,
-  TraitEventListenerOn<any, GKeyValueTupleUnion> {
+  TraitEventListenerOn<any, GKeyValueTupleUnion>
+  //
+{
 }
 
 export function IsEventListenerLike<GKeyValueTupleUnion extends TGenericKeyValueTupleUnion>(value: any): value is IEventListenerLike<GKeyValueTupleUnion> {

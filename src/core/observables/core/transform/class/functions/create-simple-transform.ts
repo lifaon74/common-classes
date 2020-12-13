@@ -1,7 +1,7 @@
-import { IObserverLike } from '../../../observer/observer-types';
+import { IObserverLike } from '../../../observer/built-in/default/observer-types';
 import { ITransform, Transform } from '../transform-class';
-import { IObservable, Observable } from '../../../observable/class/observable-class';
-import { IObserver, Observer } from '../../../observer/class/observer-class';
+import { IObservable, Observable } from '../../../observable/with-events/class/observable-class';
+import { IObserver, Observer } from '../../../observer/built-in/default/class/observer-class';
 
 export type TCreateSimpleTransformOutValueFunction<GValueOut> = (value: GValueOut) => void
 export type TCreateSimpleTransformInValueFunction<GValueIn, GValueOut> = (value: GValueIn, emit: TCreateSimpleTransformOutValueFunction<GValueOut>) => void

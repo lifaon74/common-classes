@@ -14,8 +14,8 @@
     "noLib": false,
     "pretty": true,
 
-    "removeComments": true,
-    "preserveConstEnums": true,
+    "removeComments": false,
+    "preserveConstEnums": false,
     "sourceMap": true,
     "strictFunctionTypes": true,
     "noImplicitAny": true,

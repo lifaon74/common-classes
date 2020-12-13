@@ -1,7 +1,7 @@
-import { TGenericObservableLike } from '../observable/observable-types';
+import { TGenericObservableLike } from '../observable/built-in/simple/simple-observable-types';
 import { TraitTransformGetObservable, } from './traits/trait-transform-get-observable';
 import { TraitTransformGetObserver, } from './traits/trait-transform-get-observer';
-import { TGenericObserverLike } from '../observer/observer-types';
+import { TGenericObserverLike } from '../observer/built-in/default/observer-types';
 import { TraitIsImplementedBy } from '@lifaon/traits';
 
 export interface ITransformLike<GObserver extends TGenericObserverLike, GObservable extends TGenericObservableLike> extends

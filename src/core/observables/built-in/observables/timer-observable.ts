@@ -1,8 +1,8 @@
 import {
   IObservable, Observable
-} from '../../core/observable/class/observable-class';
-import { IObserverLike } from '../../core/observer/observer-types';
-import { TInferObservableEmitFunctionFromObserver } from '../../core/observable/observable-types';
+} from '../../core/observable/with-events/class/observable-class';
+import { IObserverLike } from '../../core/observer/built-in/default/observer-types';
+import { TInferObservableEmitFunctionFromObserver } from '../../core/observable/built-in/simple/simple-observable-types';
 
 export class TimerObservable extends Observable<IObserverLike<void>> {
   readonly timeout: number;

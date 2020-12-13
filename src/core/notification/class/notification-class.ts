@@ -31,8 +31,8 @@ export function ConstructNotification<GName extends string, GValue>(
 
 export interface INotificationImplementations<GName extends string, GValue> extends
   // implementations
-  ImplTraitGetNameForNotificationStruct<INotification<GName, GValue>>,
-  ImplTraitGetValueForNotificationStruct<INotification<GName, GValue>> {
+  ImplTraitGetNameForNotificationStruct<INotification<GName, GValue>, GName>,
+  ImplTraitGetValueForNotificationStruct<INotification<GName, GValue>, GValue> {
 }
 
 export const NotificationImplementations = [

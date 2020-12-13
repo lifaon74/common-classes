@@ -1,6 +1,6 @@
 import { ITransformPrivateContext, ITransformStruct, TRANSFORM_PRIVATE_CONTEXT } from '../struct/transform-struct';
-import { IsObservableLike, TGenericObservableLike } from '../../observable/observable-types';
-import { IsObserverLike, TGenericObserverLike } from '../../observer/observer-types';
+import { IsObservableLike, TGenericObservableLike } from '../../observable/built-in/simple/simple-observable-types';
+import { IsObserverLike, TGenericObserverLike } from '../../observer/built-in/default/observer-types';
 import { ImplTraitGetObservableForTransformStruct } from '../struct/implementations/transform-struct-get-observable-implementation';
 import { ImplTraitGetObserverForTransformStruct } from '../struct/implementations/transform-struct-get-observer-implementation';
 import { AssembleTraitImplementations, CreatePrivateContext } from '@lifaon/traits';

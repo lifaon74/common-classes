@@ -1,13 +1,11 @@
-import {
-  NOTIFICATION_PRIVATE_CONTEXT, TGenericNotificationStruct, TInferNotificationStructGName,
-} from '../notification-struct';
+import { INotificationStruct, NOTIFICATION_PRIVATE_CONTEXT, } from '../notification-struct';
 import { TraitNotificationGetName } from '../../traits/trait-notification-get-name';
 import { Impl } from '@lifaon/traits';
 
 
 @Impl()
-export class ImplTraitGetNameForNotificationStruct<GSelf extends TGenericNotificationStruct> extends TraitNotificationGetName<GSelf, TInferNotificationStructGName<GSelf>> {
-  getName(this: GSelf): TInferNotificationStructGName<GSelf> {
+export class ImplTraitGetNameForNotificationStruct<GSelf extends INotificationStruct<GName, any>, GName extends string> extends TraitNotificationGetName<GSelf, GName> {
+  getName(this: GSelf): GName {
     return this[NOTIFICATION_PRIVATE_CONTEXT].name;
   }
 }

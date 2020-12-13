@@ -1,50 +1,33 @@
 import { IReasonPrivateContext, IReasonStruct, REASON_PRIVATE_CONTEXT, } from '../struct/reason-struct';
-import { AssembleTraitImplementations, CreatePrivateContext, IsObject } from '@lifaon/traits';
-import { IReasonOptions, IReasonOptionsWithCode, IReasonOptionsWithoutCode } from '../reason-types';
+import { AssembleTraitImplementations, CreatePrivateContext } from '@lifaon/traits';
 import { ImplTraitGetCodeForReasonStruct } from '../struct/implementations/reason-struct-get-code-implementation';
 import { ImplTraitGetMessageForReasonStruct } from '../struct/implementations/reason-struct-get-message-implementation';
 import { ImplTraitGetStackForReasonStruct } from '../struct/implementations/reason-struct-get-stack-implementation';
+import { TCode } from '../reason-types';
 
 /** CONSTRUCTOR **/
 
-export function ConstructReason<GCode>(
+export function ConstructReason<GCode extends TCode>(
   instance: IReasonStruct<GCode>,
-  options: string | IReasonOptions<GCode>,
-  _code?: GCode,
-  _stack?: string
+  message: string,
+  code?: GCode,
+  stack?: string
 ): void {
-  let message: string;
-  let code: GCode;
-  let stack: string;
 
-  let _options: IReasonOptions<GCode>;
-  if ((options === void 0) || (typeof options === 'string')) {
-    _options = {
-      message: options,
-      code: _code,
-      stack: _stack,
-    };
-  } else if (IsObject(options) && (_code === void 0) && (_stack === void 0)) {
-    _options = options;
-  } else {
-    throw new TypeError(`Expected Reason(object?) or Reason(string?, GCode?, string?)`);
+
+  if (typeof message !== 'string') {
+    throw new TypeError(`Expected string as 'message'`);
   }
 
-  if (typeof _options.message === 'string') {
-    message = _options.message;
-  } else {
-    throw new TypeError(`Expected string as Reason.options.message`);
+  if (code === void 0) {
+    code = 'unknown' as unknown as GCode;
+  } else if (typeof code !== 'string') {
+    throw new TypeError(`Expected string or void as 'code'`);
   }
 
-  code = ((_options as IReasonOptionsWithCode<GCode>).code === void 0)
-    ? 'unknown' as unknown as GCode
-    : (_options as IReasonOptionsWithCode<GCode>).code;
-
-  if (_options.stack === void 0) {
+  if (stack === void 0) {
     stack = (new Error(message).stack || '').replace('Error', 'Reason');
-  } else if (typeof _options.stack === 'string') {
-    stack = _options.stack;
-  } else {
+  } else if (typeof stack !== 'string') {
     throw new TypeError(`Expected string or void as Reason.options.stack`);
   }
 
@@ -61,9 +44,9 @@ export function ConstructReason<GCode>(
 
 /** CLASS **/
 
-export interface IReasonImplementations<GCode> extends
+export interface IReasonImplementations<GCode extends TCode> extends
   // implementations
-  ImplTraitGetCodeForReasonStruct<IReason<GCode>>,
+  ImplTraitGetCodeForReasonStruct<IReason<GCode>, GCode>,
   ImplTraitGetMessageForReasonStruct<IReason<GCode>>,
   ImplTraitGetStackForReasonStruct<IReason<GCode>>
   //
@@ -77,10 +60,10 @@ export const ReasonImplementations = [
 ];
 
 export interface IReasonImplementationsConstructor {
-  new<GCode>(): IReasonImplementations<GCode>;
+  new<GCode extends TCode>(): IReasonImplementations<GCode>;
 }
 
-export interface IReason<GCode> extends IReasonStruct<GCode>, IReasonImplementations<GCode> {
+export interface IReason<GCode extends TCode> extends IReasonStruct<GCode>, IReasonImplementations<GCode> {
 }
 
 const ReasonImplementationsConstructor = AssembleTraitImplementations<IReasonImplementationsConstructor>(ReasonImplementations);
@@ -88,22 +71,16 @@ const ReasonImplementationsConstructor = AssembleTraitImplementations<IReasonImp
 export interface IReasonConstructor {
   new(message: string): IReason<'unknown'>;
 
-  new(options: IReasonOptionsWithoutCode): IReason<'unknown'>;
-
-  new<GCode>(message: string, code: GCode, stack?: string): IReason<GCode>;
-
-  new<GCode>(options: IReasonOptionsWithCode<GCode>): IReason<GCode>;
+  new<GCode extends TCode>(message: string, code: GCode, stack?: string): IReason<GCode>;
 }
 
-export const Reason: IReasonConstructor = class Reason<GCode> extends ReasonImplementationsConstructor<GCode> implements IReason<GCode> {
+export const Reason: IReasonConstructor = class Reason<GCode extends TCode> extends ReasonImplementationsConstructor<GCode> implements IReason<GCode> {
   readonly [REASON_PRIVATE_CONTEXT]: IReasonPrivateContext<GCode>;
 
   constructor(message: string);
-  constructor(options: IReasonOptionsWithoutCode);
   constructor(message: string, code: GCode, stack?: string);
-  constructor(options: IReasonOptionsWithCode<GCode>);
-  constructor(options: string | IReasonOptions<GCode>, code?: GCode, stack?: string) {
+  constructor(message: string, code?: GCode, stack?: string) {
     super();
-    ConstructReason<GCode>(this, options, code, stack);
+    ConstructReason<GCode>(this, message, code, stack);
   }
 };

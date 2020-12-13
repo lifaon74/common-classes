@@ -1,5 +1,5 @@
-import { TGenericObserverLike } from '../../observer/observer-types';
-import { TGenericObservableLike } from '../../observable/observable-types';
+import { TGenericObserverLike } from '../../observer/built-in/default/observer-types';
+import { TGenericObservableLike } from '../../observable/built-in/simple/simple-observable-types';
 import { HasProperty, IsObject } from '@lifaon/traits';
 
 /** PRIVATE CONTEXT **/

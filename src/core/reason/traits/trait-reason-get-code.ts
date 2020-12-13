@@ -1,7 +1,8 @@
 import { Trait } from '@lifaon/traits';
+import { TCode } from '../reason-types';
 
 @Trait()
-export abstract class TraitReasonGetCode<GSelf, GCode> {
+export abstract class TraitReasonGetCode<GSelf, GCode extends TCode> {
   abstract getCode(this: GSelf): GCode;
 }
 

@@ -1,4 +1,4 @@
-import { TGenericObservableLike } from '../../observable/observable-types';
+import { TGenericObservableLike } from '../../observable/built-in/simple/simple-observable-types';
 import { Trait } from '@lifaon/traits';
 
 @Trait()

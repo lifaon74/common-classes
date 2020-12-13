@@ -1,11 +1,11 @@
-import { IObservableLike, TGenericObservableLike } from '../observable/observable-types';
+import { ISimpleObservableLike, TGenericObservableLike } from '../observable/built-in/simple/simple-observable-types';
 import { IActivableLike, IsActivableLike } from '../../../activable/activable-types';
 import { TraitPipeGetObservable } from './traits/trait-pipe-get-observable';
 import { TraitPipeGetObserver } from './traits/trait-pipe-get-observer';
 import { TraitIsImplementedBy } from '@lifaon/traits';
-import { TGenericObserverLike } from '../observer/observer-types';
+import { TGenericObserverLike } from '../observer/built-in/default/observer-types';
 
-export interface IPipeLike<GObservable extends IObservableLike<GObserver>, GObserver extends TGenericObserverLike> extends
+export interface IPipeLike<GObservable extends ISimpleObservableLike<GObserver>, GObserver extends TGenericObserverLike> extends
   // activable traits
   IActivableLike<IPipeLike<GObservable, GObserver>>,
   // own traits
@@ -17,8 +17,8 @@ export interface IPipeLike<GObservable extends IObservableLike<GObserver>, GObse
 
 export type TGenericPipeLike = IPipeLike<TGenericObservableLike, TGenericObserverLike>;
 
-export function IsPipeLike<GObservable extends IObservableLike<GObserver>, GObserver extends TGenericObserverLike>(value: any): value is IPipeLike<GObservable, GObserver> {
-  return TraitIsImplementedBy(TraitPipeGetObservable, value)
-    && TraitIsImplementedBy(TraitPipeGetObserver, value)
-    && IsActivableLike(value);
+export function IsPipeLike<GObservable extends ISimpleObservableLike<GObserver>, GObserver extends TGenericObserverLike>(value: any): value is IPipeLike<GObservable, GObserver> {
+  return IsActivableLike(value)
+    && TraitIsImplementedBy(TraitPipeGetObservable, value)
+    && TraitIsImplementedBy(TraitPipeGetObserver, value);
 }

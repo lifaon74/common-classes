@@ -1,14 +1,14 @@
 import {
   TGenericObservableLike, TInferObservableLikeGObserver, TObservableActiveKeyValueTuple,
   TObservableInactiveKeyValueTuple, TObservableKeyValueTupleUnion
-} from '../observable/observable-types';
+} from '../observable/built-in/simple/simple-observable-types';
 import { IActivableLike, IsActivableLike } from '../../../activable/activable-types';
 import { TraitPipeThroughGetPipe } from './traits/trait-pipe-through-get-pipe';
 import { TraitEventListenerOn, TraitIsImplementedBy } from '@lifaon/traits';
 import { TraitPipeThroughGetObservable } from './traits/trait-pipe-through-get-observable';
 import { IPipeLike, TGenericPipeLike } from '../pipe/pipe-types';
 import { ITransformLike, TInferTransformLikeGObservable } from '../transform/transform-types';
-import { TGenericObserverLike } from '../observer/observer-types';
+import { TGenericObserverLike } from '../observer/built-in/default/observer-types';
 
 
 export interface IPipeThroughLike<// generics
@@ -32,9 +32,9 @@ export function IsPipeThroughLike<// generics
   GObservable extends TGenericObservableLike
   //
   >(value: any): value is IPipeThroughLike<GPipe, GObservable> {
-  return TraitIsImplementedBy(TraitPipeThroughGetPipe, value)
-    && TraitIsImplementedBy(TraitPipeThroughGetObservable, value)
-    && IsActivableLike(value);
+  return IsActivableLike(value)
+    && TraitIsImplementedBy(TraitPipeThroughGetPipe, value)
+    && TraitIsImplementedBy(TraitPipeThroughGetObservable, value);
 }
 
 /** TYPES **/

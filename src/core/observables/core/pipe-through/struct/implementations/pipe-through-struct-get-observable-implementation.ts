@@ -1,6 +1,6 @@
 import { IPipeThroughStruct, PIPE_THROUGH_PRIVATE_CONTEXT, } from '../pipe-through-struct';
 import { Impl } from '@lifaon/traits';
-import { TGenericObservableLike } from '../../../observable/observable-types';
+import { TGenericObservableLike } from '../../../observable/built-in/simple/simple-observable-types';
 import { TraitPipeThroughGetObservable } from '../../traits/trait-pipe-through-get-observable';
 import { TGenericPipeLike } from '../../../pipe/pipe-types';
 

@@ -1,6 +1,6 @@
 import { TAbortSignalLike, TAbortSignalLikeOrUndefined } from '../../advanced-abort-controller-types';
 import { AdvancedAbortController } from '../advanced-abort-controller-class';
-import { IsAbortSignal } from '../../../functions/is-abort-signal';
+import { IsAbortSignal } from '../../../../helpers/abortable/is-abort-signal';
 import {
   IAdvancedAbortSignalLike, IsAdvancedAbortSignalLike, TAdvancedAbortSignalKeyValueTupleUnion
 } from '../../../advanced-abort-signal/advanced-abort-signal-types';

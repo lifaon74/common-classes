@@ -1,5 +1,5 @@
-import { IsAbortSignal } from '../../../../functions/is-abort-signal';
-import { IsAbortControllerSupported } from '../../../../functions/is-abort-controller-supported';
+import { IsAbortSignal } from '../../../../../helpers/abortable/is-abort-signal';
+import { IsAbortControllerSupported } from '../../../../../helpers/abortable/is-abort-controller-supported';
 
 
 /**

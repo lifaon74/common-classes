@@ -3,7 +3,7 @@ import {
 } from '../struct/pipe-through-struct';
 import {
   IsObservableLike, TGenericObservableLike, TInferObservableLikeGObserver,
-} from '../../observable/observable-types';
+} from '../../observable/built-in/simple/simple-observable-types';
 import { ImplTraitToggleForPipeThroughStruct } from '../struct/implementations/pipe-through-struct-toggle-implementation';
 import { ImplTraitIsActivatedForPipeThroughStruct } from '../struct/implementations/pipe-through-struct-is-activated-implementation';
 import { ImplTraitActivateForPipeThroughStruct } from '../struct/implementations/pipe-through-struct-activate-implementation';

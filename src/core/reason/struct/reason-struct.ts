@@ -1,33 +1,19 @@
-import { HasProperty, IsObject } from '@lifaon/traits';
+import { TCode } from '../reason-types';
 
 /** PRIVATE CONTEXT **/
 
 export const REASON_PRIVATE_CONTEXT: unique symbol = Symbol('reason-private-context');
 
-export interface IReasonPrivateContext<GCode> {
+export interface IReasonPrivateContext<GCode extends TCode> {
   readonly message: string;
   readonly code: GCode;
   readonly stack: string;
 }
 
-export type TReasonPrivateContextFromGSelf<GSelf extends TGenericReasonStruct> = IReasonPrivateContext<TInferReasonStructGCode<GSelf>>;
-
-
 /** STRUCT DEFINITION **/
 
-export interface IReasonStruct<GCode> {
+export interface IReasonStruct<GCode extends TCode> {
   readonly [REASON_PRIVATE_CONTEXT]: IReasonPrivateContext<GCode>;
 }
 
 export type TGenericReasonStruct = IReasonStruct<any>;
-
-export type TInferReasonStructGCode<GReasonStruct extends TGenericReasonStruct> =
-  GReasonStruct extends IReasonStruct<infer GCode>
-    ? GCode
-    : never;
-
-
-export function IsReasonStruct<GCode>(value: any): value is IReasonStruct<GCode> {
-  return IsObject(value)
-    && HasProperty(value, REASON_PRIVATE_CONTEXT);
-}

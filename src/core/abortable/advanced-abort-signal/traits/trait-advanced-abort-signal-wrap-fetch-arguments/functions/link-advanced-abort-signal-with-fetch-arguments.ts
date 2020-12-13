@@ -2,7 +2,7 @@ import { ExtractSignalFromFetchArguments } from './extract-signal-from-fetch-arg
 import { AdvancedAbortController } from '../../../../advanced-abort-controller/class/advanced-abort-controller-class';
 import { TraitAdvancedAbortSignalToAbortController } from '../../trait-advanced-abort-signal-to-abort-controller';
 import { IAdvancedAbortSignalLikeWithEvents } from '../../../advanced-abort-signal-types';
-import { IsAbortControllerSupported } from '../../../../functions/is-abort-controller-supported';
+import { IsAbortControllerSupported } from '../../../../../helpers/abortable/is-abort-controller-supported';
 
 export interface ILinkAdvancedAbortSignalWithFetchArgumentsAdvancedAbortSignal extends IAdvancedAbortSignalLikeWithEvents, TraitAdvancedAbortSignalToAbortController<any> {
 
