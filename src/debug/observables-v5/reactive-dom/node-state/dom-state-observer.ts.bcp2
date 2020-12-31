@@ -1,0 +1,215 @@
+import { IEmitFunction, IUnsubscribeFunction } from '../../types';
+
+// /****** STATE ******/
+//
+// /**
+//  * A node may be in one of the following state:
+//  *  - 'attached' => the node has a parent node
+//  *  - 'attaching' => the node is currently in an 'attaching' phase
+//  *  - 'detached' => the node hasn't any parent node
+//  *  - 'detaching' => the node is currently in an 'detaching' phase
+//  *  - 'destroyed' => the node is destroyed (will not re-enter into the DOM, so all linked resources may be removed)
+//  *  - 'destroying' => the node is currently in an 'destroying' phase
+//  */
+// export type TNodeState = 'attached' | 'attaching' | 'detached' | 'detaching' | 'destroying' | 'destroyed';
+//
+// // map from a Node to its TNodeState
+// const NODE_STATE_MAP = new WeakMap<Node, TNodeState>();
+//
+// /**
+//  * Returns the state of a Node
+//  */
+// export function getNodeState(
+//   node: Node,
+// ): TNodeState {
+//   let state: TNodeState;
+//   const isDetached: boolean = (node.parentNode === null);
+//   if (NODE_STATE_MAP.has(node)) {
+//     state = NODE_STATE_MAP.get(node) as TNodeState;
+//     if (
+//       (isDetached && (state === 'attached'))
+//       || (!isDetached && ((state === 'detached') || (state === 'destroyed')))
+//     ) {
+//       console.warn(`Incoherent state: found a node in state '${ state }' ${ isDetached ? 'without' : 'with' } a parent.`);
+//       state = (node.parentNode === null) ? 'detached' : 'attached';
+//       NODE_STATE_MAP.set(node, state);
+//     }
+//   } else {
+//     state = isDetached ? 'detached' : 'attached';
+//     NODE_STATE_MAP.set(node, state);
+//   }
+//   return state;
+// }
+//
+//
+// /****** ATTACH ******/
+//
+// /**
+//  * Default function of what to do when a 'node' should be attached to a 'parent' before a 'refNode'.
+//  */
+// export function ApplyAttach(node: Node, parent: Node, refNode: Node | null = null): void {
+//   const doc: Document | null = node.ownerDocument;
+//   if (doc === null) {
+//     throw new Error(`Expected a node having a document`);
+//   } else {
+//     if (NodeIsDocumentFragmentNode(node)) {
+//       const nodes: Node[] = Array.from(node.childNodes);
+//       parent.insertBefore(node, refNode);
+//       const length: number = nodes.length;
+//       if ((length > 0) && doc.contains(nodes[0])) {
+//         for (let i = 0; i < length; i++) {
+//           ForEachNodeStateObservablesOfNodeTree(nodes[i], NodeStateObservableOnMutationConnect);
+//         }
+//       }
+//     } else {
+//       parent.insertBefore(node, refNode);
+//       if (doc.contains(node)) {
+//         ForEachNodeStateObservablesOfNodeTree(node, NodeStateObservableOnMutationConnect);
+//       }
+//     }
+//   }
+// }
+
+
+// type INodeStateToEmitFunctionsMap = Map<string, IEmitFunction<void>[]>;
+//
+// const DOM_STATE_OBSERVERS = new WeakMap<Node, INodeStateToEmitFunctionsMap>();
+//
+//
+// export function onNodeStateChange(
+//   node: Node,
+//   state: TNodeState,
+//   callback: IEmitFunction<void>
+// ): IUnsubscribeFunction {
+//   let map: INodeStateToEmitFunctionsMap;
+//   if (DOM_STATE_OBSERVERS.has(node)) {
+//     map = DOM_STATE_OBSERVERS.get(node) as INodeStateToEmitFunctionsMap;
+//   } else {
+//     map = new Map<string, IEmitFunction<void>[]>();
+//     DOM_STATE_OBSERVERS.set(node, map);
+//   }
+//
+//   let callbacks: IEmitFunction<void>[];
+//   if (map.has(state)) {
+//     callbacks = map.get(state) as IEmitFunction<void>[];
+//   } else {
+//     callbacks = [];
+//     map.set(state, callbacks);
+//   }
+//
+//   if (callbacks.includes(callback)) {
+//     throw new Error(`Already observing this Node`);
+//   } else {
+//     callbacks.push(callback);
+//   }
+//
+//   let running: boolean = true;
+//
+//   return () => {
+//     if (running) {
+//       running = false;
+//       callbacks.splice(callbacks.indexOf(callback), 1);
+//     }
+//   };
+// }
+//
+//
+// export function computeNodeState(
+//   node: Node,
+// ): TNodeState {
+//   return node.isConnected
+//     ? 'connected'
+//     : 'disconnected';
+// }
+//
+// export function getNodeState(
+//   node: Node,
+// ): TNodeState {
+//   if (NODE_STATE.has(node)) {
+//     return NODE_STATE.get(node) as TNodeState;
+//   } else {
+//     return computeNodeState(node);
+//   }
+// }
+//
+// export function setNodeState(
+//   node: Node,
+//   state: TNodeState,
+// ): void {
+//   if (state !== getNodeState(node)) {
+//     NODE_STATE.set(node, state);
+//     let callbacks: IEmitFunction<void>[];
+//     if (DOM_STATE_OBSERVERS.has(node)) {
+//       const map: INodeStateToEmitFunctionsMap = DOM_STATE_OBSERVERS.get(node) as INodeStateToEmitFunctionsMap;
+//       if (map.has(state)) {
+//         const callbacks: IEmitFunction<void>[] = (map.get(state) as IEmitFunction<void>[]).slice();
+//         for (let i = 0, l = callbacks.length; i < l; i++) {
+//           callbacks[i]();
+//         }
+//       }
+//     }
+//   }
+// }
+//
+//
+// export function setNodeStateIncludingChildren(
+//   node: Node,
+//   state: TNodeState,
+// ): void {
+//   if (state !== getNodeState(node)) {
+//     setNodeState(node, state);
+//     // TODO
+//   }
+// }
+//
+// export function destroyNode(
+//   node: Node,
+// ): void {
+//   if (getNodeState(node) === 'disconnected') {
+//     if (node.parentNode !== null) {
+//       node.parentNode.removeChild(node);
+//     }
+//     setNodeStateIncludingChildren(node, 'destroyed');
+//   } else {
+//     throw new Error(`Node is '${ getNodeState(node) }'`);
+//   }
+// }
+//
+// export function attachNode(
+//   node: Node,
+//   parentNode: Node,
+//   referenceNope: Node | null,
+// ): void {
+//   if (getNodeState(node) === 'disconnected') {
+//     parentNode.insertBefore(node, referenceNope);
+//     setNodeStateIncludingChildren(node, 'connected');
+//   } else {
+//     throw new Error(`Node is '${ getNodeState(node) }'`);
+//   }
+// }
+//
+// export function detachNode(
+//   node: Node,
+// ): void {
+//   if (getNodeState(node) === 'connected') {
+//     if (node.parentNode !== null) {
+//       node.parentNode.removeChild(node);
+//     }
+//     setNodeStateIncludingChildren(node, 'disconnected');
+//   } else {
+//     throw new Error(`Node is '${ getNodeState(node) }'`);
+//   }
+// }
+//
+// export function clearOnDestroyed<GNode extends Node>(
+//   node: GNode,
+//   clear: () => void,
+// ): GNode {
+//   const unsubscribeOnDestroyed: IUnsubscribeFunction = onNodeStateChange(node, 'destroyed', () => {
+//     clear();
+//     unsubscribeOnDestroyed();
+//   });
+//   return node;
+// }
+//
+//

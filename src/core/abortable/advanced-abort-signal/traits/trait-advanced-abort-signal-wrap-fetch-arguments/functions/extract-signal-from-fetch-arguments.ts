@@ -1,17 +1,17 @@
-import { IsAbortSignal } from '../../../../../helpers/abortable/is-abort-signal';
-import { IsAbortControllerSupported } from '../../../../../helpers/abortable/is-abort-controller-supported';
+import { isAbortSignal } from '../../../../../../debug/observables-v5/misc/abortable/is-abort-signal';
+import { isAbortControllerSupported } from '../../../../../../debug/observables-v5/misc/abortable/is-abort-controller-supported';
 
 
 /**
  * Returns the linked AbortSignal (if exists) of a fetch request
  */
 export function ExtractSignalFromFetchArguments(requestInfo: RequestInfo, requestInit: RequestInit = {}): AbortSignal | null {
-  if (IsAbortControllerSupported()) {
-    if (IsAbortSignal(requestInit.signal)) {
+  if (isAbortControllerSupported()) {
+    if (isAbortSignal(requestInit.signal)) {
       return requestInit.signal;
     } else if (
       (requestInfo instanceof Request)
-      && IsAbortSignal(requestInfo.signal)
+      && isAbortSignal(requestInfo.signal)
     ) {
       return requestInfo.signal;
     } else {

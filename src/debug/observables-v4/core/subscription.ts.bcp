@@ -1,0 +1,139 @@
+import { IObserver } from './observer';
+import { IObservable, IObservableUnsubscribeFunction } from './observable';
+
+export class SingleSubscription<GValue> {
+  protected readonly observable: IObservable<GValue>;
+  protected readonly observer: IObserver<GValue>;
+  protected _unsubscribe: IObservableUnsubscribeFunction | null;
+
+  constructor(
+    observable: IObservable<GValue>,
+    observer: IObserver<GValue>,
+  ) {
+    this.observable = observable;
+    this.observer = observer;
+    this._unsubscribe = null;
+  }
+
+  isActivated(): boolean {
+    return this._unsubscribe !== null;
+  }
+
+  activate(): this {
+    if (this._unsubscribe === null) {
+      this._unsubscribe = this.observable.subscribe(this.observer);
+    }
+    return this;
+  }
+
+  deactivate(): this {
+    if (this._unsubscribe !== null) {
+      this._unsubscribe();
+    }
+    return this;
+  }
+
+  toggle(activate: boolean = !this.isActivated()): this {
+    if (activate) {
+      return this.activate();
+    } else {
+      return this.deactivate();
+    }
+  }
+}
+
+
+export class ReadonlySubscription<GValue> {
+  protected readonly _observables: IObservable<GValue>[];
+  protected readonly _observers: IObserver<GValue>[];
+  protected readonly _subscriptions: IObservableUnsubscribeFunction[];
+  protected _activated: boolean;
+
+  constructor(
+    observables: Iterable<IObservable<GValue>>,
+    observers: Iterable<IObserver<GValue>>,
+  ) {
+    this._observables = Array.from(observables);
+    this._observers = Array.from(observers);
+    this._subscriptions = new Array<IObservableUnsubscribeFunction>(this._observables.length * this._observers.length);
+    this._activated = false;
+  }
+
+  isActivated(): boolean {
+    return this._activated;
+  }
+
+  activate(): this {
+    if (!this._activated) {
+      let k: number = 0;
+      for (let i: number = 0, li: number = this._observables.length; i < li; i++) {
+        const observable: IObservable<GValue> = this._observables[i];
+        for (let j: number = 0, lj: number = this._observers.length; j < lj; j++) {
+          this._subscriptions[k++] = observable.subscribe(this._observers[j]);
+        }
+      }
+    }
+    return this;
+  }
+
+  deactivate(): this {
+    if (this._activated) {
+      for (let i: number = 0, l: number = this._subscriptions.length; i < l; i++) {
+        this._subscriptions[i]();
+      }
+    }
+    return this;
+  }
+
+  toggle(activate: boolean = !this.isActivated()): this {
+    if (activate) {
+      return this.activate();
+    } else {
+      return this.deactivate();
+    }
+  }
+}
+
+
+export class Subscription<GValue> extends ReadonlySubscription<GValue> {
+  constructor(
+    observables: Iterable<IObservable<GValue>> = [],
+    observers: Iterable<IObserver<GValue>> = [],
+  ) {
+    super(
+      observables,
+      observers,
+    );
+  }
+
+  addObservers(...observers: IObserver<GValue>[]): this {
+    for (let i: number = 0, li: number = observers.length; i < li; i++) {
+      const observer: IObserver<GValue> = observers[i];
+      this._observers.push(observer);
+      if (this._activated) {
+        for (let j: number = 0, lj: number = this._observables.length; j < lj; j++) {
+          this._subscriptions.push(
+            this._observables[j].subscribe(observer)
+          );
+        }
+      }
+    }
+    return this;
+  }
+
+  removeObservers(...observers: IObserver<GValue>[]): this {
+    for (let i: number = 0, li: number = observers.length; i < li; i++) {
+      const observer: IObserver<GValue> = observers[i];
+      const index: number = this._observers.indexOf();
+      this._observers.push(observer);
+      if (this._activated) {
+        for (let j: number = 0, lj: number = this._observables.length; j < lj; j++) {
+          this._subscriptions.push(
+            this._observables[j].subscribe(observer)
+          );
+        }
+      }
+    }
+    return this;
+  }
+}

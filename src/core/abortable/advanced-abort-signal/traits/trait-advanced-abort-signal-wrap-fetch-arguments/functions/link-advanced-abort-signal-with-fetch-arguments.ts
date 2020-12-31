@@ -2,7 +2,7 @@ import { ExtractSignalFromFetchArguments } from './extract-signal-from-fetch-arg
 import { AdvancedAbortController } from '../../../../advanced-abort-controller/class/advanced-abort-controller-class';
 import { TraitAdvancedAbortSignalToAbortController } from '../../trait-advanced-abort-signal-to-abort-controller';
 import { IAdvancedAbortSignalLikeWithEvents } from '../../../advanced-abort-signal-types';
-import { IsAbortControllerSupported } from '../../../../../helpers/abortable/is-abort-controller-supported';
+import { isAbortControllerSupported } from '../../../../../../debug/observables-v5/misc/abortable/is-abort-controller-supported';
 
 export interface ILinkAdvancedAbortSignalWithFetchArgumentsAdvancedAbortSignal extends IAdvancedAbortSignalLikeWithEvents, TraitAdvancedAbortSignalToAbortController<any> {
 
@@ -17,7 +17,7 @@ export function LinkAdvancedAbortSignalWithFetchArguments(
   requestInfo: RequestInfo,
   requestInit?: RequestInit,
 ): RequestInit | undefined {
-  if (IsAbortControllerSupported()) {
+  if (isAbortControllerSupported()) {
     const signal: AbortSignal | null = ExtractSignalFromFetchArguments(requestInfo, requestInit);
     const newSignal: TraitAdvancedAbortSignalToAbortController<any> =
       (signal === null)

@@ -1,6 +1,6 @@
 import { TAbortSignalLike, TAbortSignalLikeOrUndefined } from '../../advanced-abort-controller-types';
 import { AdvancedAbortController } from '../advanced-abort-controller-class';
-import { IsAbortSignal } from '../../../../helpers/abortable/is-abort-signal';
+import { isAbortSignal } from '../../../../../debug/observables-v5/misc/abortable/is-abort-signal';
 import {
   IAdvancedAbortSignalLike, IsAdvancedAbortSignalLike, TAdvancedAbortSignalKeyValueTupleUnion
 } from '../../../advanced-abort-signal/advanced-abort-signal-types';
@@ -19,7 +19,7 @@ export function AdvancedAbortControllerFromAbortSignals(
     .filter((signal: TAbortSignalLikeOrUndefined, index: number): signal is TAbortSignalLike => {
       if (signal === void 0) {
         return false;
-      } else if (IsAbortSignal(signal) || IsAdvancedAbortSignalLike(signal)) {
+      } else if (isAbortSignal(signal) || IsAdvancedAbortSignalLike(signal)) {
         return true;
       } else {
         throw new TypeError(`Expected AbortSignal, AdvancedAbortSignal or undefined at arguments #${ index } of AdvancedAbortController.fromAbortSignals`);
@@ -28,7 +28,7 @@ export function AdvancedAbortControllerFromAbortSignals(
 
   const abort = (signal: (AbortSignal | IAdvancedAbortSignalLike)): void => {
     advancedAbortController.abort(
-      IsAbortSignal(signal)
+      isAbortSignal(signal)
         ? new AbortReason(`AbortSignal aborted`)
         : signal.getReason()
     );
@@ -36,7 +36,7 @@ export function AdvancedAbortControllerFromAbortSignals(
 
   for (let i = 0, l = _signals.length; i < l; i++) {
     const signal: TAbortSignalLikeOrUndefined = _signals[i];
-    if (IsAbortSignal(signal) ? signal.aborted : signal.isAborted()) {
+    if (isAbortSignal(signal) ? signal.aborted : signal.isAborted()) {
       abort(signal);
       return advancedAbortController;
     }
@@ -63,7 +63,7 @@ export function AdvancedAbortControllerFromAbortSignals(
     }
 
     const eventListener: TEventListener = (
-      IsAbortSignal(signal)
+      isAbortSignal(signal)
         ? new EventListenerFromEventTarget<TAdvancedAbortSignalKeyValueTupleUnion>(signal)
         : signal
     );

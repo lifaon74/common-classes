@@ -1,8 +1,8 @@
 import type { IObserver } from '../core/observer';
 import type {
-  IGenericNotification, INotification, TInferNotificationGName, TInferNotificationGValue
-} from '../notifications/notification-interface';
-import { createNotification } from '../notifications/create-notification';
+  IGenericNotification, TInferGValueFromNotificationsUnionAndName, TInferNotificationGName
+} from '../misc/notifications/notification-interface';
+import { createNotification } from '../misc/notifications/create-notification';
 
 // function dispatch<GName extends string, GValue>(
 //   observer: IObserver<INotification<GName, GValue>>,
@@ -12,9 +12,6 @@ import { createNotification } from '../notifications/create-notification';
 //   observer.emit(new Notification<GName, GValue>(name, value));
 // }
 
-
-export type TInferGValueFromNotificationsUnionAndName<GNotificationsUnion extends IGenericNotification, GName extends TInferNotificationGName<GNotificationsUnion>>
-  = TInferNotificationGValue<Extract<GNotificationsUnion, INotification<GName, any>>>;
 
 export function dispatch<GNotificationsUnion extends IGenericNotification, GName extends TInferNotificationGName<GNotificationsUnion>>(
   observer: IObserver<GNotificationsUnion>,
