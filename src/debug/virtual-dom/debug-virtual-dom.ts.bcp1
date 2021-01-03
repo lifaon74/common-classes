@@ -1,0 +1,159 @@
+
+// const a: HTMLElement;
+// a.remove()
+
+
+
+export abstract class VirtualNode {
+  protected _firstChild: VirtualNode | null;
+  protected _lastChild: VirtualNode | null; // redundant
+  protected _previousNode: VirtualNode | null; // redundant
+  protected _nextNode: VirtualNode | null;
+  protected _parentNode: VirtualNode | null;
+
+
+  // public readonly type: number;
+
+
+  protected constructor() {
+    this._firstChild = null;
+    this._lastChild = null;
+    this._previousNode = null;
+    this._nextNode = null;
+    this._parentNode = null;
+  }
+
+  getFirstChild(): VirtualNode | null {
+    return this._firstChild;
+  }
+
+  getLastChild(): VirtualNode | null {
+    return this._lastChild;
+  }
+
+  getPreviousNode(): VirtualNode | null {
+    return this._previousNode;
+  }
+
+  getNextNode(): VirtualNode | null {
+    return this._nextNode;
+  }
+
+  getParentNode(): VirtualNode | null {
+    return this._parentNode;
+  }
+
+
+  attach(
+    parentNode: VirtualNode,
+    referenceNode: VirtualNode | null = null,
+  ): void {
+    if (this._parentNode !== null) {
+      this.detach();
+    }
+
+    if (referenceNode === null) { // referenceNode is parentNode._firstChild
+      if (parentNode._lastChild === null) { // the parentNode is empty
+        parentNode._lastChild = this;
+      } else { // the parentNode has some children
+        (parentNode._firstChild as VirtualNode)._previousNode = this;
+        this._nextNode = parentNode._firstChild;
+      }
+      parentNode._firstChild = this;
+    } else if (referenceNode._parentNode === parentNode) { // ensures that referenceNode is a child of parentNode
+      // here we are sure that parentNode has some children
+
+      // TODO
+    } else {
+      throw new Error(`referenceNode is not a child of parentNode`);
+    }
+
+    // if (referenceNode === null) { // referenceNode is parentNode._lastChild
+    //   if (parentNode._firstChild === null) { // the parentNode is empty
+    //     parentNode._firstChild = this;
+    //   } else { // the parentNode has some children
+    //     (parentNode._lastChild as VirtualNode)._nextNode = this;
+    //     this._previousNode = parentNode._lastChild;
+    //   }
+    //   parentNode._lastChild = this;
+    // } else if (referenceNode._parentNode === parentNode) { // ensures that referenceNode is a child of parentNode
+    //   // here we are sure that parentNode has some children
+    //
+    //   // TODO
+    // } else {
+    //   throw new Error(`referenceNode is not a child of parentNode`);
+    // }
+  }
+
+  detach(): void {
+    if (this._parentNode !== null) {
+      // previous
+      if (this._previousNode === null) { // is first child
+        this._parentNode._firstChild = this._nextNode; // if node is the first child of it's parent, we must update it's parent's first child
+      } else {
+        this._previousNode._nextNode = this._nextNode;
+      }
+      this._previousNode = null;
+
+      // next
+      if (this._nextNode === null) { // is last child
+        this._parentNode._lastChild = this._previousNode;
+      } else {
+        this._nextNode._previousNode = this._previousNode;
+      }
+      this._nextNode = null;
+
+      this._parentNode = null;
+    }
+  }
+
+  /*---*/
+
+  hasChild(child: VirtualNode): boolean {
+    return child._parentNode === this;
+    // const iterator: Iterator<VirtualNode> = this.getChildrenAsc();
+    // let result: IteratorResult<VirtualNode>;
+    // while (!(result = iterator.next()).done) {
+    //   const node: VirtualNode = result.value;
+    //   if (node === child) {
+    //     return true;
+    //   }
+    // }
+    // return false;
+  }
+
+  getChildren(
+    asc: boolean = true,
+  ): Generator<VirtualNode, void, void> {
+    return asc
+     ? this.getChildrenAsc()
+     : this.getChildrenDesc();
+  }
+
+  * getChildrenAsc(): Generator<VirtualNode, void, void> {
+    let node: VirtualNode | null = this._firstChild;
+    while (node !== null) {
+      yield node;
+      node = node._nextNode;
+    }
+  }
+
+  * getChildrenDesc(): Generator<VirtualNode, void, void> {
+    let node: VirtualNode | null = this._lastChild;
+    while (node !== null) {
+      yield node;
+      node = node._previousNode;
+    }
+  }
+}
+
+
+
+
+
+
+
+export async function debugVirtualDOM() {
+
+}
+
