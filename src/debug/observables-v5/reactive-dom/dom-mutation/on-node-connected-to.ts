@@ -1,45 +1,94 @@
 import { IEmitFunction, ISubscribeFunction, IUnsubscribeFunction } from '../../types';
-import { createListenerBuilderFunctions, createListenerMap } from '../../misc/event-listener/build-event-listener';
 import { noop } from '../../misc/helpers/noop';
+import { onNodeDetachedListener } from './detach-node';
+import { onNodeAttachedListener } from './attach-node';
 
-
-/** ATTACH **/
-
-const ON_NODE_ATTACHED_LISTENERS = createListenerMap<Node, void>();
-
-export const {
-  listener: onNodeAttachedListener,
-  dispatch: dispatchNodeAttached,
-} = createListenerBuilderFunctions(ON_NODE_ATTACHED_LISTENERS);
-
-export function attachNode(
+export function onNodeConnectedTo(
   node: Node,
-  parentNode: Node,
-  referenceNope: Node | null,
-): void {
-  parentNode.insertBefore(node, referenceNope);
-  dispatchNodeAttached(node);
+  parentNode: Node = document,
+): ISubscribeFunction<boolean> {
+  return (emit: IEmitFunction<boolean>): IUnsubscribeFunction => {
+    let running: boolean = true;
+    let _unsubscribeFunctions: IUnsubscribeFunction[] = [];
+    let _unsubscribeAttachListener: IUnsubscribeFunction = noop;
+    let _connected: boolean = parentNode.contains(node);
+
+    const update = (referenceNode: Node): void => {
+      let _node: Node = referenceNode;
+      let _parentNode: Node | null = _node.parentNode;
+
+      // for each parents, until we find parentNode or null
+      while ((_parentNode !== null) && (_parentNode !== parentNode)) {
+        const index: number = _unsubscribeFunctions.length;
+
+        _unsubscribeFunctions.push(
+          // if any of the parents becomes detached, the node referenceNode change
+          onNodeDetachedListener(_node)((): void => {
+            _unsubscribeAttachListener();
+            _unsubscribeAttachListener = noop;
+
+            // removes all unsubscribeFunctions for parents over this node
+            while (_unsubscribeFunctions.length > index) {
+              (_unsubscribeFunctions.pop() as IUnsubscribeFunction)();
+            }
+
+            // console.log('detached', referenceNode);
+
+            update(referenceNode);
+          })
+        );
+        _node = _parentNode;
+        _parentNode = _node.parentNode;
+      }
+
+
+      if (_parentNode === null) {
+        // console.log('await attached', _node);
+        // await until the parent become attached
+        _unsubscribeAttachListener = onNodeAttachedListener(_node)((): void => {
+          _unsubscribeAttachListener();
+          _unsubscribeAttachListener = noop;
+          // console.log('attached', _node);
+          update(_node);
+        });
+        if (_connected) {
+          _connected = false;
+          emit(false);
+        }
+      } else {
+        if (!_connected) {
+          _connected = true;
+          emit(true);
+        }
+      }
+      // console.log(_unsubscribeAttachListener === noop, _unsubscribeFunctions.length);
+    };
+
+    update(node);
+
+    return (): void => {
+      if (running) {
+        running = false;
+        _unsubscribeAttachListener();
+        for (let i = 0, l = _unsubscribeFunctions.length; i < l; i++) {
+          _unsubscribeFunctions[i]();
+        }
+      }
+    };
+  };
 }
 
-/** DETACH **/
 
-const ON_NODE_DETACHED_LISTENERS = createListenerMap<Node, void>();
-
-export const {
-  listener: onNodeDetachedListener,
-  dispatch: dispatchNodeDetached,
-} = createListenerBuilderFunctions(ON_NODE_DETACHED_LISTENERS);
-
-export function detachNode(
+export function onNodeConnectedToWithImmediate(
   node: Node,
-): void {
-  if (node.parentNode !== null) {
-    node.parentNode.removeChild(node);
-    dispatchNodeDetached(node);
-  }
+  parentNode: Node = document,
+): ISubscribeFunction<boolean> {
+  const listener: ISubscribeFunction<boolean> = onNodeConnectedTo(node, parentNode);
+  return (emit: IEmitFunction<boolean>): IUnsubscribeFunction => {
+    emit(parentNode.contains(node));
+    return listener(emit);
+  };
 }
-
-/** CONNECTED **/
 
 
 // export function onNodeConnectedTo(
@@ -202,91 +251,6 @@ export function detachNode(
 //   }
 // }
 
-export function onNodeConnectedTo(
-  node: Node,
-  parentNode: Node = document,
-): ISubscribeFunction<boolean> {
-  return (emit: IEmitFunction<boolean>): IUnsubscribeFunction => {
-    let running: boolean = true;
-    let _unsubscribeFunctions: IUnsubscribeFunction[] = [];
-    let _unsubscribeAttachListener: IUnsubscribeFunction = noop;
-    let _connected: boolean = parentNode.contains(node);
-
-    const update = (referenceNode: Node): void => {
-      let _node: Node = referenceNode;
-      let _parentNode: Node | null = _node.parentNode;
-
-      // for each parents, until we find parentNode or null
-      while ((_parentNode !== null) && (_parentNode !== parentNode)) {
-        const index: number = _unsubscribeFunctions.length;
-
-        _unsubscribeFunctions.push(
-          // if any of the parents becomes detached, the node referenceNode change
-          onNodeDetachedListener(_node)((): void => {
-            _unsubscribeAttachListener();
-            _unsubscribeAttachListener = noop;
-
-            // removes all unsubscribeFunctions for parents over this node
-            while (_unsubscribeFunctions.length > index) {
-              (_unsubscribeFunctions.pop() as IUnsubscribeFunction)();
-            }
-
-            update(referenceNode);
-          })
-        );
-        _node = _parentNode;
-        _parentNode = _node.parentNode;
-      }
-
-
-      if (_parentNode === null) {
-        // console.log('await attached', _node);
-        // await until the parent become attached
-        _unsubscribeAttachListener = onNodeAttachedListener(_node)((): void => {
-          _unsubscribeAttachListener();
-          _unsubscribeAttachListener = noop;
-          // console.log('attached', _node);
-          update(_node);
-        });
-        if (_connected) {
-          _connected = false;
-          emit(false);
-        }
-      } else {
-        if (!_connected) {
-          _connected = true;
-          emit(true);
-        }
-      }
-      // console.log(_unsubscribeAttachListener === noop, _unsubscribeFunctions.length);
-    };
-
-    update(node);
-
-    return (): void => {
-      if (running) {
-        running = false;
-        _unsubscribeAttachListener();
-        for (let i = 0, l = _unsubscribeFunctions.length; i < l; i++) {
-          _unsubscribeFunctions[i]();
-        }
-      }
-    };
-  };
-}
-
-
-export function onNodeConnectedToWithImmediate(
-  node: Node,
-  parentNode: Node = document,
-): ISubscribeFunction<boolean> {
-  const listener: ISubscribeFunction<boolean> = onNodeConnectedTo(node, parentNode);
-  return (emit: IEmitFunction<boolean>): IUnsubscribeFunction => {
-    emit(parentNode.contains(node));
-    return listener(emit);
-  };
-}
-
 // export function onNodeConnectedTo(
 //   node: Node,
 //   parentNode: Node = document,
@@ -394,42 +358,3 @@ export function onNodeConnectedToWithImmediate(
 //     };
 //   };
 // }
-
-
-// /** DESTROY **/
-//
-// const ON_NODE_DESTROYED_LISTENERS = new WeakMap<Node, IEmitFunction<void>[]>();
-// const DESTROYED_NODES = new WeakSet<Node>();
-//
-// export const {
-//   listener: nodeDestroyedListener,
-//   dispatch: dispatchNodeDestroyed,
-// } = createListenerBuilderFunctions(ON_NODE_DESTROYED_LISTENERS);
-//
-//
-// /**
-//  * Flags a Node as destroyed and dispatch corresponding event.
-//  */
-// export function destroyNode(
-//   node: Node,
-// ): void {
-//   if (DESTROYED_NODES.has(node)) {
-//     throw new Error(`Already destroyed`);
-//   } else {
-//     DESTROYED_NODES.add(node);
-//     dispatchNodeDestroyed(node);
-//   }
-// }
-//
-// export function destroyNodeAndChildren(
-//   node: Node,
-// ): void {
-//   destroyNode(node);
-//   let child: Node | null = node.firstChild;
-//   while (child !== null) {
-//     destroyNodeAndChildren(child);
-//     child = child.nextSibling;
-//   }
-// }
-
-

@@ -19,9 +19,9 @@ import { throwError } from './from/others/throw-error';
 import { createNetworkErrorFromRequest } from './misc/errors/network-error/create-network-error';
 import { expression } from './from/others/expression';
 import { logOperator } from './operators/tap';
-import { createSourceUsingFastArrayIterator, createSource } from './misc/source/create-source';
+import { createSource } from './misc/source/create-source';
 import { replaySharedOperator } from './operators/replay/replay';
-import { replayLastSharedOperator } from './operators/replay/replay-last/replay-last';
+import { debugReactiveDOM } from './reactive-dom/debug-reactive-dom';
 
 function unsubscribeIn(unsubscribe: IUnsubscribeFunction, ms: number): void {
   setTimeout(unsubscribe, ms);
@@ -322,7 +322,9 @@ async function debugSourcePerf1() {
     console.time('perf');
     let j: number = 0;
     for (let i = 0; i < 1e5; i++) {
-      source.subscribe(() => { j++; });
+      source.subscribe(() => {
+        j++;
+      });
     }
     source.emit();
     console.timeEnd('perf');
@@ -334,7 +336,9 @@ async function debugSourcePerf1() {
     // const source = createSourceUsingFastArrayIterator<void>();
     const source = createSource<void>({ disableDuplicateSubscribeVerification: true });
     for (let i = 0; i < 1e6; i++) {
-      source.subscribe(() => { j++; });
+      source.subscribe(() => {
+        j++;
+      });
     }
 
     console.time('perf');
@@ -367,10 +371,10 @@ export async function debugObservableV5() {
   // await debugObservable8();
   // await debugObservable9();
   // await debugObservable10();
-  await debugObservable11();
+  // await debugObservable11();
 
   // await debugSource1();
   // await debugSourcePerf1();
 
-  // await debugReactiveDOM();
+  await debugReactiveDOM();
 }

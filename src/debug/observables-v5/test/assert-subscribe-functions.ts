@@ -28,7 +28,7 @@ export function testSubscribeFunctionEmits<GValue>(
 
     const end = () => {
       clearInterval(timer);
-      asyncUnsubscribe(() => unsubscribe)
+      asyncUnsubscribe(() => unsubscribe);
     };
 
     const _resolve = () => {

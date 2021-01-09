@@ -1,6 +1,6 @@
 import { ISubscribeFunction } from '../../types';
 import { ISource } from '../source/source-interface';
-import { createSource, createSourceUsingFastArrayIterator } from '../source/create-source';
+import { createSource } from '../source/create-source';
 
 /* MAP **/
 

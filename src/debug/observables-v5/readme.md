@@ -449,7 +449,8 @@ source.next('hello world');
 #### others
 
 - chain many OperatorFunctions: [pipeOperatorFunctions](./misc/helpers/pipe-operator-functions.ts)
-- chain many OperatorFunctions with a SubscribeFunction: [pipeSubscribeFunction](./misc/helpers/pipe-subscribe-function.ts)
+- chain many OperatorFunctions with a
+  SubscribeFunction: [pipeSubscribeFunction](./misc/helpers/pipe-subscribe-function.ts)
 
 
 

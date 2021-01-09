@@ -1,5 +1,7 @@
 import { ISubscribeFunction } from '../../../../types';
-import { fromAsyncIterator, ISubscribeFunctionFromAsyncIteratorNotifications } from '../from-async-iterator/from-async-iterator';
+import {
+  fromAsyncIterator, ISubscribeFunctionFromAsyncIteratorNotifications
+} from '../from-async-iterator/from-async-iterator';
 
 export type ISubscribeFunctionFromAsyncIterableNotifications<GValue> = ISubscribeFunctionFromAsyncIteratorNotifications<GValue>;
 

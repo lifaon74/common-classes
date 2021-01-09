@@ -46,6 +46,7 @@ export interface IFastArrayIteratorMutateCallback<GValue> {
 
 export interface IFastArrayIterator<GValue> {
   isIterating(): boolean;
+
   getArray(): readonly GValue[];
 
   readonly iterate: (callback: IFastArrayIteratorCallback<GValue>) => void;

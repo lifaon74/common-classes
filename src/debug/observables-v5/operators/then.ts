@@ -1,6 +1,5 @@
 import {
-  IDefaultNotificationsUnion, IEmitFunction, IGenericDefaultNotificationsUnion, IOperatorFunction, ISubscribeFunction,
-  IUnsubscribeFunction
+  IDefaultNotificationsUnion, IEmitFunction, IOperatorFunction, ISubscribeFunction, IUnsubscribeFunction
 } from '../types';
 import { toPromise } from '../to/to-promise';
 import { throwError } from '../from/others/throw-error';

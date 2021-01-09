@@ -1,7 +1,6 @@
 import { IEmitFunction, IOperatorFunction, ISubscribeFunction, IUnsubscribeFunction } from '../types';
 import { IGenericNotification } from '../misc/notifications/notification-interface';
 import { IErrorNotification } from '../misc/notifications/built-in/error-notification';
-import { mapOperator } from './map';
 import { asyncUnsubscribe } from '../misc/helpers/async-unsubscribe';
 //
 // // TODO: https://rxjs-dev.firebaseapp.com/api/operators/catchError
