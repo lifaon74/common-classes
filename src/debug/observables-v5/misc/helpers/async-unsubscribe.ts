@@ -1,5 +1,9 @@
 import { IUnsubscribeFunction } from '../../types';
 
+/**
+ * Try to unsubscribe immediately. If it fails, await next event loop to unsubscribe
+ * INFO: this is useful to unsubscribe before the unsubscribe function is even assigned
+ */
 export function asyncUnsubscribe(
   getUnsubscribe: () => IUnsubscribeFunction
 ): Promise<void> {

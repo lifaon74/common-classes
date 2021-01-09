@@ -1,8 +1,6 @@
 import { INextNotification } from './misc/notifications/built-in/next-notification';
 import { ICompleteNotification } from './misc/notifications/built-in/complete-notification';
 import { IErrorNotification } from './misc/notifications/built-in/error-notification';
-import { IGenericNotification } from './misc/notifications/notification-interface';
-import { IAbortNotification } from './misc/notifications/built-in/abort-notification';
 
 /** EMIT **/
 

@@ -3,9 +3,9 @@
 // import { debugObservables } from './observables/debug-observables';
 // import { debugColor } from './color/debug-color';
 // import { debugObservableV4 } from './observables-v4/debug-observables-v4';
-// import { debugObservableV5 } from './observables-v5/debug-observables-v5';
+import { debugObservableV5 } from './observables-v5/debug-observables-v5';
 // import { debugVirtualDOM } from './virtual-dom/debug-virtual-dom';
-import { debugLinkedList } from './linked-list/debug-linked-list';
+// import { debugLinkedList } from './linked-list/debug-linked-list';
 
 export async function debug() {
   // await debugEventListener();
@@ -13,7 +13,7 @@ export async function debug() {
   // await debugObservables();
   // await debugColor();
   // await debugObservableV4();
-  // await debugObservableV5();
+  await debugObservableV5();
   // await debugVirtualDOM();
-  await debugLinkedList();
+  // await debugLinkedList();
 }

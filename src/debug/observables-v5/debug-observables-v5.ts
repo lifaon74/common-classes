@@ -1,9 +1,9 @@
 import { interval } from './from/time-related/interval';
 import { pipeSubscribeFunction, pipeSubscribeFunctionSpread } from './misc/helpers/pipe-subscribe-function';
 import { mapOperator } from './operators/map';
-import { IDefaultNotificationsUnion, ISubscribeFunction, IUnsubscribeFunction } from './types';
+import { IUnsubscribeFunction } from './types';
 import { filterOperator } from './operators/filter';
-import { multicastOperator } from './operators/multicast';
+import { shareOperator } from './operators/share';
 import { fromFetch, ISubscribeFunctionFromFetchNotifications } from './from/http/from-fetch';
 import { notificationObserver } from './misc/notifications/notification-observer';
 import { toPromise } from './to/to-promise';
@@ -13,16 +13,15 @@ import { fromReadableStreamReader } from './from/readable-stream/w3c/from-readab
 import { fromAsyncIterable } from './from/iterable/async/from-async-iterable/from-async-iterable';
 import { debounceOperator } from './operators/time-related/debounce';
 import { reactiveSum } from './from/many/reactive-function/built-in/arithmetic/reactive-sum';
-import { createReactiveTextNode } from './reactive-dom/reactive-text-node';
-import { createReactiveConditionalNode } from './reactive-dom/reactive-conditional-node';
-import { fromPromise, ISubscribeFunctionFromPromiseNotifications } from './from/promise/from-promise';
-import { INextNotification } from './misc/notifications/built-in/next-notification';
-import { fulfilledOperator, rejectedOperator, thenOperator } from './operators/then';
+import { fromPromise } from './from/promise/from-promise';
+import { fulfilledOperator, thenOperator } from './operators/then';
 import { throwError } from './from/others/throw-error';
-import { createNetworkError, createNetworkErrorFromRequest } from './misc/errors/network-error/create-network-error';
-import { fromArray } from './from/iterable/sync/from-array';
-import { catchErrorOperator } from './operators/catch-error';
-import { test } from './test/test';
+import { createNetworkErrorFromRequest } from './misc/errors/network-error/create-network-error';
+import { expression } from './from/others/expression';
+import { logOperator } from './operators/tap';
+import { createSourceUsingFastArrayIterator, createSource } from './misc/source/create-source';
+import { replaySharedOperator } from './operators/replay/replay';
+import { replayLastSharedOperator } from './operators/replay/replay-last/replay-last';
 
 function unsubscribeIn(unsubscribe: IUnsubscribeFunction, ms: number): void {
   setTimeout(unsubscribe, ms);
@@ -32,6 +31,13 @@ function noCORS(url: string): string {
   const _url: URL = new URL(`https://cors-anywhere.herokuapp.com/`);
   _url.pathname = url;
   return _url.href;
+}
+
+
+export function $timeout(ms: number): Promise<void> {
+  return new Promise<void>((resolve: any) => {
+    setTimeout(resolve, ms);
+  });
 }
 
 
@@ -50,18 +56,18 @@ async function debugObservable1() {
 }
 
 async function debugObservable2() {
-  const subscribe = pipeSubscribeFunctionSpread(
-    interval(500),
+  const subscribe = pipeSubscribeFunction(interval(500), [
+    logOperator<void>('timer'),
     mapOperator<void, number>(() => Math.random()),
-    multicastOperator<number>(),
-  );
+    shareOperator<number>(),
+  ]);
 
   const unsub1 = subscribe(((value: number) => {
     console.log('value1', value);
   }));
 
   const unsub2 = subscribe(((value: number) => {
-    console.log('value1', value);
+    console.log('value2', value);
   }));
 
   unsubscribeIn(unsub1, 2000);
@@ -69,10 +75,9 @@ async function debugObservable2() {
 }
 
 async function debugObservable3() {
-  const subscribe = pipeSubscribeFunctionSpread(
-    fromFetch(noCORS(`https://www.w3.org/TR/PNG/iso_8859-1.txt`)),
-    multicastOperator<ISubscribeFunctionFromFetchNotifications>()
-  );
+  const subscribe = pipeSubscribeFunction(fromFetch(noCORS(`https://www.w3.org/TR/PNG/iso_8859-1.txt`)), [
+    shareOperator<ISubscribeFunctionFromFetchNotifications>()
+  ]);
 
   subscribe(
     notificationObserver({
@@ -93,7 +98,7 @@ async function debugObservable4() {
   type GNotifications = ISubscribeFunctionReadBlobNotifications<'array-buffer'>;
   const subscribe = pipeSubscribeFunctionSpread(
     readBlob(blob, 'array-buffer'),
-    multicastOperator<GNotifications>()
+    shareOperator<GNotifications>()
   );
 
   subscribe((notification: GNotifications) => {
@@ -136,7 +141,7 @@ async function debugObservable7() {
 
   const subscribe = pipeSubscribeFunctionSpread(
     fromXHR(request),
-    multicastOperator<ISubscribeFunctionFromXHRNotifications>()
+    shareOperator<ISubscribeFunctionFromXHRNotifications>()
   );
 
   subscribe((notification: ISubscribeFunctionFromXHRNotifications) => {
@@ -183,7 +188,8 @@ async function debugObservable8() {
     console.log(value);
   });
 
-  unsubscribeIn(unsubscribe, 2000);
+  await $timeout(2000);
+  unsubscribe();
 }
 
 async function debugObservable9() {
@@ -237,34 +243,119 @@ async function debugObservable9() {
   // });
 }
 
-/*----*/
 
-async function debugObservableReactive1() {
-  const source = pipeSubscribeFunction(interval(1000), [
-    mapOperator<void, string>(() => new Date().toString())
+async function debugObservable10() {
+  const obj: any = { a: 'a', b: { c: 'c' } };
+  type TValue = string | undefined;
+
+  const subscribe = pipeSubscribeFunction(expression<TValue>((): TValue => obj.b?.c), [
+    shareOperator<TValue>()
   ]);
 
-  const node = createReactiveTextNode(source);
-  document.body.appendChild(node);
-}
-
-async function debugObservableReactive2() {
-  let value: boolean = false;
-  const source = pipeSubscribeFunction(interval(1000), [
-    mapOperator<void, boolean>(() => (value = !value))
-  ]);
-
-  const node = createReactiveConditionalNode(source, () => {
-    return new Text(`Hello world !`);
+  const unsubscribe = subscribe((value: TValue): void => {
+    console.log(value);
   });
-  document.body.appendChild(node);
+
+  await $timeout(1000);
+  obj.b.c = 'd';
+
+  await $timeout(1000);
+  obj.b = null;
+
+  await $timeout(1000);
+  unsubscribe();
 }
+
+async function debugObservable11() {
+
+  const source = createSource<number>();
+
+  const subscribe = pipeSubscribeFunction(source.subscribe, [
+    // replayLastSharedOperator<number>()
+    replaySharedOperator<number>(3)
+  ]);
+
+  const unsubscribe1 = subscribe((value: number): void => {
+    console.log('subscription 1', value);
+  });
+
+  for (let i = 0; i < 10; i++) {
+    source.emit(i);
+  }
+
+  const unsubscribe2 = subscribe((value: number): void => {
+    console.log('subscription 2', value);
+  });
+
+  // source.emit(-1);
+
+  unsubscribe1();
+  unsubscribe2();
+}
+
+
+async function debugSource1() {
+  const source = createSource<void>();
+
+  const unsub1 = source.subscribe(() => {
+    console.log('1');
+    unsub2();
+    // unsub1();
+  });
+
+  const unsub2 = source.subscribe(() => {
+    console.log('2');
+  });
+
+  // const unsub3 = source.subscribe(() => {
+  //   console.log('3');
+  // });
+
+  source.emit();
+}
+
+async function debugSourcePerf1() {
+  const test1 = () => {
+    // same time to subscribe => 2845.319091796875ms
+    // const source = createSourceUsingFastArrayIterator<void>();
+    const source = createSource<void>({ disableDuplicateSubscribeVerification: true });
+    console.time('perf');
+    let j: number = 0;
+    for (let i = 0; i < 1e5; i++) {
+      source.subscribe(() => { j++; });
+    }
+    source.emit();
+    console.timeEnd('perf');
+    console.log(j);
+  };
+
+  const test2 = () => {
+    // 816.326171875 vs 577.4970703125
+    // const source = createSourceUsingFastArrayIterator<void>();
+    const source = createSource<void>({ disableDuplicateSubscribeVerification: true });
+    for (let i = 0; i < 1e6; i++) {
+      source.subscribe(() => { j++; });
+    }
+
+    console.time('perf');
+    let j: number = 0;
+    for (let i = 0; i < 1e2; i++) {
+      source.emit();
+    }
+    console.timeEnd('perf');
+    console.log(j);
+  };
+
+  // test1();
+  test2();
+}
+
 
 /*----*/
 
 
 export async function debugObservableV5() {
-  await test();
+  // await test();
 
   // await debugObservable1();
   // await debugObservable2();
@@ -275,7 +366,11 @@ export async function debugObservableV5() {
   // await debugObservable7();
   // await debugObservable8();
   // await debugObservable9();
+  // await debugObservable10();
+  await debugObservable11();
 
-  // await debugObservableReactive1();
-  // await debugObservableReactive2();
+  // await debugSource1();
+  // await debugSourcePerf1();
+
+  // await debugReactiveDOM();
 }

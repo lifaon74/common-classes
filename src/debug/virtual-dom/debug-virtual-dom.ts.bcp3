@@ -1,0 +1,281 @@
+import { IEmitFunction, IUnsubscribeFunction } from '../observables-v5/types';
+import { createListenerBuilderFunctions } from '../observables-v5/misc/event-listener/build-event-listener';
+import { uuid } from '../observables-v5/misc/helpers/uuid';
+
+// const a: HTMLElement;
+// a.remove();
+
+
+/*
+SYNTAX:
+
+<div *let="data = data.observable">
+  ...content
+</div>
+
+=>
+
+let previousNode = createComment('*let="data = data.observable"');
+subscribe(data.observable, (data) => {
+  const node = createElement('div');
+  replaceNode(previousNode, node);
+  // ... insert content
+));
+
+ */
+
+/*----------------------------------------------------------------------------------------------------*/
+
+/*---*/
+
+const VIRTUAL_NODE_PARENT_CHILD_MAP = new WeakMap<VirtualNode, VirtualParentNode>();
+
+export function getVirtualNodeParent(
+  node: VirtualNode,
+): VirtualParentNode | null {
+  return VIRTUAL_NODE_PARENT_CHILD_MAP.get(node) || null;
+}
+
+export function isVirtualNodeChildOf(
+  child: VirtualNode,
+  parentNode: VirtualParentNode,
+): boolean {
+  // return parentNode.children.includes(child);
+  return VIRTUAL_NODE_PARENT_CHILD_MAP.get(child) === parentNode;
+}
+
+export function getVirtualNodeIndex(
+  child: VirtualNode,
+  parentNode: VirtualParentNode,
+): number {
+  return parentNode.children.indexOf(child);
+}
+
+export function getVirtualNodeIndexOrThrow(
+  child: VirtualNode,
+  parentNode: VirtualParentNode,
+): number {
+  const index: number = getVirtualNodeIndex(child, parentNode);
+  if (index === -1) {
+    throw new Error(`Not a child of parent`);
+  } else {
+    return index;
+  }
+}
+
+/*---*/
+
+/** ATTACH **/
+
+export interface IVirtualNodeAttachEvent {
+  readonly parent: VirtualParentNode;
+  readonly index: number;
+}
+
+export function createVirtualNodeAttachEvent(
+  parent: VirtualParentNode,
+  index: number,
+): IVirtualNodeAttachEvent {
+  return Object.freeze({
+    parent,
+    index,
+  });
+}
+
+
+const ON_VIRTUAL_NODE_ATTACHED_LISTENERS = new WeakMap<VirtualNode, IEmitFunction<IVirtualNodeAttachEvent>[]>();
+
+export const {
+  listener: nodeVirtualAttachedListener,
+  dispatch: dispatchVirtualNodeAttached,
+} = createListenerBuilderFunctions(ON_VIRTUAL_NODE_ATTACHED_LISTENERS);
+
+
+export function attachVirtualNode(
+  child: VirtualNode,
+  parent: VirtualParentNode,
+  index: number,
+): void {
+  if (VIRTUAL_NODE_PARENT_CHILD_MAP.has(child)) {
+    throw new Error(`child is already linked with a parent`);
+  } else {
+    VIRTUAL_NODE_PARENT_CHILD_MAP.set(child, parent);
+    parent.children.splice(index, 0, child);
+    dispatchVirtualNodeAttached(child, createVirtualNodeAttachEvent(parent, index));
+  }
+}
+
+// derived
+
+export function appendVirtualNode(
+  child: VirtualNode,
+  parent: VirtualParentNode,
+): void {
+  attachVirtualNode(child, parent, parent.children.length);
+}
+
+export function prependVirtualNode(
+  child: VirtualNode,
+  parent: VirtualParentNode,
+): void {
+  attachVirtualNode(child, parent, 0);
+}
+
+export function insertVirtualNodeBefore(
+  child: VirtualNode,
+  parent: VirtualParentNode,
+  referenceNode: VirtualNode,
+): void {
+  attachVirtualNode(child, parent, getVirtualNodeIndexOrThrow(referenceNode, parent));
+}
+
+export function insertVirtualNodeAfter(
+  child: VirtualNode,
+  parent: VirtualParentNode,
+  referenceNode: VirtualNode,
+): void {
+  attachVirtualNode(child, parent, getVirtualNodeIndexOrThrow(referenceNode, parent) + 1);
+}
+
+
+/** DETACH **/
+
+export interface IVirtualNodeDetachEvent {
+  readonly parent: VirtualParentNode;
+}
+
+export function createVirtualNodeDetachEvent(
+  parent: VirtualParentNode,
+): IVirtualNodeDetachEvent {
+  return Object.freeze({
+    parent,
+  });
+}
+
+
+const ON_VIRTUAL_NODE_DETACHED_LISTENERS = new WeakMap<VirtualNode, IEmitFunction<IVirtualNodeDetachEvent>[]>();
+
+export const {
+  listener: nodeVirtualDetachedListener,
+  dispatch: dispatchVirtualNodeDetached,
+} = createListenerBuilderFunctions(ON_VIRTUAL_NODE_DETACHED_LISTENERS);
+
+
+export function detachVirtualNode(
+  child: VirtualNode,
+): void {
+  const parent: VirtualParentNode | undefined = VIRTUAL_NODE_PARENT_CHILD_MAP.get(child);
+  if (parent === void 0) {
+    throw new Error(`child is not linked with a parent`);
+  } else {
+    VIRTUAL_NODE_PARENT_CHILD_MAP.delete(child);
+    parent.children.splice(getVirtualNodeIndexOrThrow(child, parent), 1);
+    dispatchVirtualNodeDetached(child, createVirtualNodeDetachEvent(parent));
+  }
+}
+
+/*---*/
+
+export class VirtualNode {
+  name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
+export class VirtualParentNode extends VirtualNode {
+  readonly children: VirtualNode[];
+
+  constructor(name: string) {
+    super(name);
+    this.children = [];
+  }
+}
+
+/*---*/
+
+export class VirtualTextNode extends VirtualNode {
+  protected _value: string;
+
+  constructor() {
+    super('text node');
+    this._value = '';
+  }
+
+  getValue(): string {
+    return this._value;
+  }
+
+  setValue(value: string): void {
+    this._value = value;
+  }
+}
+
+
+export class VirtualDOMTextNode extends VirtualTextNode {
+  public readonly node: Text;
+  protected _unsubscribeNodeVirtualAttachedListener: IUnsubscribeFunction;
+  protected _unsubscribeNodeVirtualDetachedListener: IUnsubscribeFunction;
+
+  constructor() {
+    super();
+    this.node = new Text();
+
+    this._unsubscribeNodeVirtualAttachedListener = nodeVirtualAttachedListener(this)((value: IVirtualNodeAttachEvent) => {
+      // TODO append to the DOM
+      // TODO search next VirtualNode in the tree having a 'node'
+    });
+
+    this._unsubscribeNodeVirtualDetachedListener = nodeVirtualDetachedListener(this)(() => {
+      this.node.remove();
+    });
+  }
+
+  setValue(value: string): void {
+    super.setValue(value);
+    this.node.data = value;
+  }
+}
+
+
+
+// export class VirtualElementNode extends VirtualNode {
+//   protected _value: string;
+//
+//   constructor() {
+//     super('text node');
+//     this._value = '';
+//   }
+//
+//   getValue(): string {
+//     return this._value;
+//   }
+//
+//   setValue(value: string): void {
+//     this._value = value;
+//   }
+// }
+
+
+/*---------------*/
+
+
+export async function debugVirtualDOM() {
+
+  const parent = new VirtualParentNode('parent');
+  const child1 = new VirtualNode('child1');
+  const child2 = new VirtualNode('child2');
+  const child3 = new VirtualNode('child3');
+  const child4 = new VirtualNode('child4');
+
+  appendVirtualNode(child1, parent);
+  appendVirtualNode(child2, parent);
+  appendVirtualNode(child3, parent);
+  appendVirtualNode(child4, parent);
+
+  detachVirtualNode(child3);
+
+  console.log(parent);
+}
+

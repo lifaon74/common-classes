@@ -1,6 +1,6 @@
 import { ISubscribeFunction } from '../types';
-import { assert } from './assert';
-import { IEqualsFunction, strictEquals } from './compare';
+import { assert } from '../../test/assert';
+import { IEqualsFunction, strictEquals } from '../../test/compare';
 import { IGenericNotification } from '../misc/notifications/notification-interface';
 import { asyncUnsubscribe } from '../misc/helpers/async-unsubscribe';
 

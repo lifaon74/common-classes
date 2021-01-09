@@ -1,5 +1,5 @@
 import { uuid } from '../misc/helpers/uuid';
-import { attachNode, destroyNode, detachNode } from './node-state/dom-state-observer';
+import { attachNode, detachNode } from './node-state/dom-state-observer';
 
 export interface IContainerNode {
   readonly startNode: Comment;
@@ -20,15 +20,15 @@ export function createContainerNode(
 }
 
 
-export function destroyContainerNode(
-  node: IContainerNode,
-): void {
-  destroyNode(node.startNode);
-  for (let i = 0, l = node.nodes.length; i < l; i++) {
-    destroyNode(node.nodes[i]);
-  }
-  destroyNode(node.endNode);
-}
+// export function destroyContainerNode(
+//   node: IContainerNode,
+// ): void {
+//   destroyNode(node.startNode);
+//   for (let i = 0, l = node.nodes.length; i < l; i++) {
+//     destroyNode(node.nodes[i]);
+//   }
+//   destroyNode(node.endNode);
+// }
 
 
 export function attachContainerNode(

@@ -3,8 +3,8 @@ import { distinctOperator } from '../../../operators/distinct';
 import { ISubscribeFunction } from '../../../types';
 import { combineLatest, ICombineLatestSubscribeFunctionsValues } from '../combine-latest';
 import { TGenericFunction } from '@lifaon/traits';
-import { pipeSubscribeFunctionSpread } from '../../../misc/helpers/pipe-subscribe-function';
 import { TMapValueTupleToSubscribeFunctionTuple } from '../types';
+import { pipeSubscribeFunction } from '../../../misc/helpers/pipe-subscribe-function';
 
 
 // export interface IReactiveFunction<GSubscribeFunctions extends IGenericSubscribeFunction[], GOut> {
@@ -34,9 +34,8 @@ export function reactiveFunction<GFunction extends TGenericFunction>(
   type GCombineLastSubscribeFunctions = ICombineLatestSubscribeFunctionsValues<GSubscribeFunctions>;
   type GOut = ReturnType<GFunction>;
 
-  return pipeSubscribeFunctionSpread(
-    combineLatest<GSubscribeFunctions>(subscribeFunctions),
+  return pipeSubscribeFunction(combineLatest<GSubscribeFunctions>(subscribeFunctions), [
     mapOperator<GCombineLastSubscribeFunctions, GOut>((args: GCombineLastSubscribeFunctions) => fnc(...(args as any))),
     distinctOperator<GOut>(),
-  );
+  ]);
 }

@@ -48,11 +48,9 @@ Differences with RxJs:
 - no classes: this choice allows blazing fast performances and very small bundle size. Indeed, creating a class with
   the `new` keyword is slow, and method names can't be mangled (minimized), where function calls are really well
   optimized by javascript engines. However, it has a cost: chaining operators or method calls are done through
-  functions, which is a little less elegant
-  (in terms of code readability).
+  functions, which is a little less elegant (in terms of code readability).
 
-- no `next`, `complete` and `error`: instead this lib use [notifications](#notification). In reality, not all *
-  Observables*
+- no `next`, `complete` and `error`: instead this lib use [notifications](#notification). In reality, not all *Observables*
   require to emit a final state. For example, the upper `interval` function, never reaches a `complete` state. It just
   sends numbers. Moreover, some *Observables* may want to emit more than this 3 *events*: we may imagine an XHR
   Observable which emits an `upload-progress` and `download-progress` *events*.
@@ -144,7 +142,7 @@ An *OperatorFunction* takes one *SubscribeFunction* in input and returns another
 internal logic is tied up with the input *SubscribeFunction*. This is equivalent to
 the *[Pipeable Operators](https://rxjs-dev.firebaseapp.com/guide/operators)* (ℹ️ only the pipeable ones).
 
-*Example: OperatorFunction which transmits only distinct values received*
+*Example: OperatorFunction which transmits only distinct received values*
 
 ```ts
 const operator = <GValue>(subscribe: ISubscribeFunction<GValue>): ISubscribeFunction<GValue> => {
@@ -312,6 +310,65 @@ subscribe(
 );
 ```
 
+### Source
+
+```ts
+interface ISource<GValue> {
+  getObservers(): readonly IEmitFunction<GValue>[]; // readonly list of observers for this source
+  readonly emit: IEmitFunction<GValue>; // sends a value to all the observers
+  readonly subscribe: ISubscribeFunction<GValue>; // registers an observer for this source
+}
+```
+
+```ts
+function createSource<GValue>(): ISource<GValue>;
+```
+
+A *Source* is used to emit one value to multiple observers
+
+This is equivalent to a *[Subject](https://rxjs-dev.firebaseapp.com/guide/subject)* (ℹ️ only the pipeable ones).
+
+*Example:*
+
+```ts
+const source = createSource<string>();
+
+source.subscribe((value: number) => {
+  console.log('subscription 1', value);
+});
+
+source.subscribe((value: number) => {
+  console.log('subscription 2', value);
+});
+
+source.emit('hello world');
+// outputs
+// > 'subscription 1', 'hello world'
+// > 'subscription 2', 'hello world'
+
+```
+
+<details>
+<summary>equivalent to</summary>
+<p>
+
+```ts
+const source = new Subject<string>();
+
+source.subscribe((value: number) => {
+  console.log('subscription 1', value);
+});
+
+source.subscribe((value: number) => {
+  console.log('subscription 2', value);
+});
+
+source.next('hello world');
+```
+
+</p>
+</details>
+
 ### Coming from RxJS ?
 
 - Observable -> SubscribeFunction
@@ -361,16 +418,18 @@ subscribe(
 
 - many subscribe functions. When any value is received:
   - re-emit it concurrently: [merge](./from/many/merge.ts)
-  - combine the values in an array and emit it: [merge](./from/many/combine-latest.ts)
+  - combine the values in an array and emit it: [combine-latest](./from/many/combine-latest.ts)
   - combine the values in an array, runs a function with these values, and emit distinct returned
     values: [reactiveFunction](./from/many/reactive-function/reactive-function.ts)
     - arithmetic: [sum](./from/many/reactive-function/built-in/arithmetic/reactive-sum.ts)
-    - logic: [and](./from/many/reactive-function/built-in/logic/reactive-and.ts),
+    - logic:
+      [and](./from/many/reactive-function/built-in/logic/reactive-and.ts),
       [or](./from/many/reactive-function/built-in/logic/reactive-or.ts),
       [not](./from/many/reactive-function/built-in/logic/reactive-not.ts)
 
 - time related
   - emits every 'ms': [interval](./from/time-related/interval.ts)
+  - emits when idle time is available: [idle](./from/time-related/idle.ts)
 
 #### convert a SubscribeFunction to
 
@@ -381,12 +440,16 @@ subscribe(
 - emits only distinct received values: [distinctOperator](./operators/distinct.ts)
 - filters received values: [filterOperator](./operators/filter.ts)
 - transforms received values: [mapOperator](./operators/map.ts)
-- allows one SubscribeFunction to emit its values to many
-  SubscribeFunction: [multicastOperator](./operators/multicast.ts)
+- reads received values, and re-emits them without transformations: [tapOperator](./operators/tap.ts)
+- allows one SubscribeFunction to emit its values to many SubscribeFunction: [shareOperator](operators/share.ts)
+- re-emit last received values:
+  - last value only: [replayLastSharedOperator](operators/replay/replay-last/replay-last.ts)
+  - last N values: [replaySharedOperator](operators/replay/replay.ts)
 
 #### others
 
-- chain many OperatorFunctions: [pipeSubscribeFunction](./misc/helpers/pipe-subscribe-function.ts)
+- chain many OperatorFunctions: [pipeOperatorFunctions](./misc/helpers/pipe-operator-functions.ts)
+- chain many OperatorFunctions with a SubscribeFunction: [pipeSubscribeFunction](./misc/helpers/pipe-subscribe-function.ts)
 
 
 
