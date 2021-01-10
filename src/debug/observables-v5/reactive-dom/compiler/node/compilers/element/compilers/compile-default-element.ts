@@ -18,5 +18,6 @@ export function compileDefaultElement(
         ...lines,
       ]);
     }),
+    `attachNode(node, parentNode);`
   ];
 }
