@@ -23,6 +23,7 @@ import { IDynamicStyleValue, setReactiveStyle } from './nodes/element/style/set-
 import { IDynamicStyleListValue, setReactiveStyleList } from './nodes/element/style/set-reactive-style-list';
 import NumberFormat = Intl.NumberFormat;
 import NumberFormatOptions = Intl.NumberFormatOptions;
+import { debugReactiveDOMCompiler } from './debug-reactive-dom-compiler';
 
 /* I18N */
 
@@ -265,5 +266,6 @@ export async function debugReactiveDOM() {
   // await debugObservableReactive6();
   // await debugObservableReactive7();
   // await debugObservableReactive8();
-  await debugObservableReactive9();
+  // await debugObservableReactive9();
+  await debugReactiveDOMCompiler();
 }

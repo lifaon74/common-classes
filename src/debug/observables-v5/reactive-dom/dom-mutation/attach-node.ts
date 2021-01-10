@@ -12,7 +12,7 @@ export const {
 export function attachNode(
   node: Node,
   parentNode: Node,
-  referenceNode: Node | null,
+  referenceNode: Node | null = null,
 ): void {
   if (node.parentNode === null) {
     if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
