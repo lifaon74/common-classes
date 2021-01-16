@@ -2,15 +2,16 @@ import { IDoublyLinkedList } from '../linked-list/doubly/doubly-linked-list-inte
 import {
   IAttachedDoublyLinkedListNode, IDetachedDoublyLinkedListNode, IGenericDoublyLinkedListNode
 } from '../linked-list/doubly/doubly-linked-list-node-interface';
-import { IEmitFunction, ISubscribeFunction } from '../observables-v5/types';
 import { createListenerBuilderFunctions } from '../observables-v5/misc/event-listener/build-event-listener';
 import { detachAttachedDoublyLinkedListNode } from '../linked-list/doubly/functions/modify/remove/detach';
 import { appendDetachedNodeForDoublyLinkedList } from '../linked-list/doubly/functions/modify/insert/append';
 import { insertDetachedNodeBeforeReferenceNodeForDoublyLinkedList } from '../linked-list/doubly/functions/modify/insert/insert-before';
-import { pipeSubscribeFunction } from '../observables-v5/misc/helpers/pipe-subscribe-function';
-import { interval } from '../observables-v5/from/time-related/interval';
-import { mapOperator } from '../observables-v5/operators/map';
-import { shareOperator } from '../observables-v5/operators/share';
+import { pipeSubscribeFunction } from '../observables-v5/functions/piping/pipe-subscribe-function';
+import { interval } from '../observables-v5/subscribe-function/from/time-related/interval/interval';
+import { mapOperator } from '../observables-v5/__operators/pipe-based/map-operator';
+import { shareOperator } from '../observables-v5/__operators/share';
+import { IEmitFunction } from '../observables-v5/types/emit-function/emit-function';
+import { ISubscribeFunction } from '../observables-v5/types/subscribe-function/subscribe-function';
 
 // const a: HTMLElement;
 // a.remove();

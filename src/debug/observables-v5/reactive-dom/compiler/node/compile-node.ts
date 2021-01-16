@@ -11,9 +11,9 @@ export function compileNode(
   compilers: INodeCompiler[] = NODE_COMPILERS,
 ): ICompilerReturn {
   for (let i = 0, l = compilers.length; i < l; i++) {
-    const lines: string[] | null = compilers[i](node);
-    if (lines !== null) {
-      return lines;
+    const result: ICompilerReturn = compilers[i](node);
+    if (result !== null) {
+      return result;
     }
   }
   return null;

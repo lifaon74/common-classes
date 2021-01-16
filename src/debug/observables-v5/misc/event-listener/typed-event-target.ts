@@ -1,4 +1,4 @@
-import { TInferKeyValueTupleUnionGKey, TInferKeyValueTupleUnionGValueFromKey, TKeyValueTuple } from '@lifaon/traits';
+import type { TInferKeyValueTupleUnionGKey, TInferKeyValueTupleUnionGValueFromKey, TKeyValueTuple } from '@lifaon/traits';
 import {
   IEventTargetToEventMapUnion, IGenericEventTargetToEventMap, TInferEventTargetEventMap
 } from './event-target-to-event-map';

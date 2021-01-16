@@ -1,6 +1,8 @@
-import { IEmitFunction, ISubscribeFunction, IUnsubscribeFunction } from '../../types';
-import { TOP_PARENT_NODE } from './top-parent-node';
-import { onNodeConnectedToWithImmediate } from '../dom-mutation/on-node-connected-to';
+
+import { TOP_PARENT_NODE } from './top-parent-node-constant';
+import { onNodeConnectedToWithImmediate } from '../light-dom/node/state/on-node-connected-to';
+import { IEmitFunction } from '../../types/emit-function/emit-function';
+import { ISubscribeFunction, IUnsubscribeFunction } from '../../types/subscribe-function/subscribe-function';
 
 export function subscribeOnNodeConnectedTo<GValue>(
   node: Node,
@@ -10,9 +12,10 @@ export function subscribeOnNodeConnectedTo<GValue>(
 ): void {
   let unsubscribe: IUnsubscribeFunction;
   onNodeConnectedToWithImmediate(node, topParentNode)((connected: boolean) => {
+    console.log('connected', connected);
     if (connected) {
       unsubscribe = subscribe(emit);
-    } else if (unsubscribe !== void 0){
+    } else if (unsubscribe !== void 0) {
       unsubscribe();
     }
   });

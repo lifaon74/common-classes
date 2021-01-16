@@ -13,6 +13,7 @@ export const CSSNMChar: string = wrap('[_a-z0-9-]' + '|' + CSSNonASCII + '|' + C
 export const CSSIdent: string = '-?' + CSSNMStart + CSSNMChar + '*';
 
 export const CSSIdentifierRegExp = new RegExp(startEnd(CSSIdent), 'u');
+
 export function isValidCSSIdentifier(input: string): boolean {
   return CSSIdentifierRegExp.test(input);
 }

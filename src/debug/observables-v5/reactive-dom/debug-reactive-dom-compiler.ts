@@ -1,13 +1,10 @@
-import {
-  compileHTMLAsEvaluatedFunction, compileHTMLAsFunction, DEFAULT_CONSTANTS_TO_IMPORT, DEFAULT_CONSTANTS_TO_IMPORT_SET
-} from './compiler/compile-html';
-import { attachNode } from './dom-mutation/attach-node';
-import { of } from '../from/others/of';
-import { pipeSubscribeFunction } from '../misc/helpers/pipe-subscribe-function';
-import { replayLastSharedOperator } from '../operators/replay/replay-last/replay-last';
-import { ISubscribeFunction } from '../types';
-import { expression } from '../from/others/expression';
-import { interval } from '../from/time-related/interval';
+import { of } from '../subscribe-function/from/others/of';
+import { pipeSubscribeFunction } from '../functions/piping/pipe-subscribe-function';
+import { replayLastSharedOperator } from '../__operators/replay/replay-last/replay-last';
+import { expression } from '../subscribe-function/from/others/expression';
+import { interval } from '../subscribe-function/from/time-related/interval/interval';
+import { compileHTMLAsFunction } from './compiler/html/compile-html-as-function';
+import { ISubscribeFunction } from '../types/subscribe-function/subscribe-function';
 
 async function debugReactiveDOMCompiler1() {
   // const html = `abc`;
@@ -20,6 +17,9 @@ async function debugReactiveDOMCompiler1() {
   // const html = `<div [class...]="data.classes"></div>`;
   // const html = `<div [style.font-size]="data.fontSize"></div>`;
   // const html = `<div [style...]="data.style"></div>`;
+  // const html = `<div style="width: 500px; height: 500px; background-color: #fafafa" (click)="data.onClick"></div>`;
+  // const html = `<container>hello</container>`;
+  // const html = `<div *if="condition"></div>`;
 
   const html = `
     <div
@@ -51,21 +51,16 @@ async function debugReactiveDOMCompiler1() {
     fontSize: expression(() => Math.floor(Math.random() * 20) + 'px', timer),
     style: $of({ color: 'red' }),
     text: expression(() => new Date().toString(), timer),
+    onClick: (event: MouseEvent) => {
+      console.log('click', event);
+    },
+    condition: expression(() => Math.random() < 0.5, timer),
   };
 
-  // console.log(compileHTMLAsFunction(html).join('\n'));
+  console.log(compileHTMLAsFunction(html).join('\n'));
 
-  const fnc = compileHTMLAsEvaluatedFunction(html, new Set([
-    ...DEFAULT_CONSTANTS_TO_IMPORT_SET,
-    'data',
-  ]));
-
-  const fragment = fnc({
-    ...DEFAULT_CONSTANTS_TO_IMPORT,
-    data,
-  });
-  attachNode(fragment, document.body);
-
+  // const inject = compileTemplateAsInjector(html);
+  // inject(document.body, data);
 }
 
 /*----*/

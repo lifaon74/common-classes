@@ -1,6 +1,6 @@
 import { ICompilerReturn } from '../../compiler-interface';
-import { compileTextNode } from './text/compile-text-node';
-import { compileElementNode } from './element/compile-element-node';
+import { compileTextNode } from '../../text-node/compile-text-node';
+import { compileElementNode } from '../../element/compile-element-node';
 
 export function compileDefaultNode(
   node: Node,

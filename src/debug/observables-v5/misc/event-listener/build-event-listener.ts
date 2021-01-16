@@ -1,6 +1,6 @@
-import { ISubscribeFunction } from '../../types';
-import { ISource } from '../source/source-interface';
-import { createSource } from '../source/create-source';
+import { ISource } from '../../source/source';
+import { createMulticastSource } from '../../source/multicast-source/create-multicast-source';
+import { ISubscribeFunction } from '../../types/subscribe-function/subscribe-function';
 
 /* MAP **/
 
@@ -25,7 +25,7 @@ export function createListenerFunction<GTarget extends object, GValue>(
     if (map.has(target)) {
       source = map.get(target) as ISource<GValue>;
     } else {
-      source = createSource<GValue>();
+      source = createMulticastSource<GValue>();
       map.set(target, source);
     }
     return source.subscribe;

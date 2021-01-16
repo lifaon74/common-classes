@@ -47,7 +47,7 @@ Differences with RxJs:
 
 - no classes: this choice allows blazing fast performances and very small bundle size. Indeed, creating a class with
   the `new` keyword is slow, and method names can't be mangled (minimized), where function calls are really well
-  optimized by javascript engines. However, it has a cost: chaining operators or method calls are done through
+  optimized by javascript engines. However, it has a minor cost: chaining operators or method calls are done through
   functions, which is a little less elegant (in terms of code readability).
 
 - no `next`, `complete` and `error`: instead this lib use [notifications](#notification). In reality, not all *Observables*
@@ -158,7 +158,7 @@ const operator = <GValue>(subscribe: ISubscribeFunction<GValue>): ISubscribeFunc
 }
 ```
 
-**Note that creating your own operators** requires that you clear yourself any subscriptions to the input
+**Note that creating your own operators** requires that you clear yourself any subscriptions on the input
 *SubscribeFunction*.
 
 ### Piping
@@ -170,16 +170,18 @@ function pipeSubscribeFunction<GSubscribeFunction extends IGenericSubscribeFunct
 ): ISubscribeFunctionPipeReturn<GSubscribeFunction, GFunctions>;
 ```
 
-The *pipeSubscribeFunction* is used to chain many *OperatorFunction*. This is equivalent to the `.pipe` methods of an
+The *pipeSubscribeFunction* is used to chain many *OperatorFunctions*. This is equivalent to the `.pipe` methods of an
 *Observable*.
 
 *Example:*
 
 ```ts
-const unsubscribe = pipeSubscribeFunction(interval(500), [
+const subscribe = pipeSubscribeFunction(interval(500), [
   mapOperator<void, number>(() => Math.random()), // transforms every 'void' received into a random number
   filterOperator<number>((value: number) => (value < 0.5)) // re-emits only values lower than 0.5
-])((value: number) => {
+]);
+
+const unsubscribe = subscribe((value: number) => {
   console.log('value', value);
 });
 
@@ -204,6 +206,9 @@ interval(500)
 </p>
 </details>
 
+As you may see, using this library is a little more verbose, and the code is less elegant.
+But the performances are greatly increased, and the minification improved.
+
 ### Notification
 
 ```ts
@@ -217,7 +222,7 @@ A *Notification* is used as a replacement of the `next`, `complete`and `error` *
 you emit directly a `INextNotification` instead of calling `subscriber.next()` for example.
 
 To create a Notification, you may use a plain object `{ name, value }` or
-use [the function](./misc/notifications/create-notification.ts):
+use the function [createNotification](./misc/notifications/create-notification.ts):
 
 ```ts
 function createNotification<GName extends string, GValue>(
@@ -231,13 +236,13 @@ Moreover, some pre-existing *Notifications* may be found in [misc/notifications/
 *Example: creates a SubscribeFunction from a Promise*
 
 ```ts
-export type ISubscribeFunctionFromPromiseNotifications<GValue> =
+type ISubscribeFunctionFromPromiseNotifications<GValue> =
   INextNotification<GValue>
   | ICompleteNotification
   | IErrorNotification
   ;
 
-export function fromPromise<GValue>(
+function fromPromise<GValue>(
   promise: Promise<GValue>,
 ): ISubscribeFunction<ISubscribeFunctionFromPromiseNotifications<GValue>> {
   type GNotificationsUnion = ISubscribeFunctionFromPromiseNotifications<GValue>;
@@ -324,9 +329,9 @@ interface ISource<GValue> {
 function createSource<GValue>(): ISource<GValue>;
 ```
 
-A *Source* is used to emit one value to multiple observers
+A *Source* is used to emit one value to multiple observers (`IEmitFunction`)
 
-This is equivalent to a *[Subject](https://rxjs-dev.firebaseapp.com/guide/subject)* (ℹ️ only the pipeable ones).
+This is equivalent to a *[Subject](https://rxjs-dev.firebaseapp.com/guide/subject)*
 
 *Example:*
 
@@ -387,70 +392,71 @@ source.next('hello world');
 - an iterable
   - sync
     - array:
-      - without notifications: [fromArray](./from/iterable/sync/from-array.ts)
-      - with notifications: [fromArrayWithNotifications](./from/iterable/sync/from-array-with-notifications.ts)
+      - without notifications: [fromArray](subscribe-function/from/iterable/sync/from-array.ts)
+      - with notifications: [fromArrayWithNotifications](subscribe-function/from/iterable/sync/from-array-with-notifications.ts)
     - iterable:
-      - without notifications: [fromIterable](./from/iterable/sync/from-iterable.ts)
-      - with notifications: [fromIterableWithNotifications](./from/iterable/sync/from-iterable-with-notifications.ts)
+      - without notifications: [fromIterable](subscribe-function/from/iterable/sync/from-iterable.ts)
+      - with notifications: [fromIterableWithNotifications](subscribe-function/from/iterable/sync/from-iterable-with-notifications.ts)
     - iterator ⚠️:
-      - without notifications: [fromIterator](./from/iterable/sync/from-iterator.ts)
-      - with notifications: [fromIteratorWithNotifications](./from/iterable/sync/from-iterator-with-notifications.ts)
+      - without notifications: [fromIterator](subscribe-function/from/iterable/sync/from-iterator.ts)
+      - with notifications: [fromIteratorWithNotifications](subscribe-function/from/iterable/sync/from-iterator-with-notifications.ts)
 
   - async
-    - async iterable: [fromAsyncIterable](from/iterable/async/from-async-iterable/from-async-iterable.md)
-    - async iterator ⚠️: [fromAsyncIterator](from/iterable/async/from-async-iterator/from-async-iterator.md)
+    - async iterable: [fromAsyncIterable](subscribe-function/from/iterable/async/from-async-iterable/from-async-iterable.md)
+    - async iterator ⚠️: [fromAsyncIterator](subscribe-function/from/iterable/async/from-async-iterator/from-async-iterator.md)
 
 - a promise
-  - with a factory: [fromPromiseFactory](./from/promise/from-promise-factory.ts)
-  - without a factory ⚠: [fromPromise](./from/promise/from-promise.ts)
+  - with a factory: [fromPromiseFactory](subscribe-function/from/promise/from-promise-factory/from-promise-factory.md)
+  - without a factory ⚠: [fromPromise](subscribe-function/from/promise/from-promise/from-promise.md)
 
 - a readable stream
   - [w3c streams](https://streams.spec.whatwg.org/#rs-class)
-    - readable stream: [fromReadableStream](from/readable-stream/w3c/from-readable-stream.ts)
-    - readable stream reader ⚠: [fromReadableStreamReader](from/readable-stream/w3c/from-readable-stream-reader.ts)
+    - readable stream: [fromReadableStream](subscribe-function/from/readable-stream/w3c/from-readable-stream/from-readable-stream.ts)
+    - readable stream reader ⚠: [fromReadableStreamReader](subscribe-function/from/readable-stream/w3c/from-readable-stream-reader.ts)
   - nodejs: TODO
 
 - an http request
-  - using fetch: [fromFetch](./from/http/from-fetch.ts)
-  - using xhr: [fromXHR](./from/http/xhr/from-xhr.ts)
+  - using fetch: [fromFetch](subscribe-function/from/http/from-fetch/from-fetch.md)
+  - using xhr: [fromXHR](subscribe-function/from/http/xhr/from-xhr/from-xhr.md)
 
-- a blob (reads content): [readBlob](./from/dom/read-blob.ts)
+- a blob (reads content): [readBlob](subscribe-function/from/dom/read-blob/read-blob.md)
 
 - many subscribe functions. When any value is received:
-  - re-emit it concurrently: [merge](./from/many/merge.ts)
-  - combine the values in an array and emit it: [combine-latest](./from/many/combine-latest.ts)
+  - re-emit it concurrently: [merge](subscribe-function/from/many/merge.ts)
+  - combine the values in an array and emit it: [combine-latest](subscribe-function/from/many/combine-latest.ts)
   - combine the values in an array, runs a function with these values, and emit distinct returned
-    values: [reactiveFunction](./from/many/reactive-function/reactive-function.ts)
-    - arithmetic: [sum](./from/many/reactive-function/built-in/arithmetic/reactive-sum.ts)
+    values: [reactiveFunction](subscribe-function/from/many/reactive-function/reactive-function.ts)
+    - arithmetic:
+      [sum](subscribe-function/from/many/reactive-function/built-in/arithmetic/reactive-sum.ts)
     - logic:
-      [and](./from/many/reactive-function/built-in/logic/reactive-and.ts),
-      [or](./from/many/reactive-function/built-in/logic/reactive-or.ts),
-      [not](./from/many/reactive-function/built-in/logic/reactive-not.ts)
+      [and](subscribe-function/from/many/reactive-function/built-in/logic/reactive-and.ts),
+      [or](subscribe-function/from/many/reactive-function/built-in/logic/reactive-or.ts),
+      [not](subscribe-function/from/many/reactive-function/built-in/logic/reactive-not.ts)
 
 - time related
-  - emits every 'ms': [interval](./from/time-related/interval.ts)
-  - emits when idle time is available: [idle](./from/time-related/idle.ts)
+  - emits every 'ms': [interval](subscribe-function/from/time-related/interval/interval.md)
+  - emits when idle time is available: [idle](subscribe-function/from/time-related/idle/idle.md)
 
 #### convert a SubscribeFunction to
 
-- a promise: [toPromise](./to/to-promise.ts)
+- a promise: [toPromise](subscribe-function/to/to-promise/to-promise.ts)
 
 #### create an OperatorFunction which
 
-- emits only distinct received values: [distinctOperator](./operators/distinct.ts)
-- filters received values: [filterOperator](./operators/filter.ts)
-- transforms received values: [mapOperator](./operators/map.ts)
-- reads received values, and re-emits them without transformations: [tapOperator](./operators/tap.ts)
-- allows one SubscribeFunction to emit its values to many SubscribeFunction: [shareOperator](operators/share.ts)
+- emits only distinct received values: [distinctOperator](__operators/pipe-based/distinct-operator.ts)
+- filters received values: [filterOperator](__operators/filter.ts)
+- transforms received values: [mapOperator](__operators/pipe-based/map-operator.ts)
+- reads received values, and re-emits them without transformations: [tapOperator](__operators/tap.ts)
+- allows one SubscribeFunction to emit its values to many SubscribeFunction: [shareOperator](__operators/share.ts)
 - re-emit last received values:
-  - last value only: [replayLastSharedOperator](operators/replay/replay-last/replay-last.ts)
-  - last N values: [replaySharedOperator](operators/replay/replay.ts)
+  - last value only: [replayLastSharedOperator](__operators/replay/replay-last/replay-last.ts)
+  - last N values: [replaySharedOperator](__operators/replay/replay.ts)
 
 #### others
 
-- chain many OperatorFunctions: [pipeOperatorFunctions](./misc/helpers/pipe-operator-functions.ts)
+- chain many OperatorFunctions: [pipeOperatorFunctions](functions/piping/pipe-subscribe-pipe-functions.ts)
 - chain many OperatorFunctions with a
-  SubscribeFunction: [pipeSubscribeFunction](./misc/helpers/pipe-subscribe-function.ts)
+  SubscribeFunction: [pipeSubscribeFunction](functions/piping/pipe-subscribe-function.ts)
 
 
 

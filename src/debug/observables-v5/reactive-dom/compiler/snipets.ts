@@ -1,10 +1,10 @@
-import { ICompilerReturn } from './compiler-interface';
+import { ICompilerReturn, IInjectLines, ILines } from './compiler-interface';
 
 export function indentLines(
-  lines: string[],
+  lines: ILines,
   indent: string = '  ',
   copy: boolean = false,
-): string[] {
+): ILines {
   if (copy) {
     return lines.map((line: string) => (indent + line));
   } else {
@@ -16,9 +16,9 @@ export function indentLines(
 }
 
 export function scopeLines(
-  lines: string[],
+  lines: ILines,
   copy: boolean = false,
-): string[] {
+): ILines {
   if (copy) {
     return ['{', ...indentLines(lines, void 0, true), '}'];
   } else {
@@ -29,21 +29,55 @@ export function scopeLines(
   }
 }
 
-export function optionalLines(
-  lines: ICompilerReturn,
-  operation: (lines: string[]) => string[] = _ => _,
-): string[] {
-  return (lines === null)
-    ? []
-    : operation(lines);
-}
-
 
 export function nullIfEmptyLines(
-  lines: string[],
-  operation: (lines: string[]) => string[] = _ => _,
-): ICompilerReturn {
+  lines: ILines,
+): ILines | null {
   return (lines.length === 0)
     ? null
-    : operation(lines);
+    : lines;
 }
+
+
+export function optionalLines(
+  lines: ILines | null,
+): ILines {
+  return (lines === null)
+    ? []
+    : lines;
+}
+
+
+
+// export function mergeCompilerReturnWithLines(
+//   result: ICompilerReturn,
+//   lines: ILines,
+// ): ILines {
+//   if (result === null) {
+//     return lines;
+//   } else if (isLines(result)) {
+//     return [
+//       ...lines,
+//       ...result,
+//     ];
+//   } else {
+//     return result(lines);
+//   }
+// }
+//
+// export function isLines(
+//   value: any,
+// ): value is ILines {
+//   return Array.isArray(value);
+// }
+//
+// export function isInjectLines(
+//   value: any,
+// ): value is IInjectLines {
+//   return (typeof value === 'function');
+// }
+
+
+
+
+

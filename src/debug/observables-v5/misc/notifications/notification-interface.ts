@@ -3,6 +3,8 @@ export interface INotification<GName extends string, GValue> {
   readonly value: GValue;
 }
 
+/* derived */
+
 export type IGenericNotification = INotification<string, any>;
 
 export type TInferNotificationGName<GNotification extends IGenericNotification> =
@@ -15,8 +17,6 @@ export type TInferNotificationGValue<GNotification extends IGenericNotification>
     ? GValue
     : never;
 
-
-/* DERIVED TYPES */
 
 export type TInferGValueFromNotificationsUnionAndName<GNotificationsUnion extends IGenericNotification, GName extends TInferNotificationGName<GNotificationsUnion>>
   = TInferNotificationGValue<Extract<GNotificationsUnion, INotification<GName, any>>>;
