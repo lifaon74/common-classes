@@ -1,17 +1,35 @@
-import { ITemplate, ITemplateNodeList } from './template-interface';
-import { attachDocumentFragment } from '../node/move/fragment/attach-document-fragment';
-import { getChildNodes } from '../node/others/get-child-nodes';
+import { IHTMLTemplate, IHTMLTemplateNodeList } from './template.type';
+import { getChildNodes } from '../node/properties/get-child-nodes';
+import { attachDocumentFragmentWithAttachEvent } from '../node/move/node/with-event/bulk/fragment/attach-document-fragment-with-event';
+import { isDocumentFragment } from '../node/type/is-document-fragment';
+import { attachNode } from '../node/move/node/attach-node';
 
 
-export function attachTemplate<GArguments extends any[]>(
-  template: ITemplate<GArguments>,
-  args: GArguments,
+export function attachTemplate<GArgument extends object>(
+  template: IHTMLTemplate<GArgument>,
+  templateArgument: GArgument,
   parentNode: Node,
   referenceNode?: Node | null,
-): ITemplateNodeList {
-  const fragment: DocumentFragment = template(...args);
-  const nodes: ITemplateNodeList = getChildNodes(fragment) as ITemplateNodeList;
-  attachDocumentFragment(fragment, parentNode, referenceNode);
+): IHTMLTemplateNodeList {
+  const fragment: DocumentFragment = template(templateArgument);
+  const nodes: IHTMLTemplateNodeList = getChildNodes(fragment) as IHTMLTemplateNodeList;
+  if (isDocumentFragment(parentNode)) {
+    attachNode(fragment, parentNode, referenceNode);
+  } else {
+    attachDocumentFragmentWithAttachEvent(fragment, parentNode, referenceNode);
+  }
   return nodes;
 }
 
+export function attachOptionalTemplate<GArguments extends any[]>(
+  template: IHTMLTemplate<GArguments> | null,
+  args: GArguments,
+  parentNode: Node,
+  referenceNode?: Node | null,
+): IHTMLTemplateNodeList {
+  if (template === null) {
+    return [];
+  } else {
+    return attachTemplate(template, args, parentNode, referenceNode);
+  }
+}

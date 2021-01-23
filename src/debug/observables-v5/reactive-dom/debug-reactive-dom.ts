@@ -1,9 +1,7 @@
 import { pipeSubscribeFunction } from '../functions/piping/pipe-subscribe-function';
 import { interval } from '../subscribe-function/from/time-related/interval/interval';
-import { attachStandardNode } from './light-dom/node/move/standard/attach-standard-node';
 import { onNodeConnectedTo } from './light-dom/node/state/on-node-connected-to';
 import { $timeout } from '../debug-observables-v5';
-import { detachStandardNode } from './light-dom/node/move/standard/detach-standard-node';
 import { createReactiveIfNode } from './reactive-dom/template/reactive-if-node/create-reactive-if-node';
 import { nodeAppendChild } from './light-dom/node/move/devired/dom-like/node/node-append-child';
 import { createElementNode } from './light-dom/node/create/create-element-node';
@@ -11,87 +9,21 @@ import { createTextNode } from './light-dom/node/create/create-text-node';
 import { createDocumentFragment } from './light-dom/node/create/create-document-fragment';
 import { createReactiveForLoopNode } from './reactive-dom/template/reactive-for-loop-node/create-reactive-for-loop-node';
 import { createContainerNode } from './light-dom/node/create/container-node/create-container-node';
-import { moveStandardNode } from './light-dom/node/move/standard/move-standard-node';
 import { ISubscribeFunction } from '../types/subscribe-function/subscribe-function';
 import { ISubscribePipeFunction } from '../types/subscribe-pipe-function/subscribe-pipe-function';
-import { createUnicastReplayLastSource } from '../source/replay-last-source/create-replay-last-source';
 import { mapSubscribePipe } from '../subscribe-function/subscribe-pipe/emit-pipe-related/map-subscribe-pipe';
-import NumberFormat = Intl.NumberFormat;
-import NumberFormatOptions = Intl.NumberFormatOptions;
 import { createReactiveTextNode } from './reactive-dom/text/create-reactive-text-node';
-import { ISource } from '../source/source';
-import { idle } from '../subscribe-function/from/time-related/idle/idle';
-import { shareSubscribePipe } from '../subscribe-function/subscribe-pipe/share-subscribe-pipe';
-import { filterSubscribePipe } from '../subscribe-function/subscribe-pipe/emit-pipe-related/filter-subscribe-pipe';
-import { debounceFrameSubscribePipe } from '../subscribe-function/subscribe-pipe/time-related/debounce-frame-subscribe-pipe';
 import { logStateSubscribePipe } from '../subscribe-function/subscribe-pipe/log-state-subscribe-pipe';
+import { detachNodeWithEvent } from './light-dom/node/move/node/with-event/detach-node-with-event';
+import { attachNodeWithEvent } from './light-dom/node/move/node/with-event/attach-node-with-event';
+import { moveNodeWithEvent } from './light-dom/node/move/node/with-event/move-node-with-event';
+import { attachNode } from './light-dom/node/move/node/attach-node';
+import { attachDocumentFragmentWithAttachEvent } from './light-dom/node/move/node/with-event/bulk/fragment/attach-document-fragment-with-event';
+import { shareSubscribePipe } from '../subscribe-function/subscribe-pipe/source-related/share-subscribe-pipe';
+import { debounceFrameSubscribePipe } from '../subscribe-function/subscribe-pipe/time-related/debounce-frame-subscribe-pipe';
+import { createUnicastReplayLastSource } from '../source/replay-last-source/derived/create-unicast-replay-last-source';
+import { debugReactiveDOMCompiler } from './debug-reactive-dom-compiler';
 
-/* I18N */
-
-export type TLocales = string | Iterable<string> | undefined | null;
-
-export function normalizeLocales(
-  locales: TLocales,
-): readonly string[] {
-  if (
-    (locales === null)
-    || (locales === void 0)
-  ) {
-    return navigator.languages;
-  } else if (typeof locales === 'string') {
-    return [locales];
-  } else {
-    return Array.from(locales);
-  }
-}
-
-export interface INumberFormatter {
-  (value: number): string;
-}
-
-export function numberFormater(
-  locales?: TLocales,
-  options?: NumberFormatOptions,
-): INumberFormatter {
-  const formatter: NumberFormat = new Intl.NumberFormat(normalizeLocales(locales) as string[], options);
-  return (value: number): string => {
-    return formatter.format(value);
-  };
-}
-
-export interface ICurrencyFormaterOptions extends Omit<NumberFormatOptions, 'style' | 'currency'>, Required<Pick<NumberFormatOptions, 'currency'>> {
-}
-
-export function currencyFormatter(
-  locales: TLocales,
-  options: ICurrencyFormaterOptions,
-): INumberFormatter {
-  return numberFormater(locales, {
-    ...options,
-    style: 'currency',
-  });
-}
-
-
-export interface IPercentFormaterOptions extends Omit<NumberFormatOptions, 'style'> {
-}
-
-export function percentFormatter(
-  locales?: TLocales,
-  options?: IPercentFormaterOptions
-): INumberFormatter {
-  return numberFormater(locales, {
-    ...options,
-    style: 'percent',
-  });
-}
-
-export function currencyOperator(
-  locales: TLocales,
-  options: ICurrencyFormaterOptions,
-): ISubscribePipeFunction<number, string> {
-  return mapSubscribePipe<number, string>(currencyFormatter(locales, options));
-}
 
 
 /*---*/
@@ -259,12 +191,146 @@ export function currencyOperator(
 
 /*---*/
 
+/** SYNTAX **/
+
+/*
+
+prefix: rx
+
+------- template-------
+
+<rx-template
+  name="templateReference"
+  let-var1
+  let-var2
+>
+  ...content
+</rx-template>
+
+-> compiles to
+
+templateReference = ({ var1, var2 }) => DocumentFragment
+
+------- template injection -------
+
+<rx-inject-template
+  template="templateReference"
+  let-var1="data1"
+  let-var2="data2"
+></rx-inject-template>
+
+-> compiles to
+
+attachTemplate(templateReference, { var1: data1, var2: data2 }, parentNode);
+
+------- async template injection -------
+
+<rx-inject-async-template
+  template="documentFragmentObservable"
+></rx-inject-async-template>
+
+-> compiles to
+
+attachAsyncTemplate(documentFragmentObservable, parentNode);
+
+
+------- if -------
+
+<rx-if
+  condition="conditionObservable"
+  true="templateReferenceNameTrue"
+  false="templateReferenceNameFalse"
+></rx-if>
+
+-> compiles to
+
+nodeAppendChild(parentNode, createReactiveIfNode(conditionObservable, templateReferenceNameTrue, templateReferenceNameFalse));
+
+-- alternative
+
+<element
+  *if="conditionObservable"
+>
+  ...content
+</element>
+
+=> compiles to
+
+<rx-template
+  name="uuid"
+>
+  ...content
+</rx-template>
+<rx-if
+  condition="conditionObservable"
+  true="uuid"
+></rx-if>
+
+
+------- for loop -------
+
+<rx-for-loop
+  items="itemsObservable"
+  template="templateReference"
+  track-by="trackByFunction"
+></rx-for-loop>
+
+-> compiles to
+
+nodeAppendChild(parentNode, createReactiveForLoopNode(itemsObservable, templateReferenceNameTrue, { tackBy: trackByFunction } );
+
+-- alternative
+
+<element
+  *for="let item of items; index as index; trackBy: trackByFn"
+>
+  ...content
+</element>
+
+=> compiles to
+
+<rx-template
+  name="uuid"
+>
+  ...content
+</rx-template>
+<rx-for-loop
+  items="items"
+  template="templateReferenceNameTrue"
+  track-by="trackByFunction"
+></rx-for-loop>
+
+
+------- switch -------
+
+<rx-switch
+  condition="conditionObservable"
+>
+  <rx-switch-case
+    case="valueA"
+    template="templateReferenceName"
+  ></rx-switch>
+  <rx-switch-case
+    case="valueA"
+    template="templateReferenceName"
+  ></rx-switch-case>
+  <rx-switch-default
+    template="templateReferenceName"
+  ></rx-switch-default>
+</rx-switch>
+
+ */
+
+/*---*/
+
 async function debugOnNodeConnectedTo1() {
   const text1 = createTextNode('abc');
   const text2 = createTextNode('123');
   const container1 = createElementNode('span');
   const container2 = createElementNode('div');
   const container3 = createElementNode('a');
+  const fragment = createDocumentFragment();
+  const containerNode = createContainerNode();
 
   onNodeConnectedTo(text1, document.body)((connected: boolean) => {
     console.log('connected', connected);
@@ -272,19 +338,28 @@ async function debugOnNodeConnectedTo1() {
 
 
   const steps = [
-    () => attachStandardNode(text1, document.body),
-    () => detachStandardNode(text1),
-    () => attachStandardNode(text1, document.body),
-    // () => attachStandardNode(text1, container1),
-    // () => attachStandardNode(text2, container1),
-    // () => attachStandardNode(container1, container2),
-    // () => attachStandardNode(container2, document.body),
-    // () => detachStandardNode(container1),
-    // () => attachStandardNode(container1, container2),
-    // () => attachStandardNode(container3, document.body),
-    // () => moveStandardNode(text1, container3),
+    () => attachNodeWithEvent(text1, document.body), // true
+    () => detachNodeWithEvent(text1), // false
+    () => attachNodeWithEvent(text1, container1), // -
+    () => attachNodeWithEvent(text2, container1), // -
+    () => attachNodeWithEvent(container1, container2),// -
+    () => attachNodeWithEvent(container2, document.body), // true
+    () => detachNodeWithEvent(container1), // false
+    () => attachNodeWithEvent(container3, document.body), // -
+    () => moveNodeWithEvent(text1, document.body), // true
+    () => moveNodeWithEvent(text1, document.body), // false & true (if triggerOnMove === true)
+    () => moveNodeWithEvent(text1, container1), // false
+    () => detachNodeWithEvent(text1), // -
+    () => attachNode(text1, fragment), // -
+    () => attachDocumentFragmentWithAttachEvent(fragment, document.body), // true
   ];
 
+  // const steps = [
+  //   () => attachNodeWithEvent(text1, container1), // -
+  //   () => moveNodeWithEvent(text1, document.body), // true
+  //   () => moveNodeWithEvent(text1, document.body), // --
+  //   // () => moveNodeWithEvent(text1, document.body), // false -> true if triggerOnMove === true
+  // ];
 
   steps.forEach((step, index: number) => {
     console.warn('step', index, step.toString());
@@ -293,13 +368,31 @@ async function debugOnNodeConnectedTo1() {
 
 }
 
+async function debugOnNodeConnectedTo2() {
+  const text1 = createTextNode('abc');
+
+  onNodeConnectedTo(text1, document)((connected: boolean) => {
+    console.log('connected', connected);
+  });
+
+
+  const steps = [
+    () => attachNodeWithEvent(text1, document.body), // true
+  ];
+
+  steps.forEach((step, index: number) => {
+    console.warn('step', index, step.toString());
+    step();
+  });
+
+}
 
 async function debugContainerNode1() {
   const container = createContainerNode();
-  attachStandardNode(createTextNode('a'), container);
-  attachStandardNode(createTextNode('b'), container);
-  attachStandardNode(container, document.body);
-  attachStandardNode(createTextNode('c'), container);
+  attachNodeWithEvent(createTextNode('a'), container);
+  attachNodeWithEvent(createTextNode('b'), container);
+  attachNodeWithEvent(container, document.body);
+  attachNodeWithEvent(createTextNode('c'), container);
 
   // await $timeout(2000);
   // detachStandardNode(container);
@@ -308,42 +401,52 @@ async function debugContainerNode1() {
   // attachStandardNode(container, document.body);
 
   await $timeout(2000);
-  moveStandardNode(container, document.body, document.body.firstChild);
+  moveNodeWithEvent(container, document.body, document.body.firstChild);
 }
 
 async function debugReactiveIfNode1() {
   let value: boolean = false;
-  const source = pipeSubscribeFunction(interval(1000), [
-    mapSubscribePipe<void, boolean>(() => (value = !value))
+  const subscribe = pipeSubscribeFunction(interval(1000), [
+    mapSubscribePipe<void, boolean>(() => (value = !value)),
   ]);
 
-  // const node = createReactiveConditionalNode(source, () => {
-  //   return createStaticTextNode(`Hello world !`);
-  // });
+  // const source = createUnicastReplayLastSource<boolean>(true);
+  // const subscribe = source.subscribe;
 
-  const node = createReactiveIfNode(source, () => {
-    console.log('create fragment');
+  const date = pipeSubscribeFunction(interval(1000), [
+    logStateSubscribePipe<any>('interval'),
+    mapSubscribePipe<any, string>(() => new Date().toString()),
+    shareSubscribePipe<string>(),
+  ]);
+
+  const node = createReactiveIfNode(subscribe, () => {
     const fragment = createDocumentFragment();
-    attachStandardNode(createTextNode(`Hello world !`), fragment);
-    attachStandardNode(createTextNode(` => second`), fragment);
+    nodeAppendChild(fragment, createTextNode(`Hello world !`));
+    nodeAppendChild(fragment, createReactiveTextNode(date));
     return fragment;
   });
 
-  // const node = createReactiveConditionalNodeStatic(source, createStaticTextNode(`Hello world !`));
   nodeAppendChild(document.body, node);
+
+  // await $timeout(1000);
+  // nodeRemove(node);
+  // await $timeout(1000);
+  // nodeAppendChild(document.body, node);
 }
 
+
 async function debugReactiveForLoopNode1() {
-  const source = createUnicastReplayLastSource<number[]>([]);
+  const source = createUnicastReplayLastSource<number[]>();
 
 
-  const node = createReactiveForLoopNode(source.subscribe, (value: number, index: ISubscribeFunction<number>) => {
+  const node = createReactiveForLoopNode(source.subscribe, ({ item, index }) => {
     // console.log('create fragment');
+    const _index = pipeSubscribeFunction(index, [mapSubscribePipe<number, string>(String)]);
     const fragment = createDocumentFragment();
     const container = createElementNode('div');
-    attachStandardNode(createTextNode(`node: ${ value } - `), container);
-    attachStandardNode(createReactiveTextNode(pipeSubscribeFunction(index, [mapSubscribePipe<number, string>(String)])), container);
-    attachStandardNode(container, fragment);
+    nodeAppendChild(container, createTextNode(`node: ${ item } - `));
+    nodeAppendChild(container, createReactiveTextNode(_index));
+    nodeAppendChild(fragment, container);
     return fragment;
   });
 
@@ -360,8 +463,8 @@ async function debugReactiveForLoopNode1() {
   // source.emit([3, 2, 1]);
   // console.warn('-----');
 
-
-  source.emit(Array.from({ length: 1e4 }, (v: any, index: number) => index));
+  const array1 = Array.from({ length: 1e4 }, (v: any, index: number) => index);
+  source.emit(array1);
 
   // nodeAppendChild(document.body, node);
   // detachStandardNode(node);
@@ -370,7 +473,20 @@ async function debugReactiveForLoopNode1() {
     console.time('nodeAppendChild');
     nodeAppendChild(document.body, node);
     console.timeEnd('nodeAppendChild');
+
+    // console.time('nodeAppendChildRemove');
+    // frame(() => {
+    //   source.emit([]);
+    //   console.timeEnd('nodeAppendChildRemove');
+    // });
+
+    frame(() => {
+      console.time('nodeAppendChild2');
+      source.emit(array1);
+      console.timeEnd('nodeAppendChild2');
+    });
   });
+
 
   // nodeAppendChild(document.body, node);
   // frame(() => {
@@ -408,40 +524,31 @@ async function debugReactiveForLoopNode1() {
 }
 
 async function debugReactiveForLoopNode2() {
-  const items = createUnicastReplayLastSource<ISubscribeFunction<string>[]>([]);
+  const items = createUnicastReplayLastSource<ISubscribeFunction<string>[]>();
 
-
-
-
-
-  const date = pipeSubscribeFunction(interval(100), [
+  const date = pipeSubscribeFunction(interval(1000), [
     logStateSubscribePipe<void>('interval'),
-    // debounceFrameSubscribePipe<void>(),
-    // filterSubscribePipe<IdleDeadline, IdleDeadline>((deadline: IdleDeadline): deadline is IdleDeadline => !deadline.didTimeout),
+    debounceFrameSubscribePipe<void>(),
     mapSubscribePipe<void, string>(() => new Date().toString()),
-    // shareSubscribePipe<string>(),
+    shareSubscribePipe<string>(),
   ]);
 
-  // const node = createReactiveForLoopNode(items.subscribe, (value: ISubscribeFunction<string>, index: ISubscribeFunction<number>) => {
-  //   const fragment = createDocumentFragment();
-  //   const container = createElementNode('div');
-  //   attachStandardNode(createReactiveTextNode(value), container);
-  //   attachStandardNode(container, fragment);
-  //   return fragment;
-  // });
-
-  const node = createReactiveTextNode(date);
+  const node = createReactiveForLoopNode(items.subscribe, ({ item }) => {
+    const fragment = createDocumentFragment();
+    const container = createElementNode('div');
+    nodeAppendChild(container, createReactiveTextNode(item));
+    nodeAppendChild(fragment, container);
+    return fragment;
+  });
 
 
-  items.emit(Array.from({ length: 1e4 }, (v: any, index: number) => date));
+  items.emit(Array.from({ length: 1e3 }, (v: any, index: number) => date));
 
   nodeAppendChild(document.body, node);
-  detachStandardNode(node);
   // setTimeout(() => {
-  //   detachStandardNode(node);
+  //   nodeRemove(node);
   // }, 5000);
 }
-
 
 
 /*----*/
@@ -459,7 +566,8 @@ export async function debugReactiveDOM() {
   // await debugObservableReactive9();
   // await debugObservableReactive10();
 
-  await debugOnNodeConnectedTo1();
+  // await debugOnNodeConnectedTo1();
+  // await debugOnNodeConnectedTo2();
 
   // await debugContainerNode1();
 
@@ -467,5 +575,5 @@ export async function debugReactiveDOM() {
   // await debugReactiveForLoopNode1();
   // await debugReactiveForLoopNode2();
 
-  // await debugReactiveDOMCompiler();
+  await debugReactiveDOMCompiler();
 }

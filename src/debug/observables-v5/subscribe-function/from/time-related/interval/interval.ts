@@ -1,5 +1,5 @@
 
-import { createInterval } from '../../../../misc/timer/create-timer';
+import { createInterval } from '../../../../misc/timer/create-interval';
 import { IEmitFunction } from '../../../../types/emit-function/emit-function';
 import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function';
 

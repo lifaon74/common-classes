@@ -1,9 +1,37 @@
-
 import { noop } from '../../../../misc/helpers/noop';
-import { onNodeDetachedListener } from '../move/standard/detach-standard-node';
-import { onNodeAttachedListener } from '../move/standard/attach-standard-node';
+import { onNodeDetachedListener } from '../move/node/with-event/detach-node-with-event';
+import { onNodeAttachedListener } from '../move/node/with-event/attach-node-with-event';
 import { IEmitFunction } from '../../../../types/emit-function/emit-function';
 import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function';
+import { getParentNode } from '../properties/get-parent-node';
+import { isDocumentFragment } from '../type/is-document-fragment';
+
+// /**
+//  * Listen to detach event for node and any of its parents
+//  */
+// function listenToParentChainDetach(
+//   node: Node,
+//   onDetach: (mode: boolean, index: number) => void,
+//   parentNode: Node = document,
+//   unsubscribeFunctions: IUnsubscribeFunction[] = [],
+// ): IUnsubscribeFunction[] {
+//   let _node: Node | null = node;
+//   let _parentNode: Node | null = _node.parentNode;
+//
+//   // while node is attached (has a parent)
+//   // AND node is different from parentNode
+//   while ((_parentNode !== null) && (node !== parentNode)) {
+//     unsubscribeFunctions.push(
+//       onNodeDetachedListener(_node)((move: boolean): void => {
+//         onDetach(move, unsubscribeFunctions.length);
+//       })
+//     );
+//     _node = _parentNode;
+//     _parentNode = _node.parentNode;
+//   }
+//   return unsubscribeFunctions;
+// }
+
 
 export function onNodeConnectedTo(
   node: Node,
@@ -16,17 +44,25 @@ export function onNodeConnectedTo(
     let _unsubscribeAttachListener: IUnsubscribeFunction = noop;
     let _connected: boolean = parentNode.contains(node);
 
-    const update = (referenceNode: Node, move: boolean = false): void => {
-      let _node: Node = referenceNode;
-      let _parentNode: Node | null = _node.parentNode;
 
-      // for each parents, until we find parentNode or null
-      while ((_parentNode !== null) && (_parentNode !== parentNode)) {
+    const update = (
+      referenceNode: Node,
+      moving: boolean = false,
+    ): void => {
+      let _node: Node = referenceNode;
+      let _parentNode: Node | null = getParentNode(_node);
+
+      // while node is attached (has a parent)
+      // AND node is different from parentNode
+      while (
+        (_parentNode !== null)
+        && (_node !== parentNode)
+        && !isDocumentFragment(_parentNode)
+        ) {
         const index: number = _unsubscribeFunctions.length;
 
-        // TODO fix => onNodeDetachedListener should include referenceNode
         _unsubscribeFunctions.push(
-          // if any of the parents becomes detached, the node referenceNode change
+          // if any of node or its parents becomes detached, the node referenceNode change
           onNodeDetachedListener(_node)((move: boolean): void => {
             _unsubscribeAttachListener();
             _unsubscribeAttachListener = noop;
@@ -36,36 +72,36 @@ export function onNodeConnectedTo(
               (_unsubscribeFunctions.pop() as IUnsubscribeFunction)();
             }
 
-            console.log('detached', referenceNode);
+            // console.log('detached', referenceNode);
 
             update(referenceNode, move);
           })
         );
         _node = _parentNode;
-        _parentNode = _node.parentNode;
+        _parentNode = getParentNode(_node);
       }
+      // here _node is the top most parent
 
-
-      if (_parentNode === null) {
-        console.log('await attached', _node);
-        // await until the parent become attached
-        _unsubscribeAttachListener = onNodeAttachedListener(_node)((move: boolean): void => {
-          _unsubscribeAttachListener();
-          _unsubscribeAttachListener = noop;
-          console.log('attached', _node);
-          update(_node, move);
-        });
-        if (_connected) {
-          _connected = false;
-          if (!move || triggerOnMove) {
-            emit(false);
+      if (_node === parentNode) {
+        if (!moving || triggerOnMove) {
+          if (!_connected) {
+            _connected = true;
+            emit(true);
           }
         }
       } else {
-        if (!_connected) {
-          _connected = true;
-          if (!move || triggerOnMove) {
-            emit(true);
+        // console.log('await attached', _node);
+        // await until the parent become attached
+        _unsubscribeAttachListener = onNodeAttachedListener(_node)((): void => {
+          _unsubscribeAttachListener();
+          _unsubscribeAttachListener = noop;
+          // console.log('attached', _node);
+          update(_node);
+        });
+        if (!moving || triggerOnMove) {
+          if (_connected) {
+            _connected = false;
+            emit(false);
           }
         }
       }

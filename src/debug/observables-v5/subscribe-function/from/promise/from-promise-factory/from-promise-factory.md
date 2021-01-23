@@ -21,7 +21,7 @@ Creates a SubscribeFunction from a Promise factory.
 
 The promise factory is a function which receives an AbortSignal and returns a Promise.
 
-Thew AbortSignal is aborted when the subscription is unsubscribed and if the Promise is not resolved (fulfilled or
+The AbortSignal is aborted when the subscription is unsubscribed and if the Promise is not resolved (fulfilled or
 rejected). This signal should be used to cancel any pending work (ex: `fetch`, or any pending async task).
 
 The SubscribeFunction emits values in the form of Notifications:

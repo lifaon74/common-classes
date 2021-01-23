@@ -1,6 +1,6 @@
 import { IObservable, IObservableUnsubscribeFunction, Observable } from '../../../core/observable';
 import { IObserver } from '../../../core/observer';
-import { ITypedPureEventTarget } from '../../../../observables-v5/misc/event-listener/typed-event-target';
+import { ITypedPureEventTarget } from '../../../../observables-v5/misc/event-listener/typed-event-target.type';
 import { TKeyValueTuple } from '@lifaon/traits';
 import { createEventListener } from '../../../../observables-v5/misc/event-listener/create-event-listener';
 

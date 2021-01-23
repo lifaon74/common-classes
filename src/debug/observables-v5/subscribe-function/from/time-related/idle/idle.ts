@@ -1,6 +1,7 @@
-
 import { IEmitFunction } from '../../../../types/emit-function/emit-function';
 import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function';
+import { createIdle } from '../../../../misc/timer/create-idle';
+import { IAbortTimer } from '../../../../misc/timer/abort-timer.type';
 
 
 /**
@@ -9,9 +10,9 @@ import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subs
 export function idle(): ISubscribeFunction<IdleDeadline> {
   return (emit: IEmitFunction<IdleDeadline>): IUnsubscribeFunction => {
     let running: boolean = true;
-    let timer: any;
+    let abort: IAbortTimer;
     const loop = () => {
-      timer = requestIdleCallback((deadline: IdleDeadline) => {
+      abort = createIdle((deadline: IdleDeadline) => {
         emit(deadline);
         if (running) {
           loop();
@@ -22,7 +23,7 @@ export function idle(): ISubscribeFunction<IdleDeadline> {
     return (): void => {
       if (running) {
         running = false;
-        cancelIdleCallback(timer);
+        abort();
       }
     };
   };

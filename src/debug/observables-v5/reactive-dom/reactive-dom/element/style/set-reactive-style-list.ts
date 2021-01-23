@@ -1,7 +1,7 @@
-import { ISubscribeFunction } from '../../../../types';
 import { subscribeOnNodeConnectedTo } from '../../../misc/subscribe-on-node-connected-to';
 import { extractStylesFromAny, IExtractStylesFromAny } from './extract-styles';
 import { differStyleMap } from './differ-style-map';
+import { ISubscribeFunction } from '../../../../types/subscribe-function/subscribe-function';
 
 export type IDynamicStyleListValue = IExtractStylesFromAny;
 

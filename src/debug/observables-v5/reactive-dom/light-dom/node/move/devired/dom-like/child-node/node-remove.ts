@@ -1,14 +1,21 @@
-import { detachStandardNode } from '../../../standard/detach-standard-node';
-import { isStandardNode } from '../../../../type/is-standard-node';
+import { detachNodeWithEvent } from '../../../node/with-event/detach-node-with-event';
+import { getParentNode, IParentNode } from '../../../../properties/get-parent-node';
+import { isDocumentFragment } from '../../../../type/is-document-fragment';
+import { detachNode } from '../../../node/detach-node';
 
 /**
  * Equivalent of:
  *  node.remove();
  */
 export function nodeRemove(
-  node: Node,
+  node: ChildNode,
 ): void {
-  if (isStandardNode(node) && (node.parentNode !== null)) {
-    detachStandardNode(node);
+  const parentNode: IParentNode | null = getParentNode(node);
+  if (parentNode !== null) {
+    if (isDocumentFragment(parentNode)) {
+      detachNode(node);
+    } else {
+      detachNodeWithEvent(node);
+    }
   }
 }

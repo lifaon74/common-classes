@@ -7,16 +7,14 @@ import { pipeSubscribePipeFunctions } from './functions/piping/pipe-subscribe-pi
 import { distinctSubscribePipe } from './subscribe-function/subscribe-pipe/emit-pipe-related/distinct-subscribe-pipe';
 import { of } from './subscribe-function/from/others/of';
 import { IUnsubscribeFunction } from './types/subscribe-function/subscribe-function';
-import {
-  createMulticastReplayLastSource, createReplayLastSource, createUnicastReplayLastSource
-} from './source/replay-last-source/create-replay-last-source';
 import { debugReactiveDOM } from './reactive-dom/debug-reactive-dom';
+import { createUnicastReplayLastSource } from './source/replay-last-source/derived/create-unicast-replay-last-source';
 
 function unsubscribeIn(unsubscribe: IUnsubscribeFunction, ms: number): void {
   setTimeout(unsubscribe, ms);
 }
 
-function noCORS(url: string): string {
+export function noCORS(url: string): string {
   const _url: URL = new URL(`https://cors-anywhere.herokuapp.com/`);
   _url.pathname = url;
   return _url.href;
@@ -332,8 +330,8 @@ async function debugMulticastSource1() {
 }
 
 async function debugReplayLastSource1() {
-  // const source = createMulticastReplayLastSource<number>(0);
-  const source = createUnicastReplayLastSource<number>(0);
+  // const source = createMulticastReplayLastSource<number>({ initialValue: 0 });
+  const source = createUnicastReplayLastSource<number>({ initialValue: 0 });
 
   source.subscribe((value: number) => {
     console.log('value - A:', value);

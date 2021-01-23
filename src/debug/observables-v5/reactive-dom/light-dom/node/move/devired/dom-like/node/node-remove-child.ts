@@ -1,4 +1,5 @@
 import { nodeRemove } from '../child-node/node-remove';
+import { isChildNodeOf } from '../../../../state/is-child-node-of';
 
 /**
  * Equivalent of:
@@ -8,8 +9,8 @@ export function nodeRemoveChild<GNode extends Node>(
   parentNode: Node,
   node: GNode,
 ): GNode {
-  if (node.parentNode === parentNode) {
-    nodeRemove(node);
+  if (isChildNodeOf(node, parentNode)) {
+    nodeRemove(node as ChildNode);
   }
   return node;
 }

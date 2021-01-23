@@ -18,7 +18,7 @@ This is equivalent to the *[Subject](https://rxjs-dev.firebaseapp.com/guide/subj
 
 ### Examples
 
-#### SubscribePipeFunction that re-emits only distinct received values
+#### Subscribe many times to the same Source
 
 ```ts
 const source = createMulticastSource<number>();

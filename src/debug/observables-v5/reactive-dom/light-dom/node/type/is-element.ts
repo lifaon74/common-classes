@@ -1,6 +1,8 @@
+import { getNodeType } from '../properties/get-node-type';
+
 export function isElementNode(
   node: Node,
 ): node is Element {
-  return (node.nodeType === Node.ELEMENT_NODE);
+  return getNodeType(node) === Node.ELEMENT_NODE;
 }
 

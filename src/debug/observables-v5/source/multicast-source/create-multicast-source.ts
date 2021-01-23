@@ -1,7 +1,7 @@
 import { noop } from '../../misc/helpers/noop';
 import { IEmitFunction } from '../../types/emit-function/emit-function';
 import { ISubscribeFunction, IUnsubscribeFunction } from '../../types/subscribe-function/subscribe-function';
-import { IMulticastSource } from './multicast-source';
+import { IMulticastSource } from './multicast-source.type';
 
 
 export function createMulticastSource<GValue>(

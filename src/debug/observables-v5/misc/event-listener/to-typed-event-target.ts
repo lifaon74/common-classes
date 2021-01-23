@@ -1,8 +1,8 @@
 import {
   IEventKeyValueMapToKeyValueTupleUnion, IEventTargetToTypedEventTarget, IGenericEventKeyValueTupleUnion,
   IPureEventTargetToTypedPureEventTarget, ITypedEventTarget
-} from './typed-event-target';
-import { IPureEventTarget } from './pure-event-target';
+} from './typed-event-target.type';
+import { IPureEventTarget } from './pure-event-target.type';
 
 export function toTypedEventTarget<GEventTarget extends EventTarget>(
   target: GEventTarget,

@@ -1,6 +1,8 @@
+import { getNodeType } from '../properties/get-node-type';
+
 export function isCommentNode(
   node: Node,
 ): node is Comment {
-  return (node.nodeType === Node.COMMENT_NODE);
+  return getNodeType(node) === Node.COMMENT_NODE;
 }
 

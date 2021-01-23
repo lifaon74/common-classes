@@ -1,4 +1,4 @@
-import { ITypedPureEventTarget } from '../../../../misc/event-listener/typed-event-target';
+import { ITypedPureEventTarget } from '../../../../misc/event-listener/typed-event-target.type';
 import type { TKeyValueTuple } from '@lifaon/traits';
 import { createEventListener } from '../../../../misc/event-listener/create-event-listener';
 import { IEmitFunction } from '../../../../types/emit-function/emit-function';

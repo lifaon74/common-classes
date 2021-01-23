@@ -1,5 +1,6 @@
 import { nodeInsertBefore } from './node-insert-before';
 import { nodeRemove } from '../child-node/node-remove';
+import { isChildNodeOf } from '../../../../state/is-child-node-of';
 
 /**
  * Equivalent of:
@@ -10,7 +11,7 @@ export function nodeReplaceChild<GNode extends Node>(
   newChild: Node,
   oldChild: GNode,
 ): GNode {
-  if (oldChild.parentNode === parentNode) {
+  if (isChildNodeOf(oldChild, parentNode)) {
     nodeInsertBefore(parentNode, newChild, oldChild);
     nodeRemove(oldChild);
   } else {

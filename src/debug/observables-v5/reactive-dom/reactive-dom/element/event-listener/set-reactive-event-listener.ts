@@ -1,6 +1,6 @@
 import { subscribeOnNodeConnectedTo } from '../../../misc/subscribe-on-node-connected-to';
 import { fromEventTarget } from '../../../../subscribe-function/from/dom/from-event-target/from-event-target';
-import { ITypedPureEventTarget } from '../../../../misc/event-listener/typed-event-target';
+import { ITypedPureEventTarget } from '../../../../misc/event-listener/typed-event-target.type';
 import { TKeyValueTuple } from '@lifaon/traits';
 import { IEmitFunction } from '../../../../types/emit-function/emit-function';
 

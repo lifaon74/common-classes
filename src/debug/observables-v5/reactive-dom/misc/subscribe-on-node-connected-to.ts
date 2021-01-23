@@ -12,7 +12,6 @@ export function subscribeOnNodeConnectedTo<GValue>(
 ): void {
   let unsubscribe: IUnsubscribeFunction;
   onNodeConnectedToWithImmediate(node, topParentNode)((connected: boolean) => {
-    console.log('connected', connected);
     if (connected) {
       unsubscribe = subscribe(emit);
     } else if (unsubscribe !== void 0) {

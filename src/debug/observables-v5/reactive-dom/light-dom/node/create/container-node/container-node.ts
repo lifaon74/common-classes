@@ -1,10 +1,11 @@
 import { uuid } from '../../../../../misc/helpers/uuid';
-import { attachStandardNode, onNodeAttachedListener } from '../../move/standard/attach-standard-node';
-import { detachStandardNode, onNodeDetachedListener } from '../../move/standard/detach-standard-node';
-import { attachDocumentFragment } from '../../move/fragment/attach-document-fragment';
-import { IStandardNode } from '../../type/is-standard-node';
-import { moveStandardNode } from '../../move/standard/move-standard-node';
+import { onNodeAttachedListener } from '../../move/node/with-event/attach-node-with-event';
+import { detachNodeWithEvent, onNodeDetachedListener } from '../../move/node/with-event/detach-node-with-event';
 import { nodeInsertBefore } from '../../move/devired/dom-like/node/node-insert-before';
+import { attachNode } from '../../move/node/attach-node';
+import { detachNode } from '../../move/node/detach-node';
+import { attachDocumentFragmentWithAttachEvent } from '../../move/node/with-event/bulk/fragment/attach-document-fragment-with-event';
+import { moveNodeWithEvent } from '../../move/node/with-event/move-node-with-event';
 
 type IContainerNodeBoundary = Text | Comment;
 
@@ -30,31 +31,32 @@ export class ContainerNode extends Comment {
     onNodeAttachedListener(this)((move: boolean) => {
       const parentNode: Node = this.parentNode as Node;
       if (move) {
-        let node: IStandardNode = endNode.previousSibling as IStandardNode;
-        moveStandardNode(endNode, parentNode, this.nextSibling);
+        let node: ChildNode = endNode.previousSibling as ChildNode;
+        attachNode(endNode, parentNode, this.nextSibling);
         while (node !== startNode) {
-          const previousSibling: IStandardNode = node.previousSibling as IStandardNode;
-          moveStandardNode(node, parentNode, this.nextSibling);
+          const previousSibling: ChildNode = node.previousSibling as ChildNode;
+          moveNodeWithEvent(node, parentNode, this.nextSibling);
           node = previousSibling;
         }
-        moveStandardNode(startNode, parentNode, this.nextSibling);
+        attachNode(startNode, parentNode, this.nextSibling);
       } else {
-        attachStandardNode(endNode, parentNode, this.nextSibling);
-        attachStandardNode(startNode, parentNode, endNode);
-        attachDocumentFragment(fragment, parentNode, endNode); // fragment becomes empty
+        attachNode(endNode, parentNode, this.nextSibling);
+        attachNode(startNode, parentNode, endNode);
+        attachDocumentFragmentWithAttachEvent(fragment, parentNode, endNode); // fragment becomes empty
       }
     });
 
     onNodeDetachedListener(this)((move: boolean) => {
       if (!move) {
-        let node: IStandardNode = startNode.nextSibling as IStandardNode;
+        let node: ChildNode = startNode.nextSibling as ChildNode;
         while (node !== endNode) {
-          const nextSibling: IStandardNode = node.nextSibling as IStandardNode;
-          moveStandardNode(node, fragment, null);
+          const nextSibling: ChildNode = node.nextSibling as ChildNode;
+          detachNodeWithEvent(node);
+          attachNode(node, fragment, null);
           node = nextSibling;
         }
-        detachStandardNode(startNode);
-        detachStandardNode(endNode);
+        detachNode(startNode);
+        detachNode(endNode);
       }
     });
   }
@@ -104,22 +106,22 @@ export class ContainerNode extends Comment {
     refChild: Node | null,
   ): GNewChild {
     if (this.parentNode === null) {
-      return nodeInsertBefore<GNewChild>(this._fragment, newChild, refChild);
-      // return this._fragment.insertBefore<T>(newChild, refChild);
+      // return nodeInsertBefore<GNewChild>(this._fragment, newChild, refChild);
+      return this._fragment.insertBefore<GNewChild>(newChild, refChild);
     } else {
-      return nodeInsertBefore<GNewChild>(
-        this.parentNode,
-        newChild,
-        (refChild === null)
-          ? this._endNode
-          : refChild
-      );
-      // return this.parentNode.insertBefore<GNewChild>(
+      // return nodeInsertBefore<GNewChild>(
+      //   this.parentNode,
       //   newChild,
       //   (refChild === null)
       //     ? this._endNode
       //     : refChild
       // );
+      return this.parentNode.insertBefore<GNewChild>(
+        newChild,
+        (refChild === null)
+          ? this._endNode
+          : refChild
+      );
     }
   }
 }

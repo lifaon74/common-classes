@@ -1,6 +1,7 @@
 import { subscribeOnNodeConnectedTo } from '../../../misc/subscribe-on-node-connected-to';
-import { IAttributeValue, setAttributeValue } from '../../../light-dom/attribute/set-attribute-value';
+import { setAttributeValueWithEvent } from '../../../light-dom/attribute/with-event/set-attribute-value-with-event';
 import { ISubscribeFunction } from '../../../../types/subscribe-function/subscribe-function';
+import { IAttributeValue } from '../../../light-dom/attribute/set-attribute-value';
 
 export type IReactiveAttributeValue = IAttributeValue;
 
@@ -10,7 +11,7 @@ export function setReactiveAttribute(
   name: string,
 ): void {
   subscribeOnNodeConnectedTo(element, subscribe, (value: IReactiveAttributeValue) => {
-    setAttributeValue(element, name, value);
+    setAttributeValueWithEvent(element, name, value);
   });
 }
 

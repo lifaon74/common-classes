@@ -1,4 +1,4 @@
-import { ITypedPureEventTarget } from './typed-event-target';
+import { ITypedPureEventTarget } from './typed-event-target.type';
 import { TKeyValueTuple } from '@lifaon/traits';
 
 export interface IRemoveEventListener {

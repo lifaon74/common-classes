@@ -6,7 +6,7 @@ import { nodeInsertBefore } from '../node/node-insert-before';
  *  node.append(...nodes: (Node | string)[]): void;
  */
 export function nodeAppend(
-  node: Node,
+  node: ParentNode & Node,
   nodes: INodeOrString[],
 ): void {
   for (let i = 0, l = nodes.length; i < l; i++) {

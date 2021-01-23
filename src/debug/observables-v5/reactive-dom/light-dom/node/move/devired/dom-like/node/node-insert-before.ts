@@ -1,8 +1,9 @@
 import { isDocumentFragment } from '../../../../type/is-document-fragment';
-import { attachDocumentFragment } from '../../../fragment/attach-document-fragment';
-import { isStandardNode } from '../../../../type/is-standard-node';
-import { attachStandardNode } from '../../../standard/attach-standard-node';
-import { moveStandardNode } from '../../../standard/move-standard-node';
+import { attachNodeWithEvent } from '../../../node/with-event/attach-node-with-event';
+import { attachDocumentFragmentWithAttachEvent } from '../../../node/with-event/bulk/fragment/attach-document-fragment-with-event';
+import { moveNodeWithEvent } from '../../../node/with-event/move-node-with-event';
+import { isChildNode } from '../../../../state/is-child-node';
+import { attachNode } from '../../../node/attach-node';
 
 /**
  * Equivalent of:
@@ -14,15 +15,17 @@ export function nodeInsertBefore<GNode extends Node>(
   referenceNode: Node | null,
 ): GNode {
   if (isDocumentFragment(node)) {
-    attachDocumentFragment(node, parentNode, referenceNode);
-  } else if (isStandardNode(node)) {
-    if (node.parentNode === null) {
-      attachStandardNode(node, parentNode, referenceNode);
-    } else {
-      moveStandardNode(node, parentNode, referenceNode);
-    }
+    attachDocumentFragmentWithAttachEvent(node, parentNode, referenceNode);
   } else {
-    throw new TypeError(`Unsupported node type: ${ node.nodeType }`);
+    if (isDocumentFragment(parentNode)) {
+      attachNode(node, parentNode, referenceNode);
+    } else {
+      if (isChildNode(node)) {
+        moveNodeWithEvent(node, parentNode, referenceNode);
+      } else {
+        attachNodeWithEvent(node, parentNode, referenceNode);
+      }
+    }
   }
   return node;
 }
