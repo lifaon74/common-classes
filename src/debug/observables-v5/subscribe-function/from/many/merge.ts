@@ -20,9 +20,7 @@ export function merge<GSubscribeFunctions extends readonly IGenericSubscribeFunc
   return (emit: IEmitFunction<GValue>): IUnsubscribeFunction => {
     const unsubscribe: IUnsubscribeFunction[] = subscribeFunctions
       .map((subscribe: IGenericSubscribeFunction) => {
-        return subscribe((value: GValue): void => {
-          emit(value);
-        });
+        return subscribe(emit);
       });
     return (): void => {
       for (let i = 0, l = unsubscribe.length; i < l; i++) {

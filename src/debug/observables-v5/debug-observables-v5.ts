@@ -9,6 +9,13 @@ import { of } from './subscribe-function/from/others/of';
 import { IUnsubscribeFunction } from './types/subscribe-function/subscribe-function';
 import { debugReactiveDOM } from './reactive-dom/debug-reactive-dom';
 import { createUnicastReplayLastSource } from './source/replay-last-source/derived/create-unicast-replay-last-source';
+import { pipeSubscribeFunction } from './functions/piping/pipe-subscribe-function';
+import { interval } from './subscribe-function/from/time-related/interval/interval';
+import { dateTimeFormatSubscribePipe } from './i18n/date-time-format/date-time-format-subscribe-pipe';
+import {
+  dateTimeShortcutFormatToDateTimeFormatOptionsSubscribePipe, IDateTimeShortcutFormat
+} from './i18n/date-time-format/date-time-shortcut-format-to-date-time-format-options';
+import { reactiveFunction } from './subscribe-function/from/many/reactive-function/reactive-function';
 
 function unsubscribeIn(unsubscribe: IUnsubscribeFunction, ms: number): void {
   setTimeout(unsubscribe, ms);
@@ -281,6 +288,16 @@ export function $timeout(ms: number): Promise<void> {
 // }
 
 
+async function debugObservable12() {
+  const isInvalid = reactiveFunction((value: number): boolean => {
+    return Number.isNaN(value);
+  }, [
+    inputValueAsNumber,
+  ]);
+
+}
+
+
 async function debugEmitPipes1() {
   const emitPipe = composeEmitPipeFunctions([
     distinctEmitPipe<number>(),
@@ -405,10 +422,11 @@ export async function debugObservableV5() {
   // await debugObservable9();
   // await debugObservable10();
   // await debugObservable11();
+  await debugObservable12();
 
   // await debugMulticastSource1();
   // await debugReplayLastSource1();
   // await debugSourcePerf1();
 
-  await debugReactiveDOM();
+  // await debugReactiveDOM();
 }

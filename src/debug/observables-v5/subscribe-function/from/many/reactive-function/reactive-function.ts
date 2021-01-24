@@ -9,12 +9,13 @@ import { passthrough } from '../../../../misc/helpers/passthrough';
 
 
 export type IReactiveFunctionSubscribeFunctions<GFunction extends TGenericFunction> = TMapValueTupleToSubscribeFunctionTuple<Parameters<GFunction>>;
+export type IReactiveFunctionReturn<GFunction extends TGenericFunction> = ISubscribeFunction<ReturnType<GFunction>>;
 
 export function reactiveFunction<GFunction extends TGenericFunction>(
   fnc: GFunction,
   subscribeFunctions: IReactiveFunctionSubscribeFunctions<GFunction>,
   distinct: boolean = false,
-): ISubscribeFunction<ReturnType<GFunction>> {
+): IReactiveFunctionReturn<GFunction> {
   type GSubscribeFunctions = IReactiveFunctionSubscribeFunctions<GFunction>;
   type GCombineLastSubscribeFunctions = ICombineLatestSubscribeFunctionsValues<GSubscribeFunctions>;
   type GOut = ReturnType<GFunction>;

@@ -10,4 +10,12 @@ export type IDefaultNotificationsUnion<GValue> =
   | IErrorNotification
   ;
 
+/* derived */
+
 export type IGenericDefaultNotificationsUnion = IDefaultNotificationsUnion<any>;
+
+export type IInferDefaultNotificationsUnionGValue<GNotificationUnion extends IGenericDefaultNotificationsUnion> =
+  GNotificationUnion extends INextNotification<infer GValue>
+    ? GValue
+    : never;
+
