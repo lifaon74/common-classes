@@ -1,13 +1,12 @@
 import { ISubscribePipeFunction } from '../../types/subscribe-pipe-function/subscribe-pipe-function';
 import { mapSubscribePipe } from '../../subscribe-function/subscribe-pipe/emit-pipe-related/map-subscribe-pipe';
 import { ISubscribeFunction } from '../../types/subscribe-function/subscribe-function';
-import { pipeSubscribeFunction } from '../../functions/piping/pipe-subscribe-function';
 import { reactiveFunction } from '../../subscribe-function/from/many/reactive-function/reactive-function';
+import { ILocales } from '../../i18n/locales.type';
 import NumberFormatOptions = Intl.NumberFormatOptions;
 import NumberFormat = Intl.NumberFormat;
 
 export type IGenericLocales = string | Iterable<string> | undefined | null;
-export type ILocales = ArrayLike<string>;
 
 export function normalizeLocales(
   locales: IGenericLocales,
@@ -81,20 +80,9 @@ export function currencySubscribePipe(
 
 /*-------------------*/
 
+
 // https://angular.io/api/common/CurrencyPipe
-export function numberFormatterSubscribePipe(
-  locales: ISubscribeFunction<ILocales>,
-  options: ISubscribeFunction<NumberFormatOptions>,
-): ISubscribePipeFunction<number, string> {
-  const formatter: ISubscribeFunction<NumberFormat> = reactiveFunction((locales: ILocales, options: NumberFormatOptions): NumberFormat => {
-    return new Intl.NumberFormat(locales as string[], options);
-  }, [locales, options]);
-  return (subscribe: ISubscribeFunction<number>): ISubscribeFunction<string> => {
-    return reactiveFunction((value: number, formatter: NumberFormat): string => {
-      return formatter.format(value);
-    }, [subscribe, formatter]);
-  };
-}
+
 
 
 export class I18NService {

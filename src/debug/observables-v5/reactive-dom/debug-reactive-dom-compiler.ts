@@ -6,15 +6,18 @@ import { ISubscribeFunction } from '../types/subscribe-function/subscribe-functi
 import { sourceSubscribePipe } from '../subscribe-function/subscribe-pipe/source-related/source-subscribe-pipe/source-subscribe-pipe';
 import { createUnicastReplayLastSource } from '../source/replay-last-source/derived/create-unicast-replay-last-source';
 import {
-  compileReactiveHTMLAsInjectableTemplate, compileReactiveHTMLAsModule, compileReactiveHTMLAsModuleWithStats
+  compileReactiveHTMLAsInjectableTemplate, compileReactiveHTMLAsModuleWithStats
 } from './compiler/to-template/compile-reactive-html';
 import { nodeAppendChild } from './light-dom/node/move/devired/dom-like/node/node-append-child';
 import { createMulticastReplayLastSource } from '../source/replay-last-source/derived/create-multicast-replay-last-source';
 import { reactiveFunction } from '../subscribe-function/from/many/reactive-function/reactive-function';
 import { mapSubscribePipe } from '../subscribe-function/subscribe-pipe/emit-pipe-related/map-subscribe-pipe';
-import { currencyFormatter, ILocales, INumberFormatter, numberFormatterSubscribePipe } from './i18n/i18n';
-import { compileHTMLAsModule } from './compiler/to-lines/html/compile-html-as-module';
-import { noCORS } from '../debug-observables-v5';
+import { numberFormatSubscribePipe } from '../i18n/number-format/number-format-subscribe-pipe';
+import { createLocalesSource } from '../i18n/create-locales-source';
+import {
+  dateTimeShortcutFormatToDateTimeFormatOptionsSubscribePipe, IDateTimeShortcutFormat
+} from '../i18n/date-time-format/date-time-shortcut-format-to-date-time-format-options';
+import { dateTimeFormatSubscribePipe } from '../i18n/date-time-format/date-time-format-subscribe-pipe';
 
 async function debugReactiveDOMCompiler1() {
 
@@ -187,7 +190,8 @@ async function debugReactiveDOMCompiler1() {
 
 async function debugReactiveDOMCompiler2() {
 
-  const locales = createMulticastReplayLastSource<ILocales>({ initialValue: navigator.languages });
+  const locales = createLocalesSource();
+
 
   const inputValue = createMulticastReplayLastSource<string>();
 
@@ -201,17 +205,18 @@ async function debugReactiveDOMCompiler2() {
     inputValueAsNumber,
   ]);
 
-  // const _currencyFormater = pipeSubscribeFunction(locales.subscribe, [
-  //   mapSubscribePipe<readonly string[], INumberFormatter>((locales: readonly string[]) => currencyFormatter(locales, {
-  //     currency: 'eur',
-  //   }))
-  // ]);
-
   const currencyText = pipeSubscribeFunction(inputValueAsNumber, [
-    numberFormatterSubscribePipe(locales.subscribe, of({
+    numberFormatSubscribePipe(locales.subscribe, of({
       style: 'currency',
       currency: 'eur',
     }))
+  ]);
+
+  const dateTimeText = pipeSubscribeFunction(interval(1000), [
+    mapSubscribePipe<void, number>(() => Date.now()),
+    dateTimeFormatSubscribePipe(locales.subscribe, pipeSubscribeFunction(of<IDateTimeShortcutFormat>('medium'), [
+      dateTimeShortcutFormatToDateTimeFormatOptionsSubscribePipe(),
+    ]))
   ]);
 
 
@@ -222,6 +227,7 @@ async function debugReactiveDOMCompiler2() {
     inputValue,
     isInvalid,
     currencyText,
+    dateTimeText,
     locales,
   };
 
@@ -247,6 +253,9 @@ async function debugReactiveDOMCompiler2() {
     <button (click)="() => data.locales.emit(data.locales.getValue().includes('fr') ? 'en' : 'fr')">
       swap locale
     </button>
+    <div>
+      {{ data.dateTimeText }}
+    </div>
   `;
 
   nodeAppendChild(document.body, compileReactiveHTMLAsInjectableTemplate(html.trim())(data));

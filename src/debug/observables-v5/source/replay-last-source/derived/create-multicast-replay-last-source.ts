@@ -7,9 +7,11 @@ export interface ICreateMulticastReplayLastSourceOptions<GValue> extends ICreate
   disableDuplicateSubscribeVerification?: boolean,
 }
 
+export type IMulticastReplayLastSource<GValue> = IReplayLastSource<GValue, IMulticastSource<GValue>>;
+
 export function createMulticastReplayLastSource<GValue>(
   options?: ICreateMulticastReplayLastSourceOptions<GValue>,
-): IReplayLastSource<GValue, IMulticastSource<GValue>> {
+): IMulticastReplayLastSource<GValue> {
   return createReplayLastSource<GValue, IMulticastSource<GValue>>(
     createMulticastSource<GValue>(options?.disableDuplicateSubscribeVerification),
     options,

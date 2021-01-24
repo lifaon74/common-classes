@@ -5,6 +5,7 @@ import { pipeSubscribeFunction } from '../../../../functions/piping/pipe-subscri
 import { ISubscribeFunction } from '../../../../types/subscribe-function/subscribe-function';
 import { mapSubscribePipe } from '../../../subscribe-pipe/emit-pipe-related/map-subscribe-pipe';
 import { distinctSubscribePipe } from '../../../subscribe-pipe/emit-pipe-related/distinct-subscribe-pipe';
+import { passthrough } from '../../../../misc/helpers/passthrough';
 
 
 export type IReactiveFunctionSubscribeFunctions<GFunction extends TGenericFunction> = TMapValueTupleToSubscribeFunctionTuple<Parameters<GFunction>>;
@@ -12,6 +13,7 @@ export type IReactiveFunctionSubscribeFunctions<GFunction extends TGenericFuncti
 export function reactiveFunction<GFunction extends TGenericFunction>(
   fnc: GFunction,
   subscribeFunctions: IReactiveFunctionSubscribeFunctions<GFunction>,
+  distinct: boolean = false,
 ): ISubscribeFunction<ReturnType<GFunction>> {
   type GSubscribeFunctions = IReactiveFunctionSubscribeFunctions<GFunction>;
   type GCombineLastSubscribeFunctions = ICombineLatestSubscribeFunctionsValues<GSubscribeFunctions>;
@@ -19,6 +21,6 @@ export function reactiveFunction<GFunction extends TGenericFunction>(
 
   return pipeSubscribeFunction(combineLatest<GSubscribeFunctions>(subscribeFunctions), [
     mapSubscribePipe<GCombineLastSubscribeFunctions, GOut>((args: GCombineLastSubscribeFunctions) => fnc(...(args as any))),
-    distinctSubscribePipe<GOut>(),
+    distinct ? distinctSubscribePipe<GOut>() : passthrough,
   ]);
 }
