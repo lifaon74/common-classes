@@ -1,4 +1,4 @@
-import { ISameLength } from '../shared-types/shared-types';
+import { ISameLength } from '../shared-types/shared.type';
 import { TGenericFunction } from '@lifaon/traits';
 
 export type IAllTuplesRightToLeft<GTuple extends any[]> =

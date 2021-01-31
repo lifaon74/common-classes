@@ -1,8 +1,8 @@
 import { noop } from '../../../../misc/helpers/noop';
 import { onNodeDetachedListener } from '../move/node/with-event/detach-node-with-event';
 import { onNodeAttachedListener } from '../move/node/with-event/attach-node-with-event';
-import { IEmitFunction } from '../../../../types/emit-function/emit-function';
-import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function';
+import { IEmitFunction } from '../../../../types/emit-function/emit-function.type';
+import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function.type';
 import { getParentNode } from '../properties/get-parent-node';
 import { isDocumentFragment } from '../type/is-document-fragment';
 

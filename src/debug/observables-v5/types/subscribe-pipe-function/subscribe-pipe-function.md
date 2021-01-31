@@ -47,7 +47,7 @@ value: 2
 value: 3
 ```
 
-##### RXJS equivalent
+##### RxJS equivalent
 
 ```ts
 of(1, 2, 2, 3)

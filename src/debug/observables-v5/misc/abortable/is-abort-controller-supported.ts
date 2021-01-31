@@ -1,7 +1,7 @@
-import { IsObject } from '@lifaon/traits';
+import { isObject } from '../helpers/is-object';
 
 
 export function isAbortControllerSupported(): boolean {
-  return IsObject(globalThis)
+  return isObject(globalThis)
     && ('AbortController' in globalThis);
 }

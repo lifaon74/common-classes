@@ -44,7 +44,7 @@ value - A: 2
 value - B: 2
 ```
 
-##### RXJS equivalent
+##### RxJS equivalent
 
 ```ts
 const source = new Subject<number>();

@@ -1,11 +1,11 @@
 import { pipeNow } from '../../misc/functional/pipe/pipe-now';
-import { IPipeConstraint } from '../../misc/functional/pipe/types/pipe-constraint-type';
-import { IInferPipeNowReturn } from '../../misc/functional/pipe/types/infer-pipe-now-return-type';
-import { IGenericSubscribePipeFunction } from '../../types/subscribe-pipe-function/subscribe-pipe-function';
+import { IPipeConstraint } from '../../misc/functional/pipe/types/pipe-constraint.type';
+import { IInferPipeNowReturn } from '../../misc/functional/pipe/types/infer-pipe-now-return.type';
+import { IGenericSubscribePipeFunction } from '../../types/subscribe-pipe-function/subscribe-pipe-function.type';
 import {
   IEmitSubscribePair, IGenericEmitSubscribePair, IInferEmitSubscribePairEmitFunction,
   IInferEmitSubscribePairSubscribeFunction
-} from '../../source/emit-subscribe-pair';
+} from '../../source/emit-subscribe-pair.type';
 
 
 export type IEmitSubscribePairPipeConstraint<// generics

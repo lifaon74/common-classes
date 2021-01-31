@@ -1,7 +1,7 @@
 import { compose } from '../../misc/functional/compose/compose';
-import { IInferComposeReturn } from '../../misc/functional/compose/types/infer-compose-return-type';
-import { IComposeConstraint } from '../../misc/functional/compose/types/compose-constraint-type';
-import { IGenericEmitPipeFunction } from '../../types/emit-pipe-function/emit-pipe-function';
+import { IInferComposeReturn } from '../../misc/functional/compose/types/infer-compose-return.type';
+import { IComposeConstraint } from '../../misc/functional/compose/types/compose-constraint.type';
+import { IGenericEmitPipeFunction } from '../../types/emit-pipe-function/emit-pipe-function.type';
 
 export type IComposeEmitPipeFunctionsConstraint<// generics
   GSubscribeFunction extends IGenericEmitPipeFunction,

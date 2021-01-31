@@ -1,6 +1,6 @@
-import { IPipeConstraint } from './types/pipe-constraint-type';
-import { IInferPipeReturn } from './types/infer-pipe-return-type';
-import { IGenericUnaryFunction } from '../shared-types/unary-function-type';
+import { IPipeConstraint } from './types/pipe-constraint.type';
+import { IInferPipeReturn } from './types/infer-pipe-return.type';
+import { IGenericUnaryFunction } from '../shared-types/unary-function.type';
 
 
 export function pipe<// generics

@@ -1,4 +1,4 @@
-import { ISubscribePipeFunction } from '../../../types/subscribe-pipe-function/subscribe-pipe-function';
+import { ISubscribePipeFunction } from '../../../types/subscribe-pipe-function/subscribe-pipe-function.type';
 import { createMulticastSource } from '../../../source/multicast-source/create-multicast-source';
 import { ISourceSubscribePipeGetSource, sourceSubscribePipe } from './source-subscribe-pipe/source-subscribe-pipe';
 import { IMulticastSource } from '../../../source/multicast-source/multicast-source.type';

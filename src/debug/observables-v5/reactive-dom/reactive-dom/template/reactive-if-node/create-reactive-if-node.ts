@@ -1,7 +1,7 @@
 import { uuid } from '../../../../misc/helpers/uuid';
 import { subscribeOnNodeConnectedTo } from '../../../misc/subscribe-on-node-connected-to';
 import { IHTMLTemplate, IHTMLTemplateNodeList } from '../../../light-dom/template/template.type';
-import { ISubscribeFunction } from '../../../../types/subscribe-function/subscribe-function';
+import { ISubscribeFunction } from '../../../../types/subscribe-function/subscribe-function.type';
 import { getParentNode, IParentNode } from '../../../light-dom/node/properties/get-parent-node';
 import { getNextSibling } from '../../../light-dom/node/properties/get-next-sibling';
 import { detachManyNodesWithEvent } from '../../../light-dom/node/move/node/with-event/bulk/detach-many-nodes-with-event';

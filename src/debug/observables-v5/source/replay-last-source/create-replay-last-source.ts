@@ -1,7 +1,7 @@
 import { IReplayLastSource } from './replay-last-source.type';
-import { IEmitFunction } from '../../types/emit-function/emit-function';
-import { ISubscribeFunction, IUnsubscribeFunction } from '../../types/subscribe-function/subscribe-function';
-import { ISource } from '../source';
+import { IEmitFunction } from '../../types/emit-function/emit-function.type';
+import { ISubscribeFunction, IUnsubscribeFunction } from '../../types/subscribe-function/subscribe-function.type';
+import { ISource } from '../source.type';
 
 export interface ICreateReplayLastSourceOptions<GValue> {
   initialValue?: GValue;

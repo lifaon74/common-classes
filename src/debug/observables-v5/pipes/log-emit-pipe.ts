@@ -1,4 +1,4 @@
-import { IEmitPipeFunction } from '../types/emit-pipe-function/emit-pipe-function';
+import { IEmitPipeFunction } from '../types/emit-pipe-function/emit-pipe-function.type';
 import { tapEmitPipe } from './tap-emit-pipe';
 
 

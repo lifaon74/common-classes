@@ -3,19 +3,41 @@ import { composeEmitPipeFunctions } from './functions/piping/compose-emit-pipe-f
 import { distinctEmitPipe } from './pipes/distinct-emit-pipe';
 import { mapEmitPipe } from './pipes/map-emit-pipe';
 import { mapSubscribePipe } from './subscribe-function/subscribe-pipe/emit-pipe-related/map-subscribe-pipe';
-import { pipeSubscribePipeFunctions } from './functions/piping/pipe-subscribe-pipe-functions';
+import { pipeSubscribePipeFunctions } from './functions/piping/pipe-subscribe-pipe-functions/pipe-subscribe-pipe-functions';
 import { distinctSubscribePipe } from './subscribe-function/subscribe-pipe/emit-pipe-related/distinct-subscribe-pipe';
 import { of } from './subscribe-function/from/others/of';
-import { IUnsubscribeFunction } from './types/subscribe-function/subscribe-function';
-import { debugReactiveDOM } from './reactive-dom/debug-reactive-dom';
+import { ISubscribeFunction, IUnsubscribeFunction } from './types/subscribe-function/subscribe-function.type';
 import { createUnicastReplayLastSource } from './source/replay-last-source/derived/create-unicast-replay-last-source';
-import { pipeSubscribeFunction } from './functions/piping/pipe-subscribe-function';
+import { pipeSubscribeFunction } from './functions/piping/pipe-subscribe-function/pipe-subscribe-function';
 import { interval } from './subscribe-function/from/time-related/interval/interval';
-import { dateTimeFormatSubscribePipe } from './i18n/date-time-format/date-time-format-subscribe-pipe';
+import { IDateTimeShortcutFormat } from './i18n/date-time-format/date-time-shortcut-format/date-time-shortcut-format-to-date-time-format-options';
+import { createLocalesSource } from './i18n/create-locales-source';
+import { dateTimeShortcutFormatSubscribePipe } from './i18n/date-time-format/date-time-shortcut-format/date-time-shortcut-format-subscribe-pipe';
 import {
-  dateTimeShortcutFormatToDateTimeFormatOptionsSubscribePipe, IDateTimeShortcutFormat
-} from './i18n/date-time-format/date-time-shortcut-format-to-date-time-format-options';
-import { reactiveFunction } from './subscribe-function/from/many/reactive-function/reactive-function';
+  currencyFormatSubscribePipe, ICurrencyFormatOptions
+} from './i18n/number-format/currency-format-subscribe-pipe/currency-format-subscribe-pipe';
+import { translateSubscribeFunction } from './i18n/translate/translate-subscribe-function';
+import { IEmitFunction } from './types/emit-function/emit-function.type';
+import { ITranslations } from './i18n/translate/translations.type';
+import { createTranslationsLoader } from './i18n/translate/create-translations-loader';
+import { ILocales } from './i18n/locales/locales.type';
+import { localesToStringArray } from './i18n/locales/normalize-locales';
+import {
+  fromFetch, ISubscribeFunctionFromFetchNotifications
+} from './subscribe-function/from/http/from-fetch/from-fetch';
+import {
+  fromPromise, ISubscribeFunctionFromPromiseNotifications
+} from './subscribe-function/from/promise/from-promise/from-promise';
+import { filterSubscribePipe } from './subscribe-function/subscribe-pipe/emit-pipe-related/filter-subscribe-pipe';
+import { INextNotification } from './misc/notifications/built-in/next/next-notification.type';
+import { isNextNotification } from './misc/notifications/built-in/next/is-next-notification';
+import { fromEventTarget } from './subscribe-function/from/dom/from-event-target/from-event-target';
+import { debounceTimeSubscribePipe } from './subscribe-function/subscribe-pipe/time-related/debounce-time-subscribe-pipe';
+import { mergeMapSubscribePipe } from './subscribe-function/subscribe-pipe/merge-all/merge-map/merge-map-subscribe-pipe';
+import { fulfilledSubscribePipe } from './subscribe-function/subscribe-pipe/then/fulfilled-subscribe-pipe';
+import { IDefaultNotificationsUnion } from './misc/notifications/default-notifications-union.type';
+import { mapSubscribePipeWithNotifications } from './subscribe-function/subscribe-pipe/emit-pipe-related/with-notifications/map-subscribe-pipe-with-notifications';
+import { mergeAllSubscribePipeWithNotifications } from './subscribe-function/subscribe-pipe/merge-all/with-notifications/merge-all-subscribe-pipe-with-notifications';
 
 function unsubscribeIn(unsubscribe: IUnsubscribeFunction, ms: number): void {
   setTimeout(unsubscribe, ms);
@@ -287,14 +309,48 @@ export function $timeout(ms: number): Promise<void> {
 //   unsubscribe2();
 // }
 
+/**
+ * TODO continue here
+ * - mergeAllSubscribePipeWithNotifications is pretty unstable
+ * - piping Notifications is pretty unstable => think about better solution
+ * -
+ */
 
 async function debugObservable12() {
-  const isInvalid = reactiveFunction((value: number): boolean => {
-    return Number.isNaN(value);
-  }, [
-    inputValueAsNumber,
+
+  interface IJSONResponse {
+    userId: number;
+    id: number;
+    title: string;
+    body: string;
+  }
+
+  // const a = mapSubscribePipeWithNotifications<ISubscribeFunctionFromFetchNotifications, ISubscribeFunction<ISubscribeFunctionFromPromiseNotifications<IJSONResponse>>>((response: Response) => fromPromise<IJSONResponse>(response.json()));
+  // const a = mapSubscribePipeWithNotifications<Union<string>, ISubscribeFunction<ISubscribeFunctionFromPromiseNotifications<IJSONResponse>>>((response: Response) => fromPromise<IJSONResponse>(response.json()));
+
+  const subscribe = pipeSubscribeFunction(fromEventTarget<'click', MouseEvent>(document.body, 'click'), [
+    debounceTimeSubscribePipe<MouseEvent>(1000),
+    mergeMapSubscribePipe<MouseEvent, ISubscribeFunctionFromFetchNotifications>(() => fromFetch('https://jsonplaceholder.typicode.com/posts/1'), 1),
+    mapSubscribePipeWithNotifications<ISubscribeFunctionFromFetchNotifications, ISubscribeFunction<ISubscribeFunctionFromPromiseNotifications<IJSONResponse>>>((response: Response) => fromPromise<IJSONResponse>(response.json())),
+    mergeAllSubscribePipeWithNotifications<any>(),
+    // mergeAllSubscribePipeWithNotifications<IJSONResponse>(),
+    // mergeMapSubscribePipe<ISubscribeFunctionFromFetchNotifications, IDefaultNotificationsUnion<IJSONResponse>>((notification: ISubscribeFunctionFromFetchNotifications) => {
+    //   switch (notification.name) {
+    //     case 'next':
+    //       return fromPromise<IJSONResponse>(notification.value.json());
+    //     case 'complete':
+    //       return fromPromise<IJSONResponse>(notification.value.json());
+    //     default:
+    //       return of(notification);
+    //   }
+    // }),
+    // fulfilledSubscribePipe<Response, ISubscribeFunctionFromPromiseNotifications<IJSONResponse>>((response: Response) => fromPromise<IJSONResponse>(response.json()))
   ]);
 
+  // subscribe((notification/*: IDefaultNotificationsUnion<IJSONResponse>*/) => {
+  subscribe((notification) => {
+    console.log(notification);
+  });
 }
 
 
@@ -405,6 +461,114 @@ async function debugSourcePerf1() {
 
 /*----*/
 
+/* I18N */
+
+function setLocaleOnWindow(emit: IEmitFunction<ILocales>): void {
+  (window as any).setLocale = emit;
+}
+
+async function debugDateTime() {
+  const $locales$ = createLocalesSource();
+  setLocaleOnWindow($locales$.emit);
+
+  const dateTime$ = pipeSubscribeFunction(interval(1000), [
+    mapSubscribePipe<void, number>(() => Date.now()),
+    dateTimeShortcutFormatSubscribePipe($locales$.subscribe, of<IDateTimeShortcutFormat>('medium')),
+  ]);
+
+
+  dateTime$((value: string) => {
+    console.log(value);
+  });
+}
+
+async function debugCurrency() {
+  const $locales$ = createLocalesSource();
+  setLocaleOnWindow($locales$.emit);
+
+  const currency$ = pipeSubscribeFunction(interval(1000), [
+    mapSubscribePipe<void, number>(() => Math.random() * 1e6),
+    currencyFormatSubscribePipe($locales$.subscribe, of<ICurrencyFormatOptions>({ currency: 'eur' })),
+  ]);
+
+  currency$((value: string) => {
+    console.log(value);
+  });
+
+
+}
+
+async function debugTranslations() {
+  const $locales$ = createLocalesSource();
+  setLocaleOnWindow($locales$.emit);
+
+  const TRANSLATIONS = new Map<string, ITranslations>([
+    ['en', new Map([
+      ['translate.button.title', 'Next'],
+    ])],
+    ['fr', new Map([
+      ['translate.button.title', 'Suivant'],
+    ])],
+  ]);
+
+  const TRANSLATIONS_URLS = new Map(Array.from(TRANSLATIONS.entries(), ([locale, translations]) => {
+    const file = new File([JSON.stringify(Array.from(translations.entries()))], `${ locale }.json`, { type: 'application/json' });
+    return [locale, window.URL.createObjectURL(file)];
+  }));
+
+  function getTranslationsMap(locales: ILocales): ITranslations {
+    const _locales: string[] = localesToStringArray(locales);
+    for (let i = 0, l = _locales.length; i < l; i++) {
+      const locale: string = _locales[i];
+      if (TRANSLATIONS.has(locale)) {
+        return TRANSLATIONS.get(locale) as ITranslations;
+      }
+    }
+    return TRANSLATIONS.get('en') as ITranslations;
+  }
+
+  function getTranslationsUrl(locales: ILocales): string {
+    const _locales: string[] = localesToStringArray(locales);
+    for (let i = 0, l = _locales.length; i < l; i++) {
+      const locale: string = _locales[i];
+      if (TRANSLATIONS_URLS.has(locale)) {
+        return TRANSLATIONS_URLS.get(locale) as string;
+      }
+    }
+    return TRANSLATIONS_URLS.get('en') as string;
+  }
+
+
+  type ITranslationsJSON = [string, string][];
+
+  const translations$ = createTranslationsLoader($locales$.subscribe, (locales: ILocales) => {
+    // return of(getTranslationsMap(locales));
+    return pipeSubscribeFunction(fromFetch(getTranslationsUrl(locales)), [
+      fulfilledSubscribePipe<Response, ISubscribeFunctionFromPromiseNotifications<ITranslationsJSON>>((response: Response): ISubscribeFunction<ISubscribeFunctionFromPromiseNotifications<ITranslationsJSON>> => {
+        return fromPromise<ITranslationsJSON>(response.json());
+      }),
+      filterSubscribePipe<IDefaultNotificationsUnion<ITranslationsJSON>, INextNotification<ITranslationsJSON>>(isNextNotification),
+      mapSubscribePipe<INextNotification<ITranslationsJSON>, ITranslations>((notification: INextNotification<ITranslationsJSON>): ITranslations => {
+        return new Map(notification.value);
+      })
+    ]);
+  });
+
+  const translated$ = translateSubscribeFunction(translations$, of('translate.button.title'));
+
+  translated$((value: string) => {
+    console.log(value);
+  });
+}
+
+async function debugI18N() {
+  // await debugDateTime();
+  // await debugCurrency();
+  await debugTranslations();
+}
+
+/*----*/
+
 
 export async function debugObservableV5() {
   // await test();
@@ -427,6 +591,8 @@ export async function debugObservableV5() {
   // await debugMulticastSource1();
   // await debugReplayLastSource1();
   // await debugSourcePerf1();
+
+  // await debugI18N();
 
   // await debugReactiveDOM();
 }

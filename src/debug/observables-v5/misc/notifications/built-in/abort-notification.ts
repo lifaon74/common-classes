@@ -1,5 +1,5 @@
 import { createNotification } from '../create-notification';
-import { INotification } from '../notification-interface';
+import { INotification } from '../notification.type';
 
 export type IAbortNotification<GAbort = any> = INotification<'abort', GAbort>;
 

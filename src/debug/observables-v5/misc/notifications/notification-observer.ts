@@ -1,5 +1,5 @@
 import { IEmitFunction } from '../../../observables-v4/core/observer';
-import { IGenericNotification, INotification, TInferNotificationGName } from './notification-interface';
+import { IGenericNotification, INotification, TInferNotificationGName } from './notification.type';
 
 
 export type TInferNotificationsObserverMapFromNotificationsUnion<GNotificationsUnion extends IGenericNotification> = {
@@ -11,7 +11,7 @@ export type TInferNotificationsObserverMapFromNotificationsUnion<GNotificationsU
 export function notificationObserver<GNotificationsUnion extends IGenericNotification>(
   map: TInferNotificationsObserverMapFromNotificationsUnion<GNotificationsUnion>,
 ): IEmitFunction<GNotificationsUnion> {
-  return (notification: GNotificationsUnion) => {
+  return (notification: GNotificationsUnion): void => {
     if (map[notification.name] !== void 0) {
       map[notification.name](notification.value);
     }

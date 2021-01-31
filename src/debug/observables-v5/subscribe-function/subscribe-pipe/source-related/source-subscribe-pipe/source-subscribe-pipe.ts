@@ -1,7 +1,7 @@
-import { ISubscribePipeFunction } from '../../../../types/subscribe-pipe-function/subscribe-pipe-function';
-import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function';
-import { IEmitFunction } from '../../../../types/emit-function/emit-function';
-import { ISource } from '../../../../source/source';
+import { ISubscribePipeFunction } from '../../../../types/subscribe-pipe-function/subscribe-pipe-function.type';
+import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function.type';
+import { IEmitFunction } from '../../../../types/emit-function/emit-function.type';
+import { ISource } from '../../../../source/source.type';
 
 export interface ISourceSubscribePipeGetSource<GValue> {
   (): ISource<GValue>;

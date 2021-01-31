@@ -82,7 +82,7 @@ value - A: 3
 value - B: 3
 ```
 
-##### RXJS equivalent
+##### RxJS equivalent
 
 ```ts
 const source = new BehaviorSubject(0);

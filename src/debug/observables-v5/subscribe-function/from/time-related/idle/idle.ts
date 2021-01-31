@@ -1,5 +1,5 @@
-import { IEmitFunction } from '../../../../types/emit-function/emit-function';
-import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function';
+import { IEmitFunction } from '../../../../types/emit-function/emit-function.type';
+import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function.type';
 import { createIdle } from '../../../../misc/timer/create-idle';
 import { IAbortTimer } from '../../../../misc/timer/abort-timer.type';
 

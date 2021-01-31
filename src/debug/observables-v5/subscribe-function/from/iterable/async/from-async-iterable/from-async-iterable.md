@@ -15,15 +15,17 @@ See [fromAsyncIterator](../from-async-iterator/from-async-iterator.md) for more 
 #### Simple AsyncIterable which emits values from 0 to 9
 
 ```ts
-fromAsyncIterable(
+const subscribe = fromAsyncIterable(
   (async function * () {
     for (let i = 0; i < 10; i++) {
       yield i;
     }
   })()
-)((notification) => {
+);
+
+subscribe((notification) => {
   console.log(notification.name, ':', notification.value);
-})
+});
 ```
 
 Output:

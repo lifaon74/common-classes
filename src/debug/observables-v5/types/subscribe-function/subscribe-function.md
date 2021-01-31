@@ -43,7 +43,7 @@ tick
 tick
 ```
 
-##### RXJS equivalent
+##### RxJS equivalent
 
 ```ts
 new Observable<void>((subscriber) => {

@@ -1,8 +1,8 @@
 import { of } from '../subscribe-function/from/others/of';
-import { pipeSubscribeFunction } from '../functions/piping/pipe-subscribe-function';
+import { pipeSubscribeFunction } from '../functions/piping/pipe-subscribe-function/pipe-subscribe-function';
 import { expression } from '../subscribe-function/from/others/expression';
 import { interval } from '../subscribe-function/from/time-related/interval/interval';
-import { ISubscribeFunction } from '../types/subscribe-function/subscribe-function';
+import { ISubscribeFunction } from '../types/subscribe-function/subscribe-function.type';
 import { sourceSubscribePipe } from '../subscribe-function/subscribe-pipe/source-related/source-subscribe-pipe/source-subscribe-pipe';
 import { createUnicastReplayLastSource } from '../source/replay-last-source/derived/create-unicast-replay-last-source';
 import {
@@ -12,12 +12,8 @@ import { nodeAppendChild } from './light-dom/node/move/devired/dom-like/node/nod
 import { createMulticastReplayLastSource } from '../source/replay-last-source/derived/create-multicast-replay-last-source';
 import { reactiveFunction } from '../subscribe-function/from/many/reactive-function/reactive-function';
 import { mapSubscribePipe } from '../subscribe-function/subscribe-pipe/emit-pipe-related/map-subscribe-pipe';
-import { numberFormatSubscribePipe } from '../i18n/number-format/number-format-subscribe-pipe';
+import { numberFormatSubscribePipe } from '../i18n/number-format/number-format-subscribe-pipe/number-format-subscribe-pipe';
 import { createLocalesSource } from '../i18n/create-locales-source';
-import {
-  dateTimeShortcutFormatToDateTimeFormatOptionsSubscribePipe, IDateTimeShortcutFormat
-} from '../i18n/date-time-format/date-time-shortcut-format-to-date-time-format-options';
-import { dateTimeFormatSubscribePipe } from '../i18n/date-time-format/date-time-format-subscribe-pipe';
 
 async function debugReactiveDOMCompiler1() {
 
@@ -212,13 +208,6 @@ async function debugReactiveDOMCompiler2() {
     }))
   ]);
 
-  const dateTimeText = pipeSubscribeFunction(interval(1000), [
-    mapSubscribePipe<void, number>(() => Date.now()),
-    dateTimeFormatSubscribePipe(locales.subscribe, pipeSubscribeFunction(of<IDateTimeShortcutFormat>('medium'), [
-      dateTimeShortcutFormatToDateTimeFormatOptionsSubscribePipe(),
-    ]))
-  ]);
-
 
   const data = {
     onInputChange(input: HTMLInputElement): void {
@@ -227,7 +216,6 @@ async function debugReactiveDOMCompiler2() {
     inputValue,
     isInvalid,
     currencyText,
-    dateTimeText,
     locales,
   };
 
@@ -253,9 +241,6 @@ async function debugReactiveDOMCompiler2() {
     <button (click)="() => data.locales.emit(data.locales.getValue().includes('fr') ? 'en' : 'fr')">
       swap locale
     </button>
-    <div>
-      {{ data.dateTimeText }}
-    </div>
   `;
 
   nodeAppendChild(document.body, compileReactiveHTMLAsInjectableTemplate(html.trim())(data));

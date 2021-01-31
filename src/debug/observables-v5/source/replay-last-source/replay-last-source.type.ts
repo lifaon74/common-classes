@@ -1,4 +1,4 @@
-import { ISource } from '../source';
+import { ISource } from '../source.type';
 
 
 export interface IReplayLastSourceMethods<GValue> {

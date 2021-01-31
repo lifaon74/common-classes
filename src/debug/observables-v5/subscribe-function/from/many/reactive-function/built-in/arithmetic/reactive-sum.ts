@@ -1,5 +1,5 @@
 import { IReactiveFunctionSubscribeFunctions, reactiveFunction } from '../../reactive-function';
-import { ISubscribeFunction } from '../../../../../../types/subscribe-function/subscribe-function';
+import { ISubscribeFunction } from '../../../../../../types/subscribe-function/subscribe-function.type';
 
 export function reactiveSum(
   subscribeFunctions: IReactiveFunctionSubscribeFunctions<typeof sum>,

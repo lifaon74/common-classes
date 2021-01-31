@@ -1,8 +1,8 @@
 import { assert } from '../../test/assert';
 import { IEqualsFunction, strictEquals } from '../../test/compare';
-import { IGenericNotification } from '../misc/notifications/notification-interface';
+import { IGenericNotification } from '../misc/notifications/notification.type';
 import { asyncUnsubscribe } from '../misc/helpers/async-unsubscribe';
-import { ISubscribeFunction } from '../types/subscribe-function/subscribe-function';
+import { ISubscribeFunction } from '../types/subscribe-function/subscribe-function.type';
 
 export interface IIsExpectedValue<GValue> {
   (value: GValue): boolean

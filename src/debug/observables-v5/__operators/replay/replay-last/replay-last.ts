@@ -1,8 +1,8 @@
-import { pipeSubscribePipeFunctions } from '../../../functions/piping/pipe-subscribe-pipe-functions';
+import { pipeSubscribePipeFunctions } from '../../../functions/piping/pipe-subscribe-pipe-functions/pipe-subscribe-pipe-functions';
 import { shareOperator } from '../../share';
-import { IEmitFunction } from '../../../types/emit-function/emit-function';
-import { ISubscribeFunction, IUnsubscribeFunction } from '../../../types/subscribe-function/subscribe-function';
-import { ISubscribePipeFunction } from '../../../types/subscribe-pipe-function/subscribe-pipe-function';
+import { IEmitFunction } from '../../../types/emit-function/emit-function.type';
+import { ISubscribeFunction, IUnsubscribeFunction } from '../../../types/subscribe-function/subscribe-function.type';
+import { ISubscribePipeFunction } from '../../../types/subscribe-pipe-function/subscribe-pipe-function.type';
 
 /**
  * @deprecated

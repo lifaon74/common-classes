@@ -1,7 +1,7 @@
 
 import { ISubscription } from './subscription-interface';
-import { IEmitFunction } from '../../types/emit-function/emit-function';
-import { ISubscribeFunction, IUnsubscribeFunction } from '../../types/subscribe-function/subscribe-function';
+import { IEmitFunction } from '../../types/emit-function/emit-function.type';
+import { ISubscribeFunction, IUnsubscribeFunction } from '../../types/subscribe-function/subscribe-function.type';
 
 
 export class Subscription<GValue> implements ISubscription<GValue> {

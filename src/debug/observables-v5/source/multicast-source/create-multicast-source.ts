@@ -1,6 +1,6 @@
 import { noop } from '../../misc/helpers/noop';
-import { IEmitFunction } from '../../types/emit-function/emit-function';
-import { ISubscribeFunction, IUnsubscribeFunction } from '../../types/subscribe-function/subscribe-function';
+import { IEmitFunction } from '../../types/emit-function/emit-function.type';
+import { ISubscribeFunction, IUnsubscribeFunction } from '../../types/subscribe-function/subscribe-function.type';
 import { IMulticastSource } from './multicast-source.type';
 
 

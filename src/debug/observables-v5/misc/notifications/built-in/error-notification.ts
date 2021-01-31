@@ -1,6 +1,6 @@
 import { createNotification } from '../create-notification';
-import { INotification } from '../notification-interface';
-import { IAbortError, IAbortErrorOptions } from '../../errors/abort-error/abort-error-interface';
+import { INotification } from '../notification.type';
+import { IAbortError, IAbortErrorOptions } from '../../errors/abort-error/abort-error.type';
 import { createAbortError } from '../../errors/abort-error/create-abort-error';
 
 export type IErrorNotification<GError = any> = INotification<'error', GError>;

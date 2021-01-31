@@ -32,7 +32,7 @@ value: 2
 value: 3
 ```
 
-##### RXJS equivalent
+##### RxJS equivalent
 
 ```ts
 new Observer<number>((value: number) => {

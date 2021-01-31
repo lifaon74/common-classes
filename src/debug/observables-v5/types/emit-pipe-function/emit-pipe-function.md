@@ -10,7 +10,7 @@ An *EmitPipeFunction* receives a value, performs some operation on it, and may e
 
 Somehow, this is both a *push destination* (returned EmitFunction), and a *push source* (received EmitFunction)
 
-**ℹ️ NOTE:** there is no RXJS equivalent, because there is no *subscribe* mechanism with *EmitPipeFunction*.
+ℹ️ there is no RxJS equivalent, because there is no *subscribe* mechanism with *EmitPipeFunction*.
 
 
 ### Examples

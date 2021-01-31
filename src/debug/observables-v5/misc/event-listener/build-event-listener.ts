@@ -1,6 +1,6 @@
-import { ISource } from '../../source/source';
+import { ISource } from '../../source/source.type';
 import { createMulticastSource } from '../../source/multicast-source/create-multicast-source';
-import { ISubscribeFunction } from '../../types/subscribe-function/subscribe-function';
+import { ISubscribeFunction } from '../../types/subscribe-function/subscribe-function.type';
 
 /* MAP **/
 

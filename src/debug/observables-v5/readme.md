@@ -2,7 +2,7 @@
 
 This library provides tools to generate and consume blazing fast Observables and Observers.
 
-However, it is not RxJs: it's faster, smaller, and tries to be simpler.
+However, it is not RxJS: it's faster, smaller, and tries to be simpler.
 
 If you're not familiar with the concept of Observables you may
 check [the rxjs documentation](https://rxjs-dev.firebaseapp.com/guide/observable),
@@ -13,6 +13,8 @@ The main purpose of Observables is to **react to changes**.
 *Example:*
 
 ```ts
+
+
 function interval(
   period: number,
 ): ISubscribeFunction<number> {
@@ -27,7 +29,9 @@ function interval(
   };
 }
 
-const unsubscribe = interval(500)((value: number) => {
+const subscribe = interval(500);
+
+const unsubscribe = subscribe((value: number) => {
   console.log('tick', value);
 });
 
@@ -43,7 +47,7 @@ tick 1
 interval stopped
 ```
 
-Differences with RxJs:
+Differences with RxJS:
 
 - no classes: this choice allows blazing fast performances and very small bundle size. Indeed, creating a class with
   the `new` keyword is slow, and method names can't be mangled (minimized), where function calls are really well
@@ -57,329 +61,20 @@ Differences with RxJs:
 
 - some operators may have a different behaviour or name
 
-I chose deliberately to rename some of the RxJs's terms to do clearly the distinction between this library *components*
-and the RxJs's *components*.
+I chose deliberately to rename some of the RxJS's terms to do clearly the distinction between this library *components*
+and the RxJS's *components*.
 
 ## Documentation
 
-### SubscribeFunction
+- [SubscribeFunction](./types/subscribe-function/subscribe-function.md) (ak: Observable)
+- [EmitFunction](./types/emit-function/emit-function.md) (ak: Observer)
+- [SubscribePipeFunction](./types/subscribe-pipe-function/subscribe-pipe-function.md) (ak: Pipeable Operator)
+- [pipeSubscribeFunction](./functions/piping/pipe-subscribe-function/pipe-subscribe-function.md) (ak: Observable.pipe)
+- [pipeSubscribePipeFunctions](./functions/piping/pipe-subscribe-pipe-functions/pipe-subscribe-pipe-functions.md) (ak: pipe function)
+- [Notification](./misc/notifications/notifications.md) (ak: *next*, *complete* and *error*)
+- [MulticastSource](./source/multicast-source/multicast-source.md) (ak: Subject)
+- [ReplayLastSource](./source/replay-last-source/replay-last-source.md) (ak: BehaviorSubject)
 
-```ts
-type ISubscribeFunction<GValue> = (emit: IEmitFunction<GValue>) => IUnsubscribeFunction;
-
-type IUnsubscribeFunction = () => void;
-```
-
-A *SubscribeFunction* emits values when subscribed, and stops when unsubscribed.
-
-This is equivalent to a *Push Source*, an *[Observable](https://rxjs-dev.firebaseapp.com/guide/observable)*
-or somehow an *[EventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener)*.
-
-*Example: SubscribeFunction which emits 'void' every 500ms when subscribed*
-
-```ts
-const subscribe: ISubscribeFunction<void> = (emit: IEmitFunction<void>): IUnsubscribeFunction => {
-  const timer: any = setInterval(() => emit(), 500);
-  return (): void => {
-    clearInterval(timer);
-  };
-};
-```
-
-<details>
-<summary>equivalent to</summary>
-<p>
-
-```ts
-new Observable<void>((subscriber) => {
-  const timer: any = setInterval(() => subscriber.next(), 500);
-  return (): void => {
-    clearInterval(timer);
-  };
-});
-```
-
-</p>
-</details>
-
-### EmitFunction
-
-```ts
-type IEmitFunction<GValue> = (value: GValue) => void;
-```
-
-An *EmitFunction* receives and consumes a value. This is equivalent to a *Push Destination* or
-an *[Observer](https://rxjs-dev.firebaseapp.com/guide/observer)*.
-
-*Example: EmitFunction which receives and logs numbers*
-
-```ts
-const emit: IEmitFunction<number> = (value: number): void => {
-  console.log('received', value);
-};
-```
-
-<details>
-<summary>equivalent to</summary>
-<p>
-
-```ts
-new Observer<number>((value: number) => {
-  console.log('received', value);
-});
-```
-
-</p>
-</details>
-
-### Operator
-
-```ts
-type IOperatorFunction<GIn, GOut> = (subscribe: ISubscribeFunction<GIn>) => ISubscribeFunction<GOut>;
-```
-
-An *OperatorFunction* takes one *SubscribeFunction* in input and returns another *SubscribeFunction* in output, whose
-internal logic is tied up with the input *SubscribeFunction*. This is equivalent to
-the *[Pipeable Operators](https://rxjs-dev.firebaseapp.com/guide/operators)* (ℹ️ only the pipeable ones).
-
-*Example: OperatorFunction which transmits only distinct received values*
-
-```ts
-const operator = <GValue>(subscribe: ISubscribeFunction<GValue>): ISubscribeFunction<GValue> => {
-  return (emit: IEmitFunction<GValue>): IUnsubscribeFunction => {
-    let previousValue: GValue;
-    return subscribe((value: GValue): void => {
-      if (value !== previousValue) {
-        previousValue = value;
-        emit(value);
-      }
-    });
-  };
-}
-```
-
-**Note that creating your own operators** requires that you clear yourself any subscriptions on the input
-*SubscribeFunction*.
-
-### Piping
-
-```ts
-function pipeSubscribeFunction<GSubscribeFunction extends IGenericSubscribeFunction, GFunctions extends ISubscribeFunctionPipeConstraint<GSubscribeFunction, GFunctions>>(
-  subscribe: GSubscribeFunction,
-  fns: GFunctions
-): ISubscribeFunctionPipeReturn<GSubscribeFunction, GFunctions>;
-```
-
-The *pipeSubscribeFunction* is used to chain many *OperatorFunctions*. This is equivalent to the `.pipe` methods of an
-*Observable*.
-
-*Example:*
-
-```ts
-const subscribe = pipeSubscribeFunction(interval(500), [
-  mapOperator<void, number>(() => Math.random()), // transforms every 'void' received into a random number
-  filterOperator<number>((value: number) => (value < 0.5)) // re-emits only values lower than 0.5
-]);
-
-const unsubscribe = subscribe((value: number) => {
-  console.log('value', value);
-});
-
-setTimeout(unsubscribe, 2000);
-```
-
-<details>
-<summary>equivalent to</summary>
-<p>
-
-```ts
-interval(500)
-  .pipe(
-    map(() => Math.random()),
-    filter((value: number) => (value < 0.5))
-  )
-  .subscribe((value: number) => {
-    console.log('value', value);
-  });
-```
-
-</p>
-</details>
-
-As you may see, using this library is a little more verbose, and the code is less elegant.
-But the performances are greatly increased, and the minification improved.
-
-### Notification
-
-```ts
-interface INotification<GName extends string, GValue> {
-  readonly name: GName;
-  readonly value: GValue;
-}
-```
-
-A *Notification* is used as a replacement of the `next`, `complete`and `error` *events*:
-you emit directly a `INextNotification` instead of calling `subscriber.next()` for example.
-
-To create a Notification, you may use a plain object `{ name, value }` or
-use the function [createNotification](./misc/notifications/create-notification.ts):
-
-```ts
-function createNotification<GName extends string, GValue>(
-  name: GName,
-  value: GValue,
-): INotification<GName, GValue>;
-```
-
-Moreover, some pre-existing *Notifications* may be found in [misc/notifications/built-in](./misc/notifications/built-in)
-
-*Example: creates a SubscribeFunction from a Promise*
-
-```ts
-type ISubscribeFunctionFromPromiseNotifications<GValue> =
-  INextNotification<GValue>
-  | ICompleteNotification
-  | IErrorNotification
-  ;
-
-function fromPromise<GValue>(
-  promise: Promise<GValue>,
-): ISubscribeFunction<ISubscribeFunctionFromPromiseNotifications<GValue>> {
-  type GNotificationsUnion = ISubscribeFunctionFromPromiseNotifications<GValue>;
-  return (emit: IEmitFunction<GNotificationsUnion>): IUnsubscribeFunction => {
-    let running: boolean = true;
-    promise
-      .then(
-        (value: GValue) => {
-          if (running) {
-            emit(createNextNotification<GValue>(value));
-          }
-          if (running) {
-            emit(createCompleteNotification());
-          }
-        },
-        (error: any) => {
-          if (running) {
-            emit(createErrorNotification<any>(error));
-          }
-        }
-      );
-    return (): void => {
-      running = false;
-    };
-  };
-}
-```
-
-*Example: consumes your notifications*
-
-```ts
-const subscribe = fromPromise(Promise.resolve(Math.random()));
-
-subscribe((notification: ISubscribeFunctionFromPromiseNotifications<number>) => {
-  switch (notification.name) {
-    case 'next':
-      console.log('next', notification.value);
-      break;
-    case 'complete':
-      console.log('resolved');
-      break;
-    case 'error':
-      console.log('rejected', notification.value);
-      break;
-  }
-});
-```
-
-You may also use [notificationObserver](./misc/notifications/notification-observer.ts) if you prefer:
-
-```ts
-function notificationObserver<GNotificationsUnion extends IGenericNotification>(
-  map: TInferNotificationsObserverMapFromNotificationsUnion<GNotificationsUnion>,
-): IEmitFunction<GNotificationsUnion>
-```
-
-```ts
-subscribe(
-  notificationObserver({
-    next: (value: number) => {
-      console.log('next', value);
-    },
-    complete: () => {
-      console.log('resolved');
-    },
-    error: (error: any) => {
-      console.log('rejected', error);
-    },
-  })
-);
-```
-
-### Source
-
-```ts
-interface ISource<GValue> {
-  getObservers(): readonly IEmitFunction<GValue>[]; // readonly list of observers for this source
-  readonly emit: IEmitFunction<GValue>; // sends a value to all the observers
-  readonly subscribe: ISubscribeFunction<GValue>; // registers an observer for this source
-}
-```
-
-```ts
-function createSource<GValue>(): ISource<GValue>;
-```
-
-A *Source* is used to emit one value to multiple observers (`IEmitFunction`)
-
-This is equivalent to a *[Subject](https://rxjs-dev.firebaseapp.com/guide/subject)*
-
-*Example:*
-
-```ts
-const source = createSource<string>();
-
-source.subscribe((value: number) => {
-  console.log('subscription 1', value);
-});
-
-source.subscribe((value: number) => {
-  console.log('subscription 2', value);
-});
-
-source.emit('hello world');
-// outputs
-// > 'subscription 1', 'hello world'
-// > 'subscription 2', 'hello world'
-
-```
-
-<details>
-<summary>equivalent to</summary>
-<p>
-
-```ts
-const source = new Subject<string>();
-
-source.subscribe((value: number) => {
-  console.log('subscription 1', value);
-});
-
-source.subscribe((value: number) => {
-  console.log('subscription 2', value);
-});
-
-source.next('hello world');
-```
-
-</p>
-</details>
-
-### Coming from RxJS ?
-
-- Observable -> SubscribeFunction
-- Subscription -> UnsubscribeFunction
-- Observer -> EmitFunction
-- Subject -> Source
 
 ## Choosing a function
 
@@ -392,14 +87,14 @@ source.next('hello world');
 - an iterable
   - sync
     - array:
-      - without notifications: [fromArray](subscribe-function/from/iterable/sync/from-array.ts)
-      - with notifications: [fromArrayWithNotifications](subscribe-function/from/iterable/sync/from-array-with-notifications.ts)
+      - without notifications: [fromArray](subscribe-function/from/iterable/sync/from-array/from-array.md)
+      - with notifications: [fromArrayWithNotifications](subscribe-function/from/iterable/sync/from-array/with-notifications/from-array-with-notifications.md)
     - iterable:
-      - without notifications: [fromIterable](subscribe-function/from/iterable/sync/from-iterable.ts)
-      - with notifications: [fromIterableWithNotifications](subscribe-function/from/iterable/sync/from-iterable-with-notifications.ts)
+      - without notifications: [fromIterable](subscribe-function/from/iterable/sync/from-iterable/from-iterable.md)
+      - with notifications: [fromIterableWithNotifications](subscribe-function/from/iterable/sync/from-iterable/with-notifications/from-iterable-with-notifications.md)
     - iterator ⚠️:
-      - without notifications: [fromIterator](subscribe-function/from/iterable/sync/from-iterator.ts)
-      - with notifications: [fromIteratorWithNotifications](subscribe-function/from/iterable/sync/from-iterator-with-notifications.ts)
+      - without notifications: [fromIterator](subscribe-function/from/iterable/sync/from-iterator/from-iterator.md)
+      - with notifications: [fromIteratorWithNotifications](subscribe-function/from/iterable/sync/from-iterator/with-notifications/from-iterator-with-notifications.md)
 
   - async
     - async iterable: [fromAsyncIterable](subscribe-function/from/iterable/async/from-async-iterable/from-async-iterable.md)
@@ -454,9 +149,9 @@ source.next('hello world');
 
 #### others
 
-- chain many OperatorFunctions: [pipeOperatorFunctions](functions/piping/pipe-subscribe-pipe-functions.ts)
+- chain many OperatorFunctions: [pipeOperatorFunctions](functions/piping/pipe-subscribe-pipe-functions/pipe-subscribe-pipe-functions.ts)
 - chain many OperatorFunctions with a
-  SubscribeFunction: [pipeSubscribeFunction](functions/piping/pipe-subscribe-function.ts)
+  SubscribeFunction: [pipeSubscribeFunction](functions/piping/pipe-subscribe-function/pipe-subscribe-function.ts)
 
 
 

@@ -1,6 +1,6 @@
 import { createListenerBuilderFunctions, createListenerMap } from '../../../../misc/event-listener/build-event-listener';
 import { getAttributeValue } from '../get-attribute-value';
-import { ISubscribeFunction } from '../../../../types/subscribe-function/subscribe-function';
+import { ISubscribeFunction } from '../../../../types/subscribe-function/subscribe-function.type';
 import { IAttributeValue, setAttributeValue } from '../set-attribute-value';
 
 const ATTRIBUTE_REFERENCE_STORE = new WeakMap<Element, Map<string, IAttributeReference>>();

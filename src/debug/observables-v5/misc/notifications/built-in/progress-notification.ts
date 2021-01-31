@@ -1,5 +1,5 @@
 import { createNotification } from '../create-notification';
-import { INotification } from '../notification-interface';
+import { INotification } from '../notification.type';
 import { IProgress } from '../../progress/progress-interface';
 import { createProgress } from '../../progress/create-progress';
 

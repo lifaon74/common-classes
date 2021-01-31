@@ -1,4 +1,4 @@
-import { createNextNotification } from '../../../../misc/notifications/built-in/next-notification';
+import { createNextNotification } from '../../../../misc/notifications/built-in/next/create-next-notification';
 import { STATIC_COMPLETE_NOTIFICATION } from '../../../../misc/notifications/built-in/complete-notification';
 import {
   createAbortErrorNotification, createErrorNotification
@@ -10,9 +10,9 @@ import { IProgress } from '../../../../misc/progress/progress-interface';
 import { createEventListener, IRemoveEventListener } from '../../../../misc/event-listener/create-event-listener';
 import { toTypedEventTarget } from '../../../../misc/event-listener/to-typed-event-target';
 import { createProgressFromProgressEvent } from '../../../../misc/progress/create-progress-from-progress-event';
-import { IEmitFunction } from '../../../../types/emit-function/emit-function';
-import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function';
-import { IDefaultNotificationsUnion } from '../../../../types/shared-types';
+import { IEmitFunction } from '../../../../types/emit-function/emit-function.type';
+import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function.type';
+import { IDefaultNotificationsUnion } from '../../../../misc/notifications/default-notifications-union.type';
 
 export interface IFileReaderFormatsToTypeMap {
   'data-url': string;

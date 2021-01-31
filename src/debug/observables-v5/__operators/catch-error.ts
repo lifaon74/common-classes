@@ -1,9 +1,9 @@
-import { IGenericNotification } from '../misc/notifications/notification-interface';
+import { IGenericNotification } from '../misc/notifications/notification.type';
 import { IErrorNotification } from '../misc/notifications/built-in/error-notification';
 import { asyncUnsubscribe } from '../misc/helpers/async-unsubscribe';
-import { IEmitFunction } from '../types/emit-function/emit-function';
-import { ISubscribeFunction, IUnsubscribeFunction } from '../types/subscribe-function/subscribe-function';
-import { ISubscribePipeFunction } from '../types/subscribe-pipe-function/subscribe-pipe-function';
+import { IEmitFunction } from '../types/emit-function/emit-function.type';
+import { ISubscribeFunction, IUnsubscribeFunction } from '../types/subscribe-function/subscribe-function.type';
+import { ISubscribePipeFunction } from '../types/subscribe-pipe-function/subscribe-pipe-function.type';
 //
 // // TODO: https://rxjs-dev.firebaseapp.com/api/operators/catchError
 //

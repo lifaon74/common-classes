@@ -1,4 +1,4 @@
-import { createNextNotification } from '../../../../misc/notifications/built-in/next-notification';
+import { createNextNotification } from '../../../../misc/notifications/built-in/next/create-next-notification';
 import { STATIC_COMPLETE_NOTIFICATION } from '../../../../misc/notifications/built-in/complete-notification';
 import {
   createAbortErrorNotification, createErrorNotification
@@ -7,9 +7,9 @@ import { createEventListener, IRemoveEventListener } from '../../../../misc/even
 import { isAbortSignal } from '../../../../misc/abortable/is-abort-signal';
 import { noop } from '../../../../misc/helpers/noop';
 import { toTypedEventTarget } from '../../../../misc/event-listener/to-typed-event-target';
-import { IEmitFunction } from '../../../../types/emit-function/emit-function';
-import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function';
-import { IDefaultNotificationsUnion } from '../../../../types/shared-types';
+import { IEmitFunction } from '../../../../types/emit-function/emit-function.type';
+import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function.type';
+import { IDefaultNotificationsUnion } from '../../../../misc/notifications/default-notifications-union.type';
 
 
 export interface ISubscribeFunctionFromPromiseFactoryOptions {
@@ -17,13 +17,6 @@ export interface ISubscribeFunctionFromPromiseFactoryOptions {
 }
 
 export type ISubscribeFunctionFromPromiseFactoryNotifications<GValue> = IDefaultNotificationsUnion<GValue>;
-
-// export type ISubscribeFunctionFromPromiseFactoryNotifications<GValue> =
-//   INextNotification<GValue>
-//   | ICompleteNotification
-//   | IErrorNotification
-//   | IAbortNotification<void>
-//   ;
 
 
 export interface IFromPromiseFactoryCreatePromiseFunction<GValue> {

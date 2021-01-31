@@ -1,9 +1,9 @@
-import { IEmitFunction } from '../../../types/emit-function/emit-function';
+import { IEmitFunction } from '../../../types/emit-function/emit-function.type';
 import {
   ISubscribeFunction, IUnsubscribeFunction
-} from '../../../types/subscribe-function/subscribe-function';
-import { IEmitPipeFunction } from '../../../types/emit-pipe-function/emit-pipe-function';
-import { ISubscribePipeFunction } from '../../../types/subscribe-pipe-function/subscribe-pipe-function';
+} from '../../../types/subscribe-function/subscribe-function.type';
+import { IEmitPipeFunction } from '../../../types/emit-pipe-function/emit-pipe-function.type';
+import { ISubscribePipeFunction } from '../../../types/subscribe-pipe-function/subscribe-pipe-function.type';
 
 /**
  * Converts an emit pipe function to a subscribe pipe function

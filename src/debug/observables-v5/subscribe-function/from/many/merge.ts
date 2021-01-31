@@ -1,8 +1,8 @@
 import { TupleTypes } from '@lifaon/traits';
-import { IEmitFunction } from '../../../types/emit-function/emit-function';
+import { IEmitFunction } from '../../../types/emit-function/emit-function.type';
 import {
   IGenericSubscribeFunction, ISubscribeFunction, IUnsubscribeFunction
-} from '../../../types/subscribe-function/subscribe-function';
+} from '../../../types/subscribe-function/subscribe-function.type';
 
 export type IMergeSubscribeFunctionsValues<GSubscribeFunctions extends readonly IGenericSubscribeFunction[]> = TupleTypes<{
   [GKey in keyof GSubscribeFunctions]: GSubscribeFunctions[GKey] extends ISubscribeFunction<infer GValue>

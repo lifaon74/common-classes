@@ -1,4 +1,4 @@
-import { IAbortError, IAbortErrorOptions } from './abort-error-interface';
+import { IAbortError, IAbortErrorOptions } from './abort-error.type';
 
 export function createAbortError(
   options?: IAbortErrorOptions

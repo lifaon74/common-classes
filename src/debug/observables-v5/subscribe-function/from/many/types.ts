@@ -1,5 +1,5 @@
 
-import { IGenericSubscribeFunction, ISubscribeFunction } from '../../../types/subscribe-function/subscribe-function';
+import { IGenericSubscribeFunction, ISubscribeFunction } from '../../../types/subscribe-function/subscribe-function.type';
 
 
 export type TMapValueTupleToSubscribeFunctionTuple<GValueTuple extends readonly any[]> =

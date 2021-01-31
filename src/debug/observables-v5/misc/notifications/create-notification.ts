@@ -1,4 +1,4 @@
-import { INotification } from './notification-interface';
+import { INotification } from './notification.type';
 
 
 export function createNotification<GName extends string, GValue>(
@@ -10,4 +10,6 @@ export function createNotification<GName extends string, GValue>(
     value,
   });
 }
+
+
 

@@ -1,5 +1,5 @@
-import { ISource } from '../source';
-import { IEmitFunction } from '../../types/emit-function/emit-function';
+import { ISource } from '../source.type';
+import { IEmitFunction } from '../../types/emit-function/emit-function.type';
 
 
 /**

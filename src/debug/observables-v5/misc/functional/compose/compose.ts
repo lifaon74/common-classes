@@ -1,6 +1,6 @@
-import { IComposeConstraint } from './types/compose-constraint-type';
-import { IInferComposeReturn } from './types/infer-compose-return-type';
-import { IGenericUnaryFunction } from '../shared-types/unary-function-type';
+import { IComposeConstraint } from './types/compose-constraint.type';
+import { IInferComposeReturn } from './types/infer-compose-return.type';
+import { IGenericUnaryFunction } from '../shared-types/unary-function.type';
 
 
 export function compose<// generics

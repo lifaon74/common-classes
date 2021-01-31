@@ -1,30 +1,25 @@
 import { createEventListener, IRemoveEventListener } from '../../../misc/event-listener/create-event-listener';
 import { isAbortSignal } from '../../../misc/abortable/is-abort-signal';
 import { toTypedEventTarget } from '../../../misc/event-listener/to-typed-event-target';
-import { IGenericNotification } from '../../../misc/notifications/notification-interface';
 import { createAbortError } from '../../../misc/errors/abort-error/create-abort-error';
 import { asyncUnsubscribe } from '../../../misc/helpers/async-unsubscribe';
-import { ISubscribeFunction, IUnsubscribeFunction } from '../../../types/subscribe-function/subscribe-function';
-import { IDefaultNotificationsUnion } from '../../../types/shared-types';
+import { ISubscribeFunction, IUnsubscribeFunction } from '../../../types/subscribe-function/subscribe-function.type';
+import { IDefaultInNotificationsUnion } from '../../../misc/notifications/default-notifications-union.type';
 
 export interface ISubscribeFunctionToPromiseOptions {
   signal?: AbortSignal;
 }
 
-export type ISubscribeFunctionToPromiseNotifications<GValue> =
-  IDefaultNotificationsUnion<GValue>
-  | IGenericNotification
-  ;
+export type ISubscribeFunctionToPromiseNotifications<GValue> = IDefaultInNotificationsUnion<GValue>;
 
 export function toPromise<GValue>(
   subscribe: ISubscribeFunction<ISubscribeFunctionToPromiseNotifications<GValue>>,
   options?: ISubscribeFunctionToPromiseOptions
-): Promise<GValue> {
-  return new Promise<GValue>((
-    resolve: (value: GValue) => void,
+): Promise<GValue[]> {
+  return new Promise<GValue[]>((
+    resolve: (value: GValue[]) => void,
     reject: (reason: any) => void,
   ) => {
-
     let removeAbortEventListener: IRemoveEventListener;
     if ((options !== void 0) && isAbortSignal(options.signal)) {
       if (options.signal.aborted) {
@@ -46,9 +41,9 @@ export function toPromise<GValue>(
       asyncUnsubscribe(() => unsubscribe);
     };
 
-    const _resolve = (value: GValue) => {
+    const _resolve = (values: GValue[]) => {
       end();
-      resolve(value);
+      resolve(values);
     };
 
     const _reject = (error: any) => {
@@ -56,25 +51,18 @@ export function toPromise<GValue>(
       reject(error);
     };
 
-    let value: GValue;
+    const values: GValue[] = [];
     const unsubscribe: IUnsubscribeFunction = subscribe((notification: ISubscribeFunctionToPromiseNotifications<GValue>) => {
       switch (notification.name) {
         case 'next':
-          value = notification.value;
+          values.push(notification.value);
           break;
         case 'complete':
-          _resolve(value);
+          _resolve(values);
           break;
         case 'error':
           _reject(notification.value);
           break;
-        // case 'abort':
-        //   _reject(
-        //     (notification.value === void 0)
-        //       ? createAbortError()
-        //       : notification.value
-        //   );
-        //   break;
       }
     });
   });

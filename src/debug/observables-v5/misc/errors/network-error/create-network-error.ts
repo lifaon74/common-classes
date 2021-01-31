@@ -1,4 +1,4 @@
-import { INetworkError, INetworkErrorOptions } from './network-error-interface';
+import { INetworkError, INetworkErrorOptions } from './network-error.type';
 
 
 export function createNetworkError(

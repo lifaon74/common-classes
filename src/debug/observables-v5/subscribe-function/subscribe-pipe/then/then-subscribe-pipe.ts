@@ -1,9 +1,10 @@
-import { ISubscribeFunction, IUnsubscribeFunction } from '../../../types/subscribe-function/subscribe-function';
-import { ISubscribePipeFunction } from '../../../types/subscribe-pipe-function/subscribe-pipe-function';
-import { IDefaultNotificationsUnion } from '../../../types/shared-types';
-import { IGenericNotification } from '../../../misc/notifications/notification-interface';
-import { IEmitFunction } from '../../../types/emit-function/emit-function';
+import { ISubscribeFunction, IUnsubscribeFunction } from '../../../types/subscribe-function/subscribe-function.type';
+import { ISubscribePipeFunction } from '../../../types/subscribe-pipe-function/subscribe-pipe-function.type';
+import { IGenericNotification } from '../../../misc/notifications/notification.type';
+import { IEmitFunction } from '../../../types/emit-function/emit-function.type';
 import { toPromise } from '../../to/to-promise/to-promise';
+import { IDefaultNotificationsUnion } from '../../../misc/notifications/default-notifications-union.type';
+import { toPromiseLast } from '../../to/to-promise/last/to-promise-last';
 
 
 export interface IThenSubscribePipeOnFulfilled<GInNextValue, GOut> {
@@ -34,7 +35,7 @@ export function thenSubscribePipe<GInNextValue, GOut>(
 
       let childUnsubscribe: IUnsubscribeFunction;
 
-      toPromise<GInNextValue>(subscribe, { signal })
+      toPromiseLast<GInNextValue>(subscribe, { signal })
         .then(
           (value: GInNextValue) => {
             if (running) {
@@ -60,4 +61,6 @@ export function thenSubscribePipe<GInNextValue, GOut>(
     };
   };
 }
+
+
 

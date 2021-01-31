@@ -1,4 +1,4 @@
-import { pipeSubscribeFunction } from '../functions/piping/pipe-subscribe-function';
+import { pipeSubscribeFunction } from '../functions/piping/pipe-subscribe-function/pipe-subscribe-function';
 import { interval } from '../subscribe-function/from/time-related/interval/interval';
 import { onNodeConnectedTo } from './light-dom/node/state/on-node-connected-to';
 import { $timeout } from '../debug-observables-v5';
@@ -9,8 +9,7 @@ import { createTextNode } from './light-dom/node/create/create-text-node';
 import { createDocumentFragment } from './light-dom/node/create/create-document-fragment';
 import { createReactiveForLoopNode } from './reactive-dom/template/reactive-for-loop-node/create-reactive-for-loop-node';
 import { createContainerNode } from './light-dom/node/create/container-node/create-container-node';
-import { ISubscribeFunction } from '../types/subscribe-function/subscribe-function';
-import { ISubscribePipeFunction } from '../types/subscribe-pipe-function/subscribe-pipe-function';
+import { ISubscribeFunction } from '../types/subscribe-function/subscribe-function.type';
 import { mapSubscribePipe } from '../subscribe-function/subscribe-pipe/emit-pipe-related/map-subscribe-pipe';
 import { createReactiveTextNode } from './reactive-dom/text/create-reactive-text-node';
 import { logStateSubscribePipe } from '../subscribe-function/subscribe-pipe/log-state-subscribe-pipe';
@@ -23,7 +22,6 @@ import { shareSubscribePipe } from '../subscribe-function/subscribe-pipe/source-
 import { debounceFrameSubscribePipe } from '../subscribe-function/subscribe-pipe/time-related/debounce-frame-subscribe-pipe';
 import { createUnicastReplayLastSource } from '../source/replay-last-source/derived/create-unicast-replay-last-source';
 import { debugReactiveDOMCompiler } from './debug-reactive-dom-compiler';
-
 
 
 /*---*/
@@ -549,7 +547,6 @@ async function debugReactiveForLoopNode2() {
   //   nodeRemove(node);
   // }, 5000);
 }
-
 
 /*----*/
 

@@ -1,6 +1,6 @@
 import { assertSubscribeFunctionEmits, notificationEquals } from '../../../../../test/assert-subscribe-functions';
 import { fromAsyncIterable } from './from-async-iterable';
-import { createNextNotification } from '../../../../../misc/notifications/built-in/next-notification';
+import { createNextNotification } from '../../../../../misc/notifications/built-in/next/create-next-notification';
 import { STATIC_COMPLETE_NOTIFICATION } from '../../../../../misc/notifications/built-in/complete-notification';
 import { runTest } from '../../../../../../test/test-functions';
 

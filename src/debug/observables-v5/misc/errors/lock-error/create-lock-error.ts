@@ -1,4 +1,4 @@
-import { ILockError, ILockErrorOptions } from './lock-error-interface';
+import { ILockError, ILockErrorOptions } from './lock-error.type';
 
 export function createLockError(
   options?: ILockErrorOptions

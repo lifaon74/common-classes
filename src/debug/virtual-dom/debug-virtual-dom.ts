@@ -6,12 +6,12 @@ import { createListenerBuilderFunctions } from '../observables-v5/misc/event-lis
 import { detachAttachedDoublyLinkedListNode } from '../linked-list/doubly/functions/modify/remove/detach';
 import { appendDetachedNodeForDoublyLinkedList } from '../linked-list/doubly/functions/modify/insert/append';
 import { insertDetachedNodeBeforeReferenceNodeForDoublyLinkedList } from '../linked-list/doubly/functions/modify/insert/insert-before';
-import { pipeSubscribeFunction } from '../observables-v5/functions/piping/pipe-subscribe-function';
+import { pipeSubscribeFunction } from '../observables-v5/functions/piping/pipe-subscribe-function/pipe-subscribe-function';
 import { interval } from '../observables-v5/subscribe-function/from/time-related/interval/interval';
 import { mapOperator } from '../observables-v5/__operators/pipe-based/map-operator';
 import { shareOperator } from '../observables-v5/__operators/share';
-import { IEmitFunction } from '../observables-v5/types/emit-function/emit-function';
-import { ISubscribeFunction } from '../observables-v5/types/subscribe-function/subscribe-function';
+import { IEmitFunction } from '../observables-v5/types/emit-function/emit-function.type';
+import { ISubscribeFunction } from '../observables-v5/types/subscribe-function/subscribe-function.type';
 
 // const a: HTMLElement;
 // a.remove();

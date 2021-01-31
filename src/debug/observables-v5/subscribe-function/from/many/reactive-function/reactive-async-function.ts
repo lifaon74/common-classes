@@ -1,16 +1,18 @@
 import { combineLatest, ICombineLatestSubscribeFunctionsValues } from '../combine-latest';
 import { TGenericFunction } from '@lifaon/traits';
 import { TMapValueTupleToSubscribeFunctionTuple } from '../types';
-import { pipeSubscribeFunction } from '../../../../functions/piping/pipe-subscribe-function';
+import { pipeSubscribeFunction } from '../../../../functions/piping/pipe-subscribe-function/pipe-subscribe-function';
 import {
   ISubscribeFunction, TInferSubscribeFunctionGValue
-} from '../../../../types/subscribe-function/subscribe-function';
+} from '../../../../types/subscribe-function/subscribe-function.type';
 import { mapSubscribePipe } from '../../../subscribe-pipe/emit-pipe-related/map-subscribe-pipe';
 import { distinctSubscribePipe } from '../../../subscribe-pipe/emit-pipe-related/distinct-subscribe-pipe';
 import { passthrough } from '../../../../misc/helpers/passthrough';
 import { mergeAllSubscribePipe } from '../../../subscribe-pipe/merge-all/merge-all-subscribe-pipe';
-import { mergeAllWithNotificationsSubscribeFunction } from '../../../subscribe-pipe/merge-all/with-notifications/merge-all-with-notifications';
-import { IDefaultNotificationsUnion, IInferDefaultNotificationsUnionGValue } from '../../../../types/shared-types';
+import { mergeAllSubscribePipeWithNotifications } from '../../../subscribe-pipe/merge-all/with-notifications/merge-all-subscribe-pipe-with-notifications';
+import {
+  IDefaultNotificationsUnion, IInferDefaultNotificationsUnionGValue
+} from '../../../../misc/notifications/default-notifications-union.type';
 
 export interface IGenericAsyncFunction {
   (...args: any[]): ISubscribeFunction<IDefaultNotificationsUnion<any>>;

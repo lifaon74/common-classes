@@ -1,4 +1,4 @@
-import { createNextNotification } from '../../../../../misc/notifications/built-in/next-notification';
+import { createNextNotification } from '../../../../../misc/notifications/built-in/next/create-next-notification';
 import { STATIC_COMPLETE_NOTIFICATION } from '../../../../../misc/notifications/built-in/complete-notification';
 import {
   createAbortErrorNotification, createErrorNotification
@@ -7,7 +7,7 @@ import {
   createDownloadProgressNotification, createUploadProgressNotification, IDownloadProgressNotification,
   IUploadProgressNotification
 } from '../../../../../misc/notifications/built-in/progress-notification';
-import { INotification } from '../../../../../misc/notifications/notification-interface';
+import { INotification } from '../../../../../misc/notifications/notification.type';
 import { createNotification } from '../../../../../misc/notifications/create-notification';
 import { createEventListener, IRemoveEventListener } from '../../../../../misc/event-listener/create-event-listener';
 import { toTypedEventTarget } from '../../../../../misc/event-listener/to-typed-event-target';
@@ -20,9 +20,9 @@ import { createProgressFromProgressEvent } from '../../../../../misc/progress/cr
 import { noop } from '../../../../../misc/helpers/noop';
 import { createNetworkErrorFromRequest } from '../../../../../misc/errors/network-error/create-network-error';
 import { isAbortError } from '../../../../../misc/errors/abort-error/is-abort-error';
-import { IEmitFunction } from '../../../../../types/emit-function/emit-function';
-import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../../types/subscribe-function/subscribe-function';
-import { IDefaultNotificationsUnion } from '../../../../../types/shared-types';
+import { IEmitFunction } from '../../../../../types/emit-function/emit-function.type';
+import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../../types/subscribe-function/subscribe-function.type';
+import { IDefaultNotificationsUnion } from '../../../../../misc/notifications/default-notifications-union.type';
 
 export type IUploadCompleteNotification = INotification<'upload-complete', void>;
 

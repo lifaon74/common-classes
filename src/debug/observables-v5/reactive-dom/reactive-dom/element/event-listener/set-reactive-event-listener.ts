@@ -2,7 +2,7 @@ import { subscribeOnNodeConnectedTo } from '../../../misc/subscribe-on-node-conn
 import { fromEventTarget } from '../../../../subscribe-function/from/dom/from-event-target/from-event-target';
 import { ITypedPureEventTarget } from '../../../../misc/event-listener/typed-event-target.type';
 import { TKeyValueTuple } from '@lifaon/traits';
-import { IEmitFunction } from '../../../../types/emit-function/emit-function';
+import { IEmitFunction } from '../../../../types/emit-function/emit-function.type';
 
 export function setReactiveEventListener<GName extends string, GEvent extends Event>(
   emit: IEmitFunction<any>,

@@ -1,4 +1,4 @@
-import { IAbortError } from './abort-error-interface';
+import { IAbortError } from './abort-error.type';
 
 export function isAbortError(value: any): value is IAbortError {
   return value.name === 'AbortError';
