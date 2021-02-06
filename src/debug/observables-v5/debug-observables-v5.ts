@@ -5,7 +5,7 @@ import { mapEmitPipe } from './pipes/map-emit-pipe';
 import { mapSubscribePipe } from './subscribe-function/subscribe-pipe/emit-pipe-related/map-subscribe-pipe';
 import { pipeSubscribePipeFunctions } from './functions/piping/pipe-subscribe-pipe-functions/pipe-subscribe-pipe-functions';
 import { distinctSubscribePipe } from './subscribe-function/subscribe-pipe/emit-pipe-related/distinct-subscribe-pipe';
-import { of } from './subscribe-function/from/others/of';
+import { of } from './subscribe-function/from/others/of/of';
 import { ISubscribeFunction, IUnsubscribeFunction } from './types/subscribe-function/subscribe-function.type';
 import { createUnicastReplayLastSource } from './source/replay-last-source/derived/create-unicast-replay-last-source';
 import { pipeSubscribeFunction } from './functions/piping/pipe-subscribe-function/pipe-subscribe-function';
@@ -16,7 +16,6 @@ import { dateTimeShortcutFormatSubscribePipe } from './i18n/date-time-format/dat
 import {
   currencyFormatSubscribePipe, ICurrencyFormatOptions
 } from './i18n/number-format/currency-format-subscribe-pipe/currency-format-subscribe-pipe';
-import { translateSubscribeFunction } from './i18n/translate/translate-subscribe-function';
 import { IEmitFunction } from './types/emit-function/emit-function.type';
 import { ITranslations } from './i18n/translate/translations.type';
 import { createTranslationsLoader } from './i18n/translate/create-translations-loader';
@@ -34,10 +33,13 @@ import { isNextNotification } from './misc/notifications/built-in/next/is-next-n
 import { fromEventTarget } from './subscribe-function/from/dom/from-event-target/from-event-target';
 import { debounceTimeSubscribePipe } from './subscribe-function/subscribe-pipe/time-related/debounce-time-subscribe-pipe';
 import { mergeMapSubscribePipe } from './subscribe-function/subscribe-pipe/merge-all/merge-map/merge-map-subscribe-pipe';
-import { fulfilledSubscribePipe } from './subscribe-function/subscribe-pipe/then/fulfilled-subscribe-pipe';
 import { IDefaultNotificationsUnion } from './misc/notifications/default-notifications-union.type';
-import { mapSubscribePipeWithNotifications } from './subscribe-function/subscribe-pipe/emit-pipe-related/with-notifications/map-subscribe-pipe-with-notifications';
-import { mergeAllSubscribePipeWithNotifications } from './subscribe-function/subscribe-pipe/merge-all/with-notifications/merge-all-subscribe-pipe-with-notifications';
+import { mergeMapSubscribePipeWithNotifications } from './subscribe-function/subscribe-pipe/merge-all/with-notifications/merge-map/merge-map-subscribe-pipe-with-notifications';
+import { createMulticastReplayLastSource } from './source/replay-last-source/derived/create-multicast-replay-last-source';
+import { pluralRulesTranslationsSubscribeFunction } from './i18n/translate/plural-rules-translations-subscribe-function';
+import { logStateSubscribePipe } from './subscribe-function/subscribe-pipe/log-state-subscribe-pipe';
+import { debugReactiveDOM } from './reactive-dom/debug/debug-reactive-dom';
+import { createSubscribeFunctionProxy } from './others/create-subscribe-function-proxy';
 
 function unsubscribeIn(unsubscribe: IUnsubscribeFunction, ms: number): void {
   setTimeout(unsubscribe, ms);
@@ -309,12 +311,6 @@ export function $timeout(ms: number): Promise<void> {
 //   unsubscribe2();
 // }
 
-/**
- * TODO continue here
- * - mergeAllSubscribePipeWithNotifications is pretty unstable
- * - piping Notifications is pretty unstable => think about better solution
- * -
- */
 
 async function debugObservable12() {
 
@@ -328,11 +324,16 @@ async function debugObservable12() {
   // const a = mapSubscribePipeWithNotifications<ISubscribeFunctionFromFetchNotifications, ISubscribeFunction<ISubscribeFunctionFromPromiseNotifications<IJSONResponse>>>((response: Response) => fromPromise<IJSONResponse>(response.json()));
   // const a = mapSubscribePipeWithNotifications<Union<string>, ISubscribeFunction<ISubscribeFunctionFromPromiseNotifications<IJSONResponse>>>((response: Response) => fromPromise<IJSONResponse>(response.json()));
 
+  // const a = mergeMapSubscribePipeWithNotifications<ISubscribeFunctionFromFetchNotifications, IJSONResponse>((response: Response) => fromPromise<IJSONResponse>(response.json())),;
+
   const subscribe = pipeSubscribeFunction(fromEventTarget<'click', MouseEvent>(document.body, 'click'), [
     debounceTimeSubscribePipe<MouseEvent>(1000),
-    mergeMapSubscribePipe<MouseEvent, ISubscribeFunctionFromFetchNotifications>(() => fromFetch('https://jsonplaceholder.typicode.com/posts/1'), 1),
-    mapSubscribePipeWithNotifications<ISubscribeFunctionFromFetchNotifications, ISubscribeFunction<ISubscribeFunctionFromPromiseNotifications<IJSONResponse>>>((response: Response) => fromPromise<IJSONResponse>(response.json())),
-    mergeAllSubscribePipeWithNotifications<any>(),
+    mergeMapSubscribePipe<MouseEvent, ISubscribeFunctionFromFetchNotifications>(() => fromFetch('jhttps://jsonplaceholder.typicode.com/posts/1'), 1),
+    mergeMapSubscribePipeWithNotifications<ISubscribeFunctionFromFetchNotifications, IJSONResponse>((response: Response) => fromPromise<IJSONResponse>(response.json())),
+
+    // mapSubscribePipeWithNotifications<ISubscribeFunctionFromFetchNotifications, ISubscribeFunction<ISubscribeFunctionFromPromiseNotifications<IJSONResponse>>>((response: Response) => fromPromise<IJSONResponse>(response.json())),
+    // mergeAllSubscribePipeWithNotifications<IJSONResponse>(),
+
     // mergeAllSubscribePipeWithNotifications<IJSONResponse>(),
     // mergeMapSubscribePipe<ISubscribeFunctionFromFetchNotifications, IDefaultNotificationsUnion<IJSONResponse>>((notification: ISubscribeFunctionFromFetchNotifications) => {
     //   switch (notification.name) {
@@ -459,6 +460,37 @@ async function debugSourcePerf1() {
 }
 
 
+async function debugSubscribeFunctionProxy() {
+  const data = {
+    a: {
+      b: {
+        c: 'c'
+      },
+      ba: 'b1',
+    },
+    a1: 3,
+    a2: () => {
+      return 5;
+    }
+  };
+
+  const $data$ = createMulticastReplayLastSource({ initialValue: data });
+
+  const proxy = createSubscribeFunctionProxy($data$.subscribe);
+
+  // (proxy.a1 as number) = 5;
+  // // console.log(data);
+  // console.log(proxy.a1 + 2);
+  // console.log(proxy.a2());
+
+
+  proxy.a.b.c.$((value: any) => {
+    console.log('c', value);
+  });
+
+  (window as any).setData = $data$.emit;
+}
+
 /*----*/
 
 /* I18N */
@@ -505,6 +537,8 @@ async function debugTranslations() {
   const TRANSLATIONS = new Map<string, ITranslations>([
     ['en', new Map([
       ['translate.button.title', 'Next'],
+      ['translate.count[one]', '{{ count }} item'],
+      ['translate.count[other]', '{{ count }} items'],
     ])],
     ['fr', new Map([
       ['translate.button.title', 'Suivant'],
@@ -544,9 +578,12 @@ async function debugTranslations() {
   const translations$ = createTranslationsLoader($locales$.subscribe, (locales: ILocales) => {
     // return of(getTranslationsMap(locales));
     return pipeSubscribeFunction(fromFetch(getTranslationsUrl(locales)), [
-      fulfilledSubscribePipe<Response, ISubscribeFunctionFromPromiseNotifications<ITranslationsJSON>>((response: Response): ISubscribeFunction<ISubscribeFunctionFromPromiseNotifications<ITranslationsJSON>> => {
+      // fulfilledSubscribePipe<Response, ISubscribeFunctionFromPromiseNotifications<ITranslationsJSON>>((response: Response): ISubscribeFunction<ISubscribeFunctionFromPromiseNotifications<ITranslationsJSON>> => {
+      //   return fromPromise<ITranslationsJSON>(response.json());
+      // }),
+      mergeMapSubscribePipeWithNotifications<ISubscribeFunctionFromFetchNotifications, ITranslationsJSON>((response: Response): ISubscribeFunction<ISubscribeFunctionFromPromiseNotifications<ITranslationsJSON>> => {
         return fromPromise<ITranslationsJSON>(response.json());
-      }),
+      }, 1),
       filterSubscribePipe<IDefaultNotificationsUnion<ITranslationsJSON>, INextNotification<ITranslationsJSON>>(isNextNotification),
       mapSubscribePipe<INextNotification<ITranslationsJSON>, ITranslations>((notification: INextNotification<ITranslationsJSON>): ITranslations => {
         return new Map(notification.value);
@@ -554,11 +591,34 @@ async function debugTranslations() {
     ]);
   });
 
-  const translated$ = translateSubscribeFunction(translations$, of('translate.button.title'));
+  // const translated$ = translateSubscribeFunction(translations$, of('translate.button.title'));
+  //
+  // translated$((value: string) => {
+  //   console.log(value);
+  // });
 
-  translated$((value: string) => {
+
+  /*-------------*/
+
+  const $count$ = createMulticastReplayLastSource<number>();
+
+  // const key$ = pipeSubscribeFunction($count$.subscribe, [
+  //   pluralRulesForTranslationsSubscribePipe($locales$.subscribe, `translate.count`),
+  // ]);
+  //
+  // const countFormatted$ = pipeSubscribeFunction($count$.subscribe, [
+  //   numberFormatSubscribePipe($locales$.subscribe),
+  // ]);
+  //
+  // const translatedCount$ = translateSubscribeFunction(translations$, key$, of({ count: countFormatted$ }));
+
+  const translatedCount$ = pluralRulesTranslationsSubscribeFunction($locales$.subscribe, translations$, `translate.count`, $count$.subscribe, `count`);
+
+  translatedCount$((value: string) => {
     console.log(value);
   });
+
+  (window as any).setCount = $count$.emit;
 }
 
 async function debugI18N() {
@@ -586,13 +646,15 @@ export async function debugObservableV5() {
   // await debugObservable9();
   // await debugObservable10();
   // await debugObservable11();
-  await debugObservable12();
+  // await debugObservable12();
+
 
   // await debugMulticastSource1();
   // await debugReplayLastSource1();
   // await debugSourcePerf1();
+  // await debugSubscribeFunctionProxy();
 
   // await debugI18N();
 
-  // await debugReactiveDOM();
+  await debugReactiveDOM();
 }

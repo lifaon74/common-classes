@@ -4,7 +4,10 @@
  * HELPERS: reference all elements: tag names, constructors, etc...
  */
 
-export type HTMLElementConstructor = typeof HTMLElement;
+// export type HTMLElementConstructor = typeof HTMLElement;
+export interface HTMLElementConstructor {
+  new(...args: any[]): HTMLElement;
+}
 
 
 // RegExp used to detect if a property name is an HTMLElement's constructor
@@ -19,7 +22,7 @@ function getHTMLElementConstructors(
   const propertyNames: string[] = Object.getOwnPropertyNames(globalThis);
   for (let i = 0, l = propertyNames.length; i < l; i++) {
     const propertyName: string = propertyNames[i];
-    if (HTML_ELEMENT_CONSTRUCTOR_REG_EXP.test(propertyName)) {
+    if (HTML_ELEMENT_CONSTRUCTOR_REG_EXP.test(propertyName)) { // or use instanceof HTMLElement
       items.add((globalThis as any)[propertyName]);
     }
   }
@@ -135,13 +138,17 @@ function verifyHTMLElementConstructorsMapping(
 /**
  * Registers a new HTMLElement into our maps and lists
  */
-export function registerHTMLElement(tagName: string, _constructor?: HTMLElementConstructor, verify: boolean = false): void {
-  if (_constructor === void 0) {
-    _constructor = getTagNameConstructor(tagName);
+export function registerHTMLElement(
+  tagName: string,
+  htmlElementConstructor?: HTMLElementConstructor,
+  verify: boolean = false,
+): void {
+  if (htmlElementConstructor === void 0) {
+    htmlElementConstructor = getTagNameConstructor(tagName);
   } else if (verify) {
-    const _constructor_: any = getTagNameConstructor(tagName);
-    if (_constructor !== _constructor_) {
-      throw new Error(`Creating element '${ tagName }' didn't result in an '${ _constructor.name } but as '${ _constructor_.name }'`);
+    const _htmlElementConstructor: HTMLElementConstructor = getTagNameConstructor(tagName);
+    if (htmlElementConstructor !== _htmlElementConstructor) {
+      throw new Error(`Creating element '${ tagName }' didn't result in an '${ htmlElementConstructor.name } but as '${ _htmlElementConstructor.name }'`);
     }
   }
 
@@ -152,12 +159,12 @@ export function registerHTMLElement(tagName: string, _constructor?: HTMLElementC
     TAG_NAMES.add(tagName);
   }
 
-  HTML_ELEMENT_CONSTRUCTORS.add(_constructor);
-  TAG_NAMES_TO_HTML_ELEMENT_CONSTRUCTORS_MAP.set(tagName, _constructor);
+  HTML_ELEMENT_CONSTRUCTORS.add(htmlElementConstructor);
+  TAG_NAMES_TO_HTML_ELEMENT_CONSTRUCTORS_MAP.set(tagName, htmlElementConstructor);
 
-  if (!HTML_ELEMENT_CONSTRUCTORS_TO_TAG_NAMES_MAP.has(_constructor)) {
-    HTML_ELEMENT_CONSTRUCTORS_TO_TAG_NAMES_MAP.set(_constructor, new Set<string>());
+  if (!HTML_ELEMENT_CONSTRUCTORS_TO_TAG_NAMES_MAP.has(htmlElementConstructor)) {
+    HTML_ELEMENT_CONSTRUCTORS_TO_TAG_NAMES_MAP.set(htmlElementConstructor, new Set<string>());
   }
-  (HTML_ELEMENT_CONSTRUCTORS_TO_TAG_NAMES_MAP.get(_constructor) as Set<string>).add(tagName);
+  (HTML_ELEMENT_CONSTRUCTORS_TO_TAG_NAMES_MAP.get(htmlElementConstructor) as Set<string>).add(tagName);
 }
 

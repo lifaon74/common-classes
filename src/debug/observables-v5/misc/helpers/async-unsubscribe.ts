@@ -1,4 +1,4 @@
-import { IUnsubscribeFunction } from '../../types/subscribe-function/subscribe-function.type';
+import { IUnsubscribeFunction } from '../../types';
 
 /**
  * Try to unsubscribe immediately. If it fails, await next event loop to unsubscribe

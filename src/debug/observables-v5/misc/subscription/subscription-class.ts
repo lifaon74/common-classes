@@ -1,8 +1,12 @@
 
-import { ISubscription } from './subscription-interface';
+import { ISubscription } from './subscription.type';
 import { IEmitFunction } from '../../types/emit-function/emit-function.type';
 import { ISubscribeFunction, IUnsubscribeFunction } from '../../types/subscribe-function/subscribe-function.type';
 
+
+/**
+ * TODO very close of a IEmitSubscribePair
+ */
 
 export class Subscription<GValue> implements ISubscription<GValue> {
   public readonly subscribeFunction: ISubscribeFunction<GValue>;

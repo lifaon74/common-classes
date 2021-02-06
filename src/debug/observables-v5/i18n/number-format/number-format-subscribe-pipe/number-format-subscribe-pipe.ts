@@ -4,11 +4,12 @@ import { reactiveFunction } from '../../../subscribe-function/from/many/reactive
 import { INumberFormatOptions, INumberFormatValue } from '../number-format.type';
 import NumberFormat = Intl.NumberFormat;
 import { ILocales } from '../../locales/locales.type';
+import { of } from '../../../subscribe-function/from/others/of/of';
 
 
 export function numberFormatSubscribePipe(
   locales: ISubscribeFunction<ILocales>,
-  options: ISubscribeFunction<INumberFormatOptions>,
+  options: ISubscribeFunction<INumberFormatOptions> = of({}),
 ): ISubscribePipeFunction<INumberFormatValue, string> {
   const format: ISubscribeFunction<NumberFormat> = reactiveFunction((locales: ILocales, options: INumberFormatOptions): NumberFormat => {
     return new Intl.NumberFormat(locales as string[], options);

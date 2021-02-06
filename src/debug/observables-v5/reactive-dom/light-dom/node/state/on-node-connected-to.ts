@@ -5,32 +5,8 @@ import { IEmitFunction } from '../../../../types/emit-function/emit-function.typ
 import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function.type';
 import { getParentNode } from '../properties/get-parent-node';
 import { isDocumentFragment } from '../type/is-document-fragment';
-
-// /**
-//  * Listen to detach event for node and any of its parents
-//  */
-// function listenToParentChainDetach(
-//   node: Node,
-//   onDetach: (mode: boolean, index: number) => void,
-//   parentNode: Node = document,
-//   unsubscribeFunctions: IUnsubscribeFunction[] = [],
-// ): IUnsubscribeFunction[] {
-//   let _node: Node | null = node;
-//   let _parentNode: Node | null = _node.parentNode;
-//
-//   // while node is attached (has a parent)
-//   // AND node is different from parentNode
-//   while ((_parentNode !== null) && (node !== parentNode)) {
-//     unsubscribeFunctions.push(
-//       onNodeDetachedListener(_node)((move: boolean): void => {
-//         onDetach(move, unsubscribeFunctions.length);
-//       })
-//     );
-//     _node = _parentNode;
-//     _parentNode = _node.parentNode;
-//   }
-//   return unsubscribeFunctions;
-// }
+import { pipeSubscribeFunction } from '../../../../functions/piping/pipe-subscribe-function/pipe-subscribe-function';
+import { shareSubscribePipe } from '../../../../subscribe-function/subscribe-pipe/source-related/share-subscribe-pipe';
 
 
 export function onNodeConnectedTo(
@@ -126,8 +102,9 @@ export function onNodeConnectedTo(
 export function onNodeConnectedToWithImmediate(
   node: Node,
   parentNode: Node = document,
+  triggerOnMove?: boolean,
 ): ISubscribeFunction<boolean> {
-  const listener: ISubscribeFunction<boolean> = onNodeConnectedTo(node, parentNode);
+  const listener: ISubscribeFunction<boolean> = onNodeConnectedTo(node, parentNode, triggerOnMove);
   return (emit: IEmitFunction<boolean>): IUnsubscribeFunction => {
     emit(parentNode.contains(node));
     return listener(emit);
@@ -135,270 +112,47 @@ export function onNodeConnectedToWithImmediate(
 }
 
 
-// export function onNodeConnectedTo(
-//   node: Node,
-//   parentNode: Node = document,
-// ): ISubscribeFunction<boolean> {
-//   // const listener: ISubscribeFunction<void> = onNodeAttachedListener(node);
-//   return (emit: IEmitFunction<boolean>): IUnsubscribeFunction => {
-//     let running: boolean = true;
-//
-//     if (parentNode.contains(node)) {
-//       emit(true);
-//     } else {
-//       emit(false);
-//       let _node: Node = node;
-//       while (_node.parentNode !== null) {
-//         _node = _node.parentNode;
-//       }
-//
-//       let unsubscribe: IUnsubscribeFunction = onNodeAttachedListener(_node)((): void => {
-//         unsubscribe();
-//         unsubscribe = onNodeConnectedTo(_node, );
-//       });
-//     }
-//
-//
-//     let _unsubscribeFunctions: IUnsubscribeFunction[] = [];
-//
-//     // const clearUnsubscribeFunctions = () => {
-//     //   for (let i = 0, l = _unsubscribeFunctions.length; i < l; i++) {
-//     //     _unsubscribeFunctions[i]();
-//     //   }
-//     // };
-//
-//     let _node: Node = node;
-//     let _parentNode: Node | null = _node.parentNode;
-//     let index: number = 0;
-//
-//     // for each parents, until we find parentNode or null
-//     while ((_parentNode !== null) && (_parentNode !== parentNode)) {
-//       // if any of the parents becomes detached, the node state change
-//       _unsubscribeFunctions.push(
-//         onNodeDetachedListener(_node)((): void => {
-//           // TODO
-//         })
-//       );
-//       index++;
-//       _node = _parentNode;
-//       _parentNode = _node.parentNode;
-//     }
-//
-//
-//     if (_parentNode === null) {
-//       // await until the parent become attached
-//       onNodeAttachedListener(_node)((): void => {
-//         // change(emitDisconnect);
-//       });
-//     } else {
-//       // TODO the node is attached to its parent
-//     }
-//
-//
-//
-//
-//
-//     // const change = (emitDisconnect: boolean) => {
-//     //   if (parentNode.contains(node)) {
-//     //     emit(true);
-//     //
-//     //     let _unsubscribeFunctions: IUnsubscribeFunction[] = [];
-//     //
-//     //     clear = () => {
-//     //       for (let i = 0, l = _unsubscribeFunctions.length; i < l; i++) {
-//     //         _unsubscribeFunctions[i]();
-//     //       }
-//     //     };
-//     //
-//     //     // if any of its parents is detached, the node is disconnected
-//     //     let _node: Node | null = node;
-//     //     while (_node !== null) {
-//     //       _unsubscribeFunctions.push(
-//     //         onNodeDetachedListener(_node)((): void => {
-//     //           clear();
-//     //           if (running) {
-//     //             change(true);
-//     //           }
-//     //         })
-//     //       );
-//     //       _node = _node.parentNode;
-//     //     }
-//     //   } else {
-//     //     if (emitDisconnect) {
-//     //       emit(false);
-//     //     }
-//     //
-//     //     let _node: Node = node;
-//     //     while (_node.parentNode !== null) {
-//     //       _node = _node.parentNode;
-//     //     }
-//     //
-//     //     clear = onNodeAttachedListener(_node)((): void => {
-//     //       change(emitDisconnect);
-//     //     });
-//     //   }
-//     // }
-//     //
-//     // change(true);
-//
-//     return (): void => {
-//       if (!running) {
-//         running = false;
-//       }
-//     };
-//   };
-// }
-//
+/*---*/
+
+const ON_NODE_CONNECTED_TO_CACHE = new WeakMap<Node, WeakMap<Node, Map<boolean, ISubscribeFunction<boolean>>>>();
+
+export function onNodeConnectedToCached(
+  node: Node,
+  parentNode: Node = document,
+  triggerOnMove: boolean = false,
+): ISubscribeFunction<boolean> {
+  let map1 = ON_NODE_CONNECTED_TO_CACHE.get(node);
+  if (map1 === void 0) {
+    map1 = new WeakMap<Node, Map<boolean, ISubscribeFunction<boolean>>>();
+    ON_NODE_CONNECTED_TO_CACHE.set(node, map1);
+  }
+
+  let map2 = map1.get(parentNode);
+  if (map2 === void 0) {
+    map2 = new Map<boolean, ISubscribeFunction<boolean>>();
+    map1.set(parentNode, map2);
+  }
+
+  let subscribe = map2.get(triggerOnMove);
+  if (subscribe === void 0) {
+    subscribe = pipeSubscribeFunction(onNodeConnectedTo(node, parentNode, triggerOnMove), [
+      shareSubscribePipe<boolean>(),
+    ]);
+    map2.set(triggerOnMove, subscribe);
+  }
+
+  return subscribe;
+}
 
 
-// export function untilNodeConnectedTo(
-//   node: Node,
-//   parentNode: Node = document,
-//   callback: () => void,
-// ): IUnsubscribeFunction {
-//   if (parentNode.contains(node)) {
-//     callback();
-//     return noop;
-//   } else {
-//     let _unsubscribeFunctions: IUnsubscribeFunction[] = [];
-//     let _unsubscribeAttachListener: IUnsubscribeFunction;
-//
-//     let _node: Node = node;
-//     let _parentNode: Node | null = _node.parentNode;
-//     let _index: number = 0;
-//
-//     // for each parents, until we find parentNode or null
-//     while ((_parentNode !== null) && (_parentNode !== parentNode)) {
-//       // if any of the parents becomes detached, the node state change
-//       _unsubscribeFunctions.push(
-//         onNodeDetachedListener(_node)((): void => {
-//           // TODO
-//         })
-//       );
-//       _index++;
-//       _node = _parentNode;
-//       _parentNode = _node.parentNode;
-//     }
-//
-//
-//     if (_parentNode === null) {
-//       // await until the parent become attached
-//       _unsubscribeAttachListener = onNodeAttachedListener(_node)((): void => {
-//         _unsubscribeAttachListener();
-//         untilNodeConnectedTo(_node, parentNode, () => {
-//
-//         });
-//       });
-//     } else {
-//       emit(true);
-//     }
-//   }
-// }
-
-// export function onNodeConnectedTo(
-//   node: Node,
-//   parentNode: Node = document,
-// ): ISubscribeFunction<boolean> {
-//   // const listener: ISubscribeFunction<void> = onNodeAttachedListener(node);
-//   return (emit: IEmitFunction<boolean>): IUnsubscribeFunction => {
-//     let running: boolean = true;
-//
-//
-//     let _unsubscribeFunctions: IUnsubscribeFunction[] = [];
-//     let _unsubscribeAttachListener: IUnsubscribeFunction | undefined;
-//
-//     let _node: Node = node;
-//     let _parentNode: Node | null = _node.parentNode;
-//     let _index: number = 0;
-//
-//     // for each parents, until we find parentNode or null
-//     while ((_parentNode !== null) && (_parentNode !== parentNode)) {
-//       // if any of the parents becomes detached, the node state change
-//       _unsubscribeFunctions.push(
-//         onNodeDetachedListener(_node)((): void => {
-//           // TODO
-//         })
-//       );
-//       _index++;
-//       _node = _parentNode;
-//       _parentNode = _node.parentNode;
-//     }
-//
-//
-//     if (_parentNode === null) {
-//       // await until the parent become attached
-//       _unsubscribeAttachListener = onNodeAttachedListener(_node)((): void => {
-//         // change(emitDisconnect);
-//       });
-//     } else {
-//       emit(true);
-//     }
-//
-//     return (): void => {
-//       if (!running) {
-//         running = false;
-//       }
-//     };
-//   };
-// }
-
-// export function onNodeConnectedTo(
-//   node: Node,
-//   parentNode: Node = document,
-// ): ISubscribeFunction<boolean> {
-//   // const listener: ISubscribeFunction<void> = onNodeAttachedListener(node);
-//   return (emit: IEmitFunction<boolean>): IUnsubscribeFunction => {
-//     let running: boolean = true;
-//     let clear: () => void;
-//
-//     const change = (emitDisconnect: boolean) => {
-//       if (parentNode.contains(node)) {
-//         emit(true);
-//
-//         let _unsubscribeFunctions: IUnsubscribeFunction[] = [];
-//
-//         clear = () => {
-//           for (let i = 0, l = _unsubscribeFunctions.length; i < l; i++) {
-//             _unsubscribeFunctions[i]();
-//           }
-//         };
-//
-//         // if any of its parents is detached, the node is disconnected
-//         let _node: Node | null = node;
-//         while (_node !== null) {
-//           _unsubscribeFunctions.push(
-//             onNodeDetachedListener(_node)((): void => {
-//               clear();
-//               if (running) {
-//                 change(true);
-//               }
-//             })
-//           );
-//           _node = _node.parentNode;
-//         }
-//       } else {
-//         if (emitDisconnect) {
-//           emit(false);
-//         }
-//
-//         let _node: Node = node;
-//         while (_node.parentNode !== null) {
-//           _node = _node.parentNode;
-//         }
-//
-//         clear = onNodeAttachedListener(_node)((): void => {
-//           change(emitDisconnect);
-//         });
-//       }
-//     }
-//
-//     change(true);
-//
-//     return (): void => {
-//       if (!running) {
-//         running = false;
-//         clear();
-//       }
-//     };
-//   };
-// }
+export function onNodeConnectedToWithImmediateCached(
+  node: Node,
+  parentNode: Node = document,
+  triggerOnMove?: boolean,
+): ISubscribeFunction<boolean> {
+  const listener: ISubscribeFunction<boolean> = onNodeConnectedToCached(node, parentNode, triggerOnMove);
+  return (emit: IEmitFunction<boolean>): IUnsubscribeFunction => {
+    emit(parentNode.contains(node));
+    return listener(emit);
+  };
+}

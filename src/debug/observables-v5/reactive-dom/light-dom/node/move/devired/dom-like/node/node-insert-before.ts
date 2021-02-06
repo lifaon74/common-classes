@@ -14,11 +14,11 @@ export function nodeInsertBefore<GNode extends Node>(
   node: GNode,
   referenceNode: Node | null,
 ): GNode {
-  if (isDocumentFragment(node)) {
-    attachDocumentFragmentWithAttachEvent(node, parentNode, referenceNode);
+  if (isDocumentFragment(parentNode)) {
+    attachNode(node, parentNode, referenceNode);
   } else {
-    if (isDocumentFragment(parentNode)) {
-      attachNode(node, parentNode, referenceNode);
+    if (isDocumentFragment(node)) {
+      attachDocumentFragmentWithAttachEvent(node, parentNode, referenceNode);
     } else {
       if (isChildNode(node)) {
         moveNodeWithEvent(node, parentNode, referenceNode);

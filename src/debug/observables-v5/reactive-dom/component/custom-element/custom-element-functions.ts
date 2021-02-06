@@ -5,9 +5,9 @@ import {
 /**
  * Returns the main HTMLElement constructor of a class (ex: HTMLInputElement)
  */
-export function getCustomElementHTMLElementConstructor<TFunction extends HTMLElementConstructor>(
-  target: TFunction | null,
-): TFunction | null {
+export function getCustomElementHTMLElementConstructor<GHTMLElementConstructor extends HTMLElementConstructor>(
+  target: GHTMLElementConstructor | null,
+): GHTMLElementConstructor | null {
   while (target !== null) {
     if ((target === HTMLElement) || HTML_ELEMENT_CONSTRUCTORS.has(target)) {
       return target;
@@ -67,8 +67,8 @@ export interface ICustomElementOptions {
  *  - infers proper 'extends' property
  *  - register the tag name to be available/usable into the html
  */
-export function registerCustomElement<TFunction extends HTMLElementConstructor>(
-  target: TFunction,
+export function registerCustomElement(
+  target: HTMLElementConstructor,
   options: ICustomElementOptions,
 ): void {
   // if observedAttributes is present, extracts static observedAttributes and remap the function
@@ -93,7 +93,7 @@ export function registerCustomElement<TFunction extends HTMLElementConstructor>(
   let _extends: string | null = null;
 
   // ensure target is an HTMLElement
-  const elementConstructor: TFunction | null = getCustomElementHTMLElementConstructor<TFunction>(target);
+  const elementConstructor: HTMLElementConstructor | null = getCustomElementHTMLElementConstructor<HTMLElementConstructor>(target);
   if (elementConstructor === null) {
     throw new TypeError(`The class '${ target.name }' must extend an HTMLElement.`);
   } else if (elementConstructor !== HTMLElement) { // child class of HTMLElement => must set the proper 'extends'
@@ -116,7 +116,7 @@ export function registerCustomElement<TFunction extends HTMLElementConstructor>(
     }
   }
 
-  globalThis.customElements.define(options.name, target as CustomElementConstructor, (_extends === null) ? void 0 : { extends: _extends });
+  globalThis.customElements.define(options.name, target, (_extends === null) ? void 0 : { extends: _extends });
 
   registerHTMLElement(options.name, target);
 }

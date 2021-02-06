@@ -2,9 +2,9 @@
 
 ```ts
 function toPromise<GValue>(
-  subscribe: ISubscribeFunction<ISubscribeFunctionToPromiseNotifications<GValue>>,
+  subscribe: ISubscribeFunction<GValue>,
   options?: ISubscribeFunctionToPromiseOptions
-): Promise<GValue[]>
+): Promise<GValue>
 ```
 
 ```ts
@@ -12,17 +12,11 @@ interface ISubscribeFunctionToPromiseOptions {
   signal?: AbortSignal;
 }
 
-type ISubscribeFunctionToPromiseNotifications<GValue> = IDefaultInNotificationsUnion<GValue>;
-
 ```
 
 Converts a SubscribeFunction into a Promise.
 
-The SubscribeFunction must emit the following Notifications:
-
-- `next`: the values to resolve the promise with
-- `complete`: resolves the promise with the all `next` values
-- `error`: rejects the promise with the received error
+The Promise is resolved with the first received value.
 
 You may provide a `ISubscribeFunctionToPromiseOptions`, which may be used to force an abort from an external
 AbortSignal: this is useful if you want to abort any pending work and unsubscribe from the provided SubscribeFunction,
@@ -30,12 +24,17 @@ before it completes. If this signal is aborted, the promise is rejected with an 
 
 ### Examples
 
-#### Simple http request 
+#### Example 1
 
 ```ts
-toPromise(fromFetch('https://some-url.site'))
-  .then(([response]: Response[]) => {
-    console.log(response.statusText);
+toPromise(of(1, 2, 3))
+  .then((value: number) => {
+    console.log(value);
   });
 ```
 
+Output:
+
+```text
+1
+```

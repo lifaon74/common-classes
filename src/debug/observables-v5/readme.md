@@ -4,48 +4,35 @@ This library provides tools to generate and consume blazing fast Observables and
 
 However, it is not RxJS: it's faster, smaller, and tries to be simpler.
 
+[<img src="https://img.shields.io/badge/-tutorial-brightgreen?style=for-the-badge" />](./examples/tutorial.md)
+
+Give it a try, and you'll love it !
+
 If you're not familiar with the concept of Observables you may
 check [the rxjs documentation](https://rxjs-dev.firebaseapp.com/guide/observable),
 or [this excellent tutorial](https://gist.github.com/staltz/868e7e9bc2a7b8c1f754)
 
 The main purpose of Observables is to **react to changes**.
 
-*Example:*
+*Example: display mouse position until we click*
 
 ```ts
+const subscribeToMouseMove = pipeSubscribeFunction(fromEventTarget<'mousemove', MouseEvent>(window, 'mousemove'), [
+  mapSubscribePipe<MouseEvent>((event: MouseEvent) => [event.clientX, event.clientY]),
+]);
 
-
-function interval(
-  period: number,
-): ISubscribeFunction<number> {
-  return (emit: IEmitFunction<number>): IUnsubscribeFunction => {
-    console.log('interval started');
-    let count: number = 0;
-    const timer: any = setInterval(() => emit(count++), period);
-    return (): void => {
-      clearInterval(timer);
-      console.log('interval stopped');
-    };
-  };
-}
-
-const subscribe = interval(500);
-
-const unsubscribe = subscribe((value: number) => {
-  console.log('tick', value);
+const unsubscribeOfMouseMove = subscribeToMouseMove(([x, y]) => {
+  console.log(x, y);
 });
 
-setTimeout(unsubscribe, 1100);
+const subscribeToMouseClick = fromEventTarget<'click', MouseEvent>(window, 'click');
+
+const unsubscribeOfMouseClick= subscribeToMouseClick(() => {
+  unsubscribeOfMouseMove();
+  unsubscribeOfMouseClick();
+});
 ```
 
-Output:
-
-```text
-interval started
-tick 0
-tick 1
-interval stopped
-```
 
 Differences with RxJS:
 
@@ -54,15 +41,17 @@ Differences with RxJS:
   optimized by javascript engines. However, it has a minor cost: chaining operators or method calls are done through
   functions, which is a little less elegant (in terms of code readability).
 
-- no `next`, `complete` and `error`: instead this lib use [notifications](#notification). In reality, not all *Observables*
-  require to emit a final state. For example, the upper `interval` function, never reaches a `complete` state. It just
-  sends numbers. Moreover, some *Observables* may want to emit more than this 3 *events*: we may imagine an XHR
+- no `next`, `complete` and `error`: instead this lib use [notifications](./misc/notifications/notifications.md).
+  In reality, not all *Observables* require to emit a final state. For example, the upper `interval` function,
+  never reaches a `complete` state. It just sends numbers. Moreover, some *Observables* may want to emit more
+  than this 3 *events*: we may imagine an XHR
   Observable which emits an `upload-progress` and `download-progress` *events*.
 
 - some operators may have a different behaviour or name
 
 I chose deliberately to rename some of the RxJS's terms to do clearly the distinction between this library *components*
 and the RxJS's *components*.
+
 
 ## Documentation
 
@@ -76,9 +65,7 @@ and the RxJS's *components*.
 - [ReplayLastSource](./source/replay-last-source/replay-last-source.md) (ak: BehaviorSubject)
 
 
-## Choosing a function
-
-⚠ : read carefully the documentation as it may lead to unwanted / unexpected behaviour
+## Select the right function
 
 ### I want to:
 
@@ -99,6 +86,10 @@ and the RxJS's *components*.
   - async
     - async iterable: [fromAsyncIterable](subscribe-function/from/iterable/async/from-async-iterable/from-async-iterable.md)
     - async iterator ⚠️: [fromAsyncIterator](subscribe-function/from/iterable/async/from-async-iterator/from-async-iterator.md)
+  
+- an EventTarget: [fromEventTarget](subscribe-function/from/dom/from-event-target/from-event-target.md)
+  
+- a list of values: [of](subscribe-function/from/others/of/of.md)
 
 - a promise
   - with a factory: [fromPromiseFactory](subscribe-function/from/promise/from-promise-factory/from-promise-factory.md)
@@ -106,8 +97,8 @@ and the RxJS's *components*.
 
 - a readable stream
   - [w3c streams](https://streams.spec.whatwg.org/#rs-class)
-    - readable stream: [fromReadableStream](subscribe-function/from/readable-stream/w3c/from-readable-stream/from-readable-stream.ts)
-    - readable stream reader ⚠: [fromReadableStreamReader](subscribe-function/from/readable-stream/w3c/from-readable-stream-reader.ts)
+    - readable stream: [fromReadableStream](subscribe-function/from/readable-stream/w3c/from-readable-stream/from-readable-stream.md)
+    - readable stream reader ⚠: [fromReadableStreamReader](subscribe-function/from/readable-stream/w3c/from-readable-stream-reader/from-readable-stream-reader.ts)
   - nodejs: TODO
 
 - an http request
@@ -115,18 +106,30 @@ and the RxJS's *components*.
   - using xhr: [fromXHR](subscribe-function/from/http/xhr/from-xhr/from-xhr.md)
 
 - a blob (reads content): [readBlob](subscribe-function/from/dom/read-blob/read-blob.md)
-
+  
 - many subscribe functions. When any value is received:
   - re-emit it concurrently: [merge](subscribe-function/from/many/merge.ts)
-  - combine the values in an array and emit it: [combine-latest](subscribe-function/from/many/combine-latest.ts)
+  - combine the values in an array and emit it: [combine-latest](subscribe-function/from/many/combine-latest/combine-latest.md)
   - combine the values in an array, runs a function with these values, and emit distinct returned
-    values: [reactiveFunction](subscribe-function/from/many/reactive-function/reactive-function.ts)
+    values: [reactiveFunction](subscribe-function/from/many/reactive-function/reactive-function.md)
     - arithmetic:
-      [sum](subscribe-function/from/many/reactive-function/built-in/arithmetic/reactive-sum.ts)
+      [reactiveAdd](subscribe-function/from/many/reactive-function/built-in/arithmetic/reactive-add.ts)
+      [reactiveSubtract](subscribe-function/from/many/reactive-function/built-in/arithmetic/reactive-subtract.ts)
+      [reactiveMultiply](subscribe-function/from/many/reactive-function/built-in/arithmetic/reactive-multiply.ts)
+      [reactiveDivide](subscribe-function/from/many/reactive-function/built-in/arithmetic/reactive-divide.ts)
     - logic:
-      [and](subscribe-function/from/many/reactive-function/built-in/logic/reactive-and.ts),
-      [or](subscribe-function/from/many/reactive-function/built-in/logic/reactive-or.ts),
-      [not](subscribe-function/from/many/reactive-function/built-in/logic/reactive-not.ts)
+      [reactiveAnd](subscribe-function/from/many/reactive-function/built-in/logic/reactive-and.ts),
+      [reactiveOr](subscribe-function/from/many/reactive-function/built-in/logic/reactive-or.ts),
+      [reactiveNot](subscribe-function/from/many/reactive-function/built-in/logic/reactive-not.ts)
+    - comparison:
+      [reactiveEqual](subscribe-function/from/many/reactive-function/built-in/comparison/reactive-equal.ts),
+      [reactiveNotEqual](subscribe-function/from/many/reactive-function/built-in/comparison/reactive-not-equal.ts),
+      [reactiveGreaterThan](subscribe-function/from/many/reactive-function/built-in/comparison/reactive-greater-than.ts),
+      [reactiveGreaterThanOrEqual](subscribe-function/from/many/reactive-function/built-in/comparison/reactive-greater-than-or-equal.ts),
+      [reactiveLowerThan](subscribe-function/from/many/reactive-function/built-in/comparison/reactive-lower-than.ts),
+      [reactiveLowerThanOrEqual](subscribe-function/from/many/reactive-function/built-in/comparison/reactive-lower-than-or-equal.ts)
+    - string:
+      [reactiveTemplateString](subscribe-function/from/many/reactive-function/built-in/string/reactive-template-string.ts)
 
 - time related
   - emits every 'ms': [interval](subscribe-function/from/time-related/interval/interval.md)
@@ -134,23 +137,27 @@ and the RxJS's *components*.
 
 #### convert a SubscribeFunction to
 
-- a promise: [toPromise](subscribe-function/to/to-promise/to-promise.ts)
+- a promise:
+  - without notifications: [toPromise](subscribe-function/to/to-promise/to-promise.md)
+  - with notifications:
+    - with only the last value: [toPromiseLast](subscribe-function/to/to-promise/last/to-promise-last.md)
+    - with every value: [toPromiseAll](subscribe-function/to/to-promise/all/to-promise-all.md)
 
-#### create an OperatorFunction which
+#### create an SubscribePipeFunction which
 
-- emits only distinct received values: [distinctOperator](__operators/pipe-based/distinct-operator.ts)
-- filters received values: [filterOperator](__operators/filter.ts)
-- transforms received values: [mapOperator](__operators/pipe-based/map-operator.ts)
-- reads received values, and re-emits them without transformations: [tapOperator](__operators/tap.ts)
-- allows one SubscribeFunction to emit its values to many SubscribeFunction: [shareOperator](__operators/share.ts)
-- re-emit last received values:
-  - last value only: [replayLastSharedOperator](__operators/replay/replay-last/replay-last.ts)
-  - last N values: [replaySharedOperator](__operators/replay/replay.ts)
+- emits only distinct received values: [distinctSubscribePipe](subscribe-function/subscribe-pipe/emit-pipe-related/distinct-subscribe-pipe.ts)
+- filters received values: [filterSubscribePipe](subscribe-function/subscribe-pipe/emit-pipe-related/filter-subscribe-pipe.ts)
+- transforms received values: [mapSubscribePipe](subscribe-function/subscribe-pipe/emit-pipe-related/map-subscribe-pipe.ts)
+- reads received values, and re-emits them without transformations: [tapSubscribePipe](subscribe-function/subscribe-pipe/emit-pipe-related/tap-subscribe-pipe.ts)
+- allows one SubscribeFunction to emit its values to many SubscribeFunction: [shareSubscribePipe](subscribe-function/subscribe-pipe/source-related)
+
+[comment]: <> (TODO better tree for source-related folder)
+
 
 #### others
 
-- chain many OperatorFunctions: [pipeOperatorFunctions](functions/piping/pipe-subscribe-pipe-functions/pipe-subscribe-pipe-functions.ts)
-- chain many OperatorFunctions with a
+- chain many SubscribePipeFunctions: [pipeSubscribePipeFunctions](functions/piping/pipe-subscribe-pipe-functions/pipe-subscribe-pipe-functions.ts)
+- chain many SubscribePipeFunctions with a
   SubscribeFunction: [pipeSubscribeFunction](functions/piping/pipe-subscribe-function/pipe-subscribe-function.ts)
 
 

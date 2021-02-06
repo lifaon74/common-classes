@@ -8,7 +8,7 @@ import {
 } from '../../../../misc/notifications/built-in/next/next-notification.type';
 import { isNextNotification } from '../../../../misc/notifications/built-in/next/is-next-notification';
 
-export type IEmitPipeToSubscribePipeEmitPipeInValue<GIn> =
+export type IInferEmitPipeToSubscribePipeEmitPipeInValue<GIn> =
   GIn extends INextNotification<infer GValue>
     ? GValue
     : never;
@@ -23,9 +23,9 @@ export type IEmitPipeToSubscribePipeWithNotificationsReturn<GIn, GEmitPipeOut> =
  * Converts an emit pipe function to a subscribe pipe function
  */
 export function emitPipeToSubscribePipeWithNotifications<GIn, GEmitPipeOut>(
-  emitPipeFunction: IEmitPipeFunction<IEmitPipeToSubscribePipeEmitPipeInValue<GIn>, GEmitPipeOut>,
+  emitPipeFunction: IEmitPipeFunction<IInferEmitPipeToSubscribePipeEmitPipeInValue<GIn>, GEmitPipeOut>,
 ): IEmitPipeToSubscribePipeWithNotificationsReturn<GIn, GEmitPipeOut> {
-  type GEmitPipeIn = IEmitPipeToSubscribePipeEmitPipeInValue<GIn>;
+  type GEmitPipeIn = IInferEmitPipeToSubscribePipeEmitPipeInValue<GIn>;
   type GOut = IEmitPipeToSubscribePipeOutValue<GIn, GEmitPipeOut>;
 
   return (subscribe: ISubscribeFunction<GIn>): ISubscribeFunction<GOut> => {

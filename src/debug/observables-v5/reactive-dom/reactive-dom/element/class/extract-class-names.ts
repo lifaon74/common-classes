@@ -1,4 +1,4 @@
-import { isValidCSSIdentifier } from '../../../tokenizers/css';
+import { isValidCSSIdentifier } from '../../../misc/tokenizers/css';
 
 /**
  * List of function to convert some values to a proper list of class names

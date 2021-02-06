@@ -16,7 +16,6 @@ function dateTimeShortcutFormatSubscribePipe(
 
 This SubscribePipe formats incoming number or date values into string according to a locale and some configuration.
 
-
 ### Examples
 
 #### Simple http request

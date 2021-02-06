@@ -12,7 +12,7 @@ Creates a SubscribeFunction from an AsyncIterator. It emits values in the form o
 what you expect, due to concurrent calls on the `.next`.
 
 You should prefer to use [fromAsyncIterable](../from-async-iterable/from-async-iterable.md) which generates an uniq
-AsyncIterator, or `multicast` the SubscribeFunction.
+AsyncIterator, or `share` the SubscribeFunction.
 
 ### Examples
 

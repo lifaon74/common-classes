@@ -9,11 +9,11 @@ function toPromiseLast<GValue>(
 
 Converts a SubscribeFunction into a Promise.
 
-It's similar to [toPromise](../to-promise.md) but returns the last received `next` value instead of an Array.
+It's similar to [toPromiseAll](../all/to-promise-all.md) but returns the last received `next` value instead of an Array.
 
 ### Examples
 
-#### Simple http request 
+#### Simple http request
 
 ```ts
 toPromise(fromFetch('https://some-url.site'))

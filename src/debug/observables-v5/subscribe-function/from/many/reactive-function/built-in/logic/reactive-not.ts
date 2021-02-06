@@ -3,16 +3,17 @@ import { ISubscribeFunction } from '../../../../../../types/subscribe-function/s
 
 
 export function reactiveNot(
-  subscribeFunctions: IReactiveFunctionSubscribeFunctions<typeof not>,
+  ...subscribeFunctions: IReactiveFunctionSubscribeFunctions<typeof not>
 ): ISubscribeFunction<ReturnType<typeof not>> {
   return reactiveFunction(
     not,
     subscribeFunctions,
+    true,
   );
 }
 
 
-export function not(value: boolean): boolean {
+function not(value: boolean): boolean {
   return !value;
 }
 

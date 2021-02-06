@@ -1,23 +1,21 @@
+import { ISubscribeFunction, IUnsubscribeFunction } from '../../../types';
 import { createEventListener, IRemoveEventListener } from '../../../misc/event-listener/create-event-listener';
 import { isAbortSignal } from '../../../misc/abortable/is-abort-signal';
-import { toTypedEventTarget } from '../../../misc/event-listener/to-typed-event-target';
 import { createAbortError } from '../../../misc/errors/abort-error/create-abort-error';
+import { toTypedEventTarget } from '../../../misc/event-listener/to-typed-event-target';
 import { asyncUnsubscribe } from '../../../misc/helpers/async-unsubscribe';
-import { ISubscribeFunction, IUnsubscribeFunction } from '../../../types/subscribe-function/subscribe-function.type';
-import { IDefaultInNotificationsUnion } from '../../../misc/notifications/default-notifications-union.type';
 
 export interface ISubscribeFunctionToPromiseOptions {
   signal?: AbortSignal;
 }
 
-export type ISubscribeFunctionToPromiseNotifications<GValue> = IDefaultInNotificationsUnion<GValue>;
 
 export function toPromise<GValue>(
-  subscribe: ISubscribeFunction<ISubscribeFunctionToPromiseNotifications<GValue>>,
+  subscribe: ISubscribeFunction<GValue>,
   options?: ISubscribeFunctionToPromiseOptions
-): Promise<GValue[]> {
-  return new Promise<GValue[]>((
-    resolve: (value: GValue[]) => void,
+): Promise<GValue> {
+  return new Promise<GValue>((
+    resolve: (value: GValue) => void,
     reject: (reason: any) => void,
   ) => {
     let removeAbortEventListener: IRemoveEventListener;
@@ -41,9 +39,9 @@ export function toPromise<GValue>(
       asyncUnsubscribe(() => unsubscribe);
     };
 
-    const _resolve = (values: GValue[]) => {
+    const _resolve = (value: GValue) => {
       end();
-      resolve(values);
+      resolve(value);
     };
 
     const _reject = (error: any) => {
@@ -51,20 +49,7 @@ export function toPromise<GValue>(
       reject(error);
     };
 
-    const values: GValue[] = [];
-    const unsubscribe: IUnsubscribeFunction = subscribe((notification: ISubscribeFunctionToPromiseNotifications<GValue>) => {
-      switch (notification.name) {
-        case 'next':
-          values.push(notification.value);
-          break;
-        case 'complete':
-          _resolve(values);
-          break;
-        case 'error':
-          _reject(notification.value);
-          break;
-      }
-    });
+    const unsubscribe: IUnsubscribeFunction = subscribe(_resolve);
   });
 }
 

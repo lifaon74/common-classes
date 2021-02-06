@@ -9,8 +9,16 @@ export function createNetworkError(
   return error;
 }
 
+
+
 export function createNetworkErrorFromRequest(
   request: Request,
 ): INetworkError {
   return createNetworkError({ message: `${ request.method } '${ request.url }'` });
+}
+
+export function createNetworkErrorFromResponse(
+  response: Response,
+): INetworkError {
+  return createNetworkError({ message: `${ response.status } '${ response.url }'` });
 }

@@ -1,4 +1,4 @@
-import { isObject } from '../helpers/is-object';
+import { isObject } from '../helpers/is-type/is-object';
 
 
 export function isAbortControllerSupported(): boolean {

@@ -1,14 +1,11 @@
 import { ISubscribePipeFunction } from '../../../../types/subscribe-pipe-function/subscribe-pipe-function.type';
 import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function.type';
 import { IEmitFunction } from '../../../../types/emit-function/emit-function.type';
-import { ICompleteNotification } from '../../../../misc/notifications/built-in/complete-notification';
-import { IErrorNotification } from '../../../../misc/notifications/built-in/error-notification';
+import { STATIC_COMPLETE_NOTIFICATION } from '../../../../misc/notifications/built-in/complete-notification';
 import { IDefaultNotificationsUnion } from '../../../../misc/notifications/default-notifications-union.type';
-import { Union, UnionMerge } from '../../../../misc/types/union.type';
-import { INextNotification } from '../../../../misc/notifications/built-in/next/next-notification.type';
-import { IGenericNotification } from '../../../../misc/notifications/notification.type';
 
-export type IMergeAllToSubscribePipeInNotifications<GValue> = UnionMerge<Union<INextNotification<GValue>>, Union<IGenericNotification>>;
+export type IMergeAllToSubscribePipeInNotifications<GValue> = IDefaultNotificationsUnion<ISubscribeFunction<IDefaultNotificationsUnion<GValue>>>;
+// export type IMergeAllToSubscribePipeInNotifications<GValue> = IDefaultInNotificationsUnion<GValue>;
 
 export type IMergeAllToSubscribePipeOutNotifications<GValue> = IDefaultNotificationsUnion<GValue>;
 
@@ -26,9 +23,10 @@ export type IMergeAllToSubscribePipeWithNotificationsReturn<GValue> =
 //   ;
 //
 
-// TODO
 
-export function mergeAllSubscribePipeWithNotifications<GValue>(): IMergeAllToSubscribePipeWithNotificationsReturn<GValue> {
+export function mergeAllSubscribePipeWithNotifications<GValue>(
+  maxNumberOfSubscriptions: number = Number.POSITIVE_INFINITY,
+): IMergeAllToSubscribePipeWithNotificationsReturn<GValue> {
   type GInNotificationsUnion = IMergeAllToSubscribePipeInNotifications<GValue>;
   type GOutNotificationsUnion = IMergeAllToSubscribePipeOutNotifications<GValue>;
 
@@ -36,8 +34,7 @@ export function mergeAllSubscribePipeWithNotifications<GValue>(): IMergeAllToSub
     return (emit: IEmitFunction<GOutNotificationsUnion>): IUnsubscribeFunction => {
       let running: boolean = true;
       const childrenUnsubscribeFunctions: IUnsubscribeFunction[] = [];
-      let runningChildren: number = 0;
-      let done: boolean = false;
+      let parentComplet: boolean = false;
 
       const end = () => {
         if (!running) {
@@ -49,11 +46,20 @@ export function mergeAllSubscribePipeWithNotifications<GValue>(): IMergeAllToSub
         }
       };
 
+      const complete = () => {
+        if (parentComplet && (childrenUnsubscribeFunctions.length === 0)) {
+          end();
+          emit(STATIC_COMPLETE_NOTIFICATION);
+        }
+      };
+
       const unsubscribe = subscribe((notification: GInNotificationsUnion): void => {
         switch (notification.name) {
           case 'next': {
-            runningChildren++;
-            let childDone: boolean = false;
+            if (childrenUnsubscribeFunctions.length >= maxNumberOfSubscriptions) {
+              (childrenUnsubscribeFunctions.shift() as IUnsubscribeFunction)();
+            }
+            let childComplete: boolean = false;
             const childSubscription: IUnsubscribeFunction = notification.value((notification: GOutNotificationsUnion) => {
               switch (notification.name) {
                 case 'next': {
@@ -61,40 +67,34 @@ export function mergeAllSubscribePipeWithNotifications<GValue>(): IMergeAllToSub
                   break;
                 }
                 case 'complete': {
-                  childDone = true;
-                  runningChildren--;
-                  if (done && (runningChildren === 0)) {
-                    end();
-                    emit(notification);
-                  } else if (typeof childSubscription !== 'undefined') {
+                  childComplete = true;
+                  if (typeof childSubscription !== 'undefined') {
                     childrenUnsubscribeFunctions.splice(childrenUnsubscribeFunctions.indexOf(childSubscription), 1);
                   }
+                  complete();
                   break;
                 }
                 case 'error': {
-                  childDone = true;
+                  childComplete = true;
                   end();
                   emit(notification);
                   break;
                 }
               }
             });
-            if (!childDone) {
+            if (!childComplete) {
               childrenUnsubscribeFunctions.push(childSubscription);
             }
             break;
           }
           case 'complete': {
-            done = true;
-            if (runningChildren === 0) {
-              end();
-              emit(notification as ICompleteNotification);
-            }
+            parentComplet = true;
+            complete();
             break;
           }
           case 'error': {
             end();
-            emit(notification as IErrorNotification);
+            emit(notification);
             break;
           }
         }

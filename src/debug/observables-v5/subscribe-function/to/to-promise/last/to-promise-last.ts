@@ -1,21 +1,21 @@
-import { ISubscribeFunction } from '../../../../types/subscribe-function/subscribe-function.type';
-import { ISubscribeFunctionToPromiseNotifications, ISubscribeFunctionToPromiseOptions, toPromise } from '../to-promise';
+import { ISubscribeFunction } from '../../../../types';
+import { ISubscribeFunctionToPromiseNotifications, toPromiseAll } from '../all';
+import { ISubscribeFunctionToPromiseOptions } from '../to-promise';
 
 
 export function toPromiseLast<GValue>(
   subscribe: ISubscribeFunction<ISubscribeFunctionToPromiseNotifications<GValue>>,
   options?: ISubscribeFunctionToPromiseOptions
 ): Promise<GValue> {
-  return toPromise<GValue>(subscribe, options)
+  return toPromiseAll<GValue>(subscribe, options)
     .then((values: GValue[]): GValue => {
       if (values.length === 0) {
         throw new Error(`Not enough values`);
       } else {
         return values[values.length - 1];
       }
-    })
+    });
 }
-
 
 
 // import { createEventListener, IRemoveEventListener } from '../../../misc/event-listener/create-event-listener';

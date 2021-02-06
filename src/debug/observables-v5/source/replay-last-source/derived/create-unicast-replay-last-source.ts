@@ -6,9 +6,11 @@ import { createUnicastSource } from '../../unicast-source/create-unicast-source'
 export interface ICreateUnicastReplayLastSourceOptions<GValue> extends ICreateReplayLastSourceOptions<GValue> {
 }
 
+export type IUnicastReplayLastSource<GValue> = IReplayLastSource<GValue, IUnicastSource<GValue>>;
+
 export function createUnicastReplayLastSource<GValue>(
   options?: ICreateUnicastReplayLastSourceOptions<GValue>,
-): IReplayLastSource<GValue, IUnicastSource<GValue>> {
+): IUnicastReplayLastSource<GValue> {
   return createReplayLastSource<GValue, IUnicastSource<GValue>>(
     createUnicastSource<GValue>(),
     options,

@@ -1,4 +1,4 @@
-import { combineLatest, ICombineLatestSubscribeFunctionsValues } from '../combine-latest';
+import { combineLatest, ICombineLatestSubscribeFunctionsValues } from '../combine-latest/combine-latest';
 import { TGenericFunction } from '@lifaon/traits';
 import { TMapValueTupleToSubscribeFunctionTuple } from '../types';
 import { pipeSubscribeFunction } from '../../../../functions/piping/pipe-subscribe-function/pipe-subscribe-function';
