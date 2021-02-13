@@ -1,7 +1,7 @@
 import { INextNotification } from './built-in/next/next-notification.type';
 import { ICompleteNotification } from './built-in/complete-notification';
-import { IErrorNotification } from './built-in/error-notification';
 import { IGenericNotification } from './notification.type';
+import { IErrorNotification } from './built-in';
 
 
 export type IDefaultNotificationsUnion<GValue> =
@@ -29,3 +29,6 @@ export type IInferDefaultNotificationsUnionGValue<GNotificationUnion extends IGe
   GNotificationUnion extends INextNotification<infer GValue>
     ? GValue
     : never;
+
+export type IGenericDefaultInNotificationsUnion = IDefaultInNotificationsUnion<any>;
+

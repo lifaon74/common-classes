@@ -1,7 +1,5 @@
-
 import { ISubscription } from './subscription.type';
-import { IEmitFunction } from '../../types/emit-function/emit-function.type';
-import { ISubscribeFunction, IUnsubscribeFunction } from '../../types/subscribe-function/subscribe-function.type';
+import { IEmitFunction, ISubscribeFunction, IUnsubscribeFunction } from '../../types';
 
 
 /**
@@ -9,17 +7,17 @@ import { ISubscribeFunction, IUnsubscribeFunction } from '../../types/subscribe-
  */
 
 export class Subscription<GValue> implements ISubscription<GValue> {
-  public readonly subscribeFunction: ISubscribeFunction<GValue>;
-  public readonly emitFunction: IEmitFunction<GValue>;
+  public readonly subscribe: ISubscribeFunction<GValue>;
+  public readonly emit: IEmitFunction<GValue>;
 
   protected _unsubscribe: IUnsubscribeFunction | null;
 
   constructor(
-    subscribeFunction: ISubscribeFunction<GValue>,
-    emitFunction: IEmitFunction<GValue>,
+    subscribe: ISubscribeFunction<GValue>,
+    emit: IEmitFunction<GValue>,
   ) {
-    this.subscribeFunction = subscribeFunction;
-    this.emitFunction = emitFunction;
+    this.subscribe = subscribe;
+    this.emit = emit;
     this._unsubscribe = null;
   }
 
@@ -29,7 +27,7 @@ export class Subscription<GValue> implements ISubscription<GValue> {
 
   activate(): this {
     if (this._unsubscribe === null) {
-      this._unsubscribe = this.subscribeFunction(this.emitFunction);
+      this._unsubscribe = this.subscribe(this.emit);
     }
     return this;
   }
@@ -41,7 +39,9 @@ export class Subscription<GValue> implements ISubscription<GValue> {
     return this;
   }
 
-  toggle(activate: boolean = !this.isActivated()): this {
+  toggle(
+    activate: boolean = !this.isActivated(),
+  ): this {
     if (activate) {
       return this.activate();
     } else {
@@ -50,12 +50,27 @@ export class Subscription<GValue> implements ISubscription<GValue> {
   }
 }
 
+/*----------------*/
 
 export interface ISubscriptionManager<GValue> {
-  subscriptions: Subscription<GValue>;
+  // readonly subscriptions: ReadonlyMap<string, Subscription<GValue>>;
 
   activateAll(): this;
 
   deactivateAll(): this;
+
+  set<GSubscription extends Subscription<GValue>>(
+    key: string,
+    subscription: GSubscription,
+    mode?: 'skip' | 'replace' | 'throw',
+  ): GSubscription;
+
+  get(key: string): Subscription<GValue> | undefined;
+
+  get(key: string, mode: 'throw'): Subscription<GValue> | never;
+
+  has(key: string): boolean;
+
+  delete(key: string): void;
 }
 

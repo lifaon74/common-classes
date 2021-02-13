@@ -14,7 +14,8 @@ import { setReactiveStyleList } from '../../reactive-dom/element/style/set-react
 import { setReactiveEventListener } from '../../reactive-dom/element/event-listener/set-reactive-event-listener';
 import { createReactiveIfNode } from '../../reactive-dom/template/reactive-if-node/create-reactive-if-node';
 import { createReactiveForLoopNode } from '../../reactive-dom/template/reactive-for-loop-node/create-reactive-for-loop-node';
-import { createReactiveTemplateNode } from '../../reactive-dom/template/reactive-template-node/create-reactive-template-node';
+import { createReactiveContentNode } from '../../reactive-dom/template/reactive-content-node/create-reactive-content-node';
+import { createReactiveSwitchNode } from '../../reactive-dom/template/reactive-switch-node/create-reactive-switch-node';
 
 /**
  * Mandatory constants to import for reactiveHTML
@@ -43,7 +44,8 @@ export const DEFAULT_CONSTANTS_TO_IMPORT = {
   // reactive nodes
   createReactiveIfNode,
   createReactiveForLoopNode,
-  createReactiveTemplateNode,
+  createReactiveSwitchNode,
+  createReactiveContentNode,
 };
 
 

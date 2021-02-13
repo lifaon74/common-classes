@@ -9,6 +9,7 @@ import { extractRXAttributes, IMappedAttributes } from '../helpers/extract-rx-at
 import { isRXContainer } from '../rx-container/compile-rx-container';
 import { generateLocalTemplateLinesFromNodes } from '../helpers/generate-local-template-lines-from-nodes';
 import { getChildNodes } from '../../../../../../../light-dom/node/properties/get-child-nodes';
+import { generateLocalTemplateLinesFromRXContainerOrElement } from '../helpers/generate-local-template-lines-from-node';
 
 /*
 Syntax:
@@ -90,12 +91,8 @@ export function compileRXIf(
     const condition: string = getAttributeValue(node, COMMAND_NAME) as string;
     setAttributeValue(node, COMMAND_NAME, null);
 
-    const localTemplate: ILines = isRXContainer(node)
-      ? generateLocalTemplateLinesFromNodes(getChildNodes(node), LOCAL_TEMPLATE_NAME)
-      : generateLocalTemplateLinesFromElement(node, LOCAL_TEMPLATE_NAME);
-
     return scopeLines([
-      ...localTemplate,
+      ...generateLocalTemplateLinesFromRXContainerOrElement(node, LOCAL_TEMPLATE_NAME),
       ...generateRXIfLines(condition, LOCAL_TEMPLATE_NAME, NULL_TEMPLATE),
     ]);
   } else {

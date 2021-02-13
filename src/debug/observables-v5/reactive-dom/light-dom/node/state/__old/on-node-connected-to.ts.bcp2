@@ -242,7 +242,7 @@ export function onNodeConnectedToWithImmediate(
 //     // change(true);
 //
 //     return (): void => {
-//       if (!running) {
+//       if (running) {
 //         running = false;
 //       }
 //     };
@@ -335,7 +335,7 @@ export function onNodeConnectedToWithImmediate(
 //     }
 //
 //     return (): void => {
-//       if (!running) {
+//       if (running) {
 //         running = false;
 //       }
 //     };
@@ -395,7 +395,7 @@ export function onNodeConnectedToWithImmediate(
 //     change(true);
 //
 //     return (): void => {
-//       if (!running) {
+//       if (running) {
 //         running = false;
 //         clear();
 //       }

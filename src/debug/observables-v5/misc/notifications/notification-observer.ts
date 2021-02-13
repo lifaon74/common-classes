@@ -1,5 +1,5 @@
-import { IEmitFunction } from '../../../observables-v4/core/observer';
 import { IGenericNotification, INotification, TInferNotificationGName } from './notification.type';
+import { IEmitFunction } from '../../types';
 
 
 export type TInferNotificationsObserverMapFromNotificationsUnion<GNotificationsUnion extends IGenericNotification> = {

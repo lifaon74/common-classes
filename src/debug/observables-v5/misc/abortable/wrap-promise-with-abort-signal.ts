@@ -14,6 +14,9 @@ export interface IOnAborted {
   (): void;
 }
 
+/**
+ * Awaits that the promise is resolved or aborted and calls the proper callback
+ */
 export function awaitPromiseFactoryWithAbortSignal<GValue>(
   promiseFactory: (signal: AbortSignal) => Promise<GValue>,
   signal: AbortSignal,
@@ -59,6 +62,9 @@ export function awaitPromiseFactoryWithAbortSignal<GValue>(
 }
 
 
+/**
+ * Awaits that the promise is resolved or aborted and calls the proper callback
+ */
 export function awaitPromiseWithAbortSignal<GValue>(
   promise: Promise<GValue>,
   signal: AbortSignal,
@@ -75,6 +81,11 @@ export function awaitPromiseWithAbortSignal<GValue>(
   );
 }
 
+/**
+ * Wraps a promise factory with an AbortSignal:
+ * - if aborted, returns a rejected promise
+ * - else returns the promise
+ */
 export function wrapPromiseFactoryWithAbortSignal<GValue>(
   promiseFactory: (signal: AbortSignal) => Promise<GValue>,
   signal: AbortSignal,

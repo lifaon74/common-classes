@@ -40,7 +40,7 @@ export function mergeAllSubscribePipeWithNotifications<GValue>(): IMergeAllToSub
       let done: boolean = false;
 
       const end = () => {
-        if (!running) {
+        if (running) {
           running = false;
           unsubscribe();
           for (let i = 0, l = childrenUnsubscribeFunctions.length; i < l; i++) {

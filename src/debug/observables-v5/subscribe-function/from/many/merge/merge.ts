@@ -1,8 +1,8 @@
 import { TupleTypes } from '@lifaon/traits';
-import { IEmitFunction } from '../../../types/emit-function/emit-function.type';
+import { IEmitFunction } from '../../../../types/emit-function/emit-function.type';
 import {
   IGenericSubscribeFunction, ISubscribeFunction, IUnsubscribeFunction
-} from '../../../types/subscribe-function/subscribe-function.type';
+} from '../../../../types/subscribe-function/subscribe-function.type';
 
 export type IMergeSubscribeFunctionsValues<GSubscribeFunctions extends readonly IGenericSubscribeFunction[]> = TupleTypes<{
   [GKey in keyof GSubscribeFunctions]: GSubscribeFunctions[GKey] extends ISubscribeFunction<infer GValue>
@@ -14,7 +14,7 @@ export type IMergeSubscribeFunctionsValues<GSubscribeFunctions extends readonly 
  * Creates a SubscribeFunction which concurrently emits all values from every given input SubscribeFunctions.
  */
 export function merge<GSubscribeFunctions extends readonly IGenericSubscribeFunction[]>(
-  subscribeFunctions: GSubscribeFunctions
+  subscribeFunctions: GSubscribeFunctions,
 ): ISubscribeFunction<IMergeSubscribeFunctionsValues<GSubscribeFunctions>> {
   type GValue = IMergeSubscribeFunctionsValues<GSubscribeFunctions>;
   return (emit: IEmitFunction<GValue>): IUnsubscribeFunction => {

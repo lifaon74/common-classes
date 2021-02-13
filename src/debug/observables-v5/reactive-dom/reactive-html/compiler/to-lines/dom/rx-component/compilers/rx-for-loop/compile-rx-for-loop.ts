@@ -10,6 +10,7 @@ import { setAttributeValue } from '../../../../../../../light-dom/attribute/set-
 import { isRXContainer } from '../rx-container/compile-rx-container';
 import { generateLocalTemplateLinesFromNodes } from '../helpers/generate-local-template-lines-from-nodes';
 import { getChildNodes } from '../../../../../../../light-dom/node/properties/get-child-nodes';
+import { generateLocalTemplateLinesFromRXContainerOrElement } from '../helpers/generate-local-template-lines-from-node';
 
 /*
 Syntax:
@@ -110,12 +111,8 @@ export function compileRXForLoop(
       constantsToImport.push(['index', command.index]);
     }
 
-    const localTemplate: ILines = isRXContainer(node)
-      ? generateLocalTemplateLinesFromNodes(getChildNodes(node), LOCAL_TEMPLATE_NAME, constantsToImport)
-      : generateLocalTemplateLinesFromElement(node, LOCAL_TEMPLATE_NAME, constantsToImport);
-
     return scopeLines([
-      ...localTemplate,
+      ...generateLocalTemplateLinesFromRXContainerOrElement(node, LOCAL_TEMPLATE_NAME, constantsToImport),
       ...generateRXForLoopLines(command.items, LOCAL_TEMPLATE_NAME, generateObjectPropertiesLines(options))
     ]);
   } else {

@@ -1,4 +1,5 @@
-export * from './from-fetch/from-fetch';
-export * from './xhr/from-xhr/from-xhr';
+export * from './from-fetch/index';
+export * from './xhr/index';
+
 
 

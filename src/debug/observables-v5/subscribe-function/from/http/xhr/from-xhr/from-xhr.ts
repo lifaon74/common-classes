@@ -1,9 +1,6 @@
 import { createNextNotification } from '../../../../../misc/notifications/built-in/next/create-next-notification';
 import { STATIC_COMPLETE_NOTIFICATION } from '../../../../../misc/notifications/built-in/complete-notification';
 import {
-  createAbortErrorNotification, createErrorNotification
-} from '../../../../../misc/notifications/built-in/error-notification';
-import {
   createDownloadProgressNotification, createUploadProgressNotification, IDownloadProgressNotification,
   IUploadProgressNotification
 } from '../../../../../misc/notifications/built-in/progress-notification';
@@ -23,6 +20,8 @@ import { isAbortError } from '../../../../../misc/errors/abort-error/is-abort-er
 import { IEmitFunction } from '../../../../../types/emit-function/emit-function.type';
 import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../../types/subscribe-function/subscribe-function.type';
 import { IDefaultNotificationsUnion } from '../../../../../misc/notifications/default-notifications-union.type';
+import { createErrorNotification } from '../../../../../misc';
+import { createAbortErrorNotification } from '../../../../../misc/notifications/built-in/error/create-abort-error-notification';
 
 export type IUploadCompleteNotification = INotification<'upload-complete', void>;
 

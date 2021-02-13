@@ -1,7 +1,4 @@
 import { ILines } from '../../../../compiler.types';
-import { indentLines } from '../../../../helpers/lines-formating-helpers';
-import { hasChildNodes } from '../../../../../../../light-dom/node/state/has-child-nodes';
-import { extractLetProperty, ILetProperty } from '../helpers/extract-let-property';
 import { compileNodes } from '../../../nodes/compile-nodes';
 import { getChildNodes } from '../../../../../../../light-dom/node/properties/get-child-nodes';
 

@@ -1,9 +1,6 @@
-import {
-  createErrorNotification, IErrorNotification
-} from '../../../../observables-v4/misc/notifications/build-in/error-notification';
-import { noop } from '../../../../observables-v4/misc/helpers/noop';
-import { IEmitFunction } from '../../../types/emit-function/emit-function.type';
-import { ISubscribeFunction, IUnsubscribeFunction } from '../../../types/subscribe-function/subscribe-function.type';
+import { IEmitFunction, ISubscribeFunction, IUnsubscribeFunction } from '../../../types';
+import { createErrorNotification, IErrorNotification } from '../../../misc';
+import { noop } from '../../../misc/helpers/noop';
 
 export function throwError<GError>(
   error: GError,

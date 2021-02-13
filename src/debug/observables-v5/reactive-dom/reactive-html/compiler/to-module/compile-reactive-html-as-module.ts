@@ -11,7 +11,7 @@ import { generateConstantsToImportForComponentTemplateFromObject } from '../../.
 
 export const DEFAULT_MINIFY_OPTIONS = {
   module: true,
-  compress: { pure_getters: true, passes: 5 },
+  compress: { pure_getters: true, passes: 2 },
   mangle: {
     module: true,
     toplevel: true,
@@ -36,10 +36,14 @@ export function compileReactiveHTMLAsModuleWithStats(
   html: string,
   constantsToImport: object = DEFAULT_CONSTANTS_TO_IMPORT,
 ): Promise<string> {
+  console.time('compilation');
   const code: string = linesToString(compileHTMLAsHTMLTemplateModule(html, generateConstantsToImportForComponentTemplateFromObject(constantsToImport)));
+  console.timeEnd('compilation');
+  console.time('minification');
   const percent = (value: number): string => `${ Math.floor(value * 100) }%`;
   return minify(code, DEFAULT_MINIFY_OPTIONS)
     .then((result: ITerserMinifyResult) => {
+      console.timeEnd('minification');
       return result.code;
     })
     .then((minified: string) => {

@@ -11,13 +11,13 @@ import {
   createReferenceNode, IReferenceNode
 } from '../../../light-dom/node/create/reference-node/create-reference-node';
 
-export type IReactiveTemplate = ISubscribeFunction<IDocumentFragmentOrNull>;
+export type IReactiveContent = ISubscribeFunction<IDocumentFragmentOrNull>;
 
-export function createReactiveTemplateNode(
-  subscribe: IReactiveTemplate,
+export function createReactiveContentNode(
+  subscribe: IReactiveContent,
   transparent?: boolean,
 ): IReferenceNode {
-  const referenceNode: IReferenceNode = createReferenceNode(`REACTIVE TEMPLATE - ${ uuid() }`, transparent);
+  const referenceNode: IReferenceNode = createReferenceNode(`REACTIVE CONTENT - ${ uuid() }`, transparent);
 
   let nodes: IHTMLTemplateNodeList = [];
 

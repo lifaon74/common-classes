@@ -208,14 +208,14 @@ var templateReference = ({ var1, var2 }): DocumentFragment => content;
 ```
 
 
-#### Static template injection: rx-inject-static-template
+#### Template injection: rx-inject-template
 
 ```html
-<rx-inject-static-template
+<rx-inject-template
   template="templateReference"
   let-var1="data1"
   let-var2="data2"
-></rx-inject-static-template>
+></rx-inject-template>
 ```
 
 Injects a template into the DOM.
@@ -231,28 +231,29 @@ It compiles to something similar to this:
 attachTemplate(templateReference, { var1: data1, var2: data2 }, parentNode);
 ``` 
 
-#### Dynamic template injection: rx-inject-template
+#### Dynamic content injection: rx-inject-content
 
 ```html
-<rx-inject-template
-  template="observable"
-></rx-inject-template>
+<rx-inject-content 
+  content="observable"
+></rx-inject-content>
 ```
 
-Injects dynamically a template into the DOM.
+Injects dynamically a DocumentFragment into the DOM.
+Previously inserted nodes are removed.
 
 Attributes:
 
-- `template`: the SubscribeFunction which emits a template
+- `content`: the SubscribeFunction which emits a DocumentFragment or null
 
 It compiles to something similar to this:
 
 ```ts
-attachTemplate(templateReference, { var1: data1, var2: data2 }, parentNode);
+nodeAppendChild(parentNode, createReactiveContentNode(observable));
 ``` 
 
 
-#### Conditional template injection: rx-if or *if
+#### Conditional boolean template injection: rx-if or *if
 
 ```html
 <rx-if
@@ -289,6 +290,7 @@ nodeAppendChild(parentNode, createReactiveIfNode(conditionObservable, templateRe
 ```html
 <tag-mame
   *if="conditionObservable"
+  ...otherAttributes
 >
   ...content
 </tag-mame>
@@ -311,6 +313,131 @@ Which is equivalent to:
   condition="conditionObservable"
   true="uuid"
 ></rx-if>
+```
+
+
+#### Conditional switch template injection: rx-switch
+
+```html
+<rx-switch
+  expression="observable"
+>
+  <rx-switch-case
+    case="valueA"
+    template="templateReferenceA"
+  ></rx-switch-case>
+  <rx-switch-case
+    case="valueB"
+    template="templateReferenceB"
+  ></rx-switch-case>
+  <rx-switch-default
+    template="templateReferenceC"
+  ></rx-switch-default>
+</rx-switch>
+```
+
+Creates a virtual Node which:
+
+- subscribes to `observable`
+- and injects `templateReferenceA`, `templateReferenceB` or `templateReferenceC` according to the received value
+
+ℹ️ the previous injected template is removed.
+
+Attributes:
+
+- rx-switch
+  - `expression`: the SubscribeFunction to listen to
+- rx-switch-case
+  - `case`: the value for this template
+  - `template`: the template reference to inject
+- rx-switch-default
+  - `template`: the template reference to inject
+
+ℹ️ you may omit `rx-switch-default`.
+
+It compiles to something similar to this:
+
+TODO
+
+```ts
+nodeAppendChild(parentNode, createReactiveIfNode(conditionObservable, templateReferenceTrue, templateReferenceFalse));
+```
+
+###### alternative syntax
+
+```html
+<rx-switch
+  expression="observable"
+>
+  <tag-name-a
+    *switch-case="valueA"
+    ...otherAttributesA
+  >
+    ...contentA
+  </tag-name-a>
+  <tag-name-b
+    *switch-case="valueB"
+    ...otherAttributesB
+  >
+    ...contentB
+  </tag-name-b>
+  <tag-name-c
+    *switch-default
+    ...otherAttributesC
+  >
+    ...contentC
+  </tag-name-c>
+</rx-switch>
+```
+
+Which is equivalent to:
+
+```html
+<rx-template
+  name="uuidA"
+>
+  <tag-mame-a
+    ...otherAttributesA
+  >
+    ...contentA
+  </tag-mame-a>
+</rx-template>
+
+<rx-template
+    name="uuidB"
+>
+  <tag-mame-b
+      ...otherAttributesB
+  >
+    ...contentB
+  </tag-mame-b>
+</rx-template>
+
+<rx-template
+    name="uuidC"
+>
+  <tag-mame-c
+      ...otherAttributesC
+  >
+    ...contentC
+  </tag-mame-c>
+</rx-template>
+
+<rx-switch
+  expression="observable"
+>
+  <rx-switch-case
+    case="valueA"
+    template="uuidA"
+  ></rx-switch-case>
+  <rx-switch-case
+    case="valueB"
+    template="uuidB"
+  ></rx-switch-case>
+  <rx-switch-default
+    template="uuidC"
+  ></rx-switch-default>
+</rx-switch>
 ```
 
 #### For loop template injection: rx-for-loop or *for
@@ -348,7 +475,8 @@ nodeAppendChild(parentNode, createReactiveForLoopNode(itemsObservable, templateR
 
 ```html
 <tag-name
-  *for="let item of items; index as index; trackBy: trackByFn"
+  *for="let item of items; index as i; trackBy: trackByFn"
+  ...otherAttributes
 >
   ...content
 </tag-name>
@@ -359,7 +487,7 @@ Which is equivalent to:
 ```html
 <rx-template
   name="uuid"
-  let-index
+  let-index="i"
 >
   <tag-mame
     ...otherAttributes
@@ -412,28 +540,4 @@ b
 
 
 
----
-
-TODO / IDEA
-
-
-#### RX-SWITCH - IDEA
-
-```html
-<rx-switch
-  expression="observable"
->
-  <rx-switch-case
-    case="valueA"
-    template="templateReferenceA"
-  ></rx-switch>
-  <rx-switch-case
-    case="valueA"
-    template="templateReferenceB"
-  ></rx-switch-case>
-  <rx-switch-default
-    template="templateReferenceC"
-  ></rx-switch-default>
-</rx-switch>
-```
 

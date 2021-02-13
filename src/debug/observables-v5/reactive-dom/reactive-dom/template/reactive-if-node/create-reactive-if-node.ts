@@ -1,6 +1,8 @@
 import { uuid } from '../../../../misc/helpers/uuid';
 import { subscribeOnNodeConnectedTo } from '../../../misc/subscribe-on-node-connected-to';
-import { IHTMLTemplate, IHTMLTemplateNodeList } from '../../../light-dom/template/template.type';
+import {
+  IGenericHTMLTemplate, IGenericHTMLTemplateOrNull, IHTMLTemplate, IHTMLTemplateNodeList
+} from '../../../light-dom/template/template.type';
 import { ISubscribeFunction } from '../../../../types/subscribe-function/subscribe-function.type';
 import { getParentNode, IParentNode } from '../../../light-dom/node/properties/get-parent-node';
 import { getNextSibling } from '../../../light-dom/node/properties/get-next-sibling';
@@ -15,8 +17,8 @@ import {
 
 export function createReactiveIfNode(
   subscribe: ISubscribeFunction<boolean>,
-  templateTrue: IHTMLTemplate<[]> | null = null,
-  templateFalse: IHTMLTemplate<[]> | null = null,
+  templateTrue: IGenericHTMLTemplateOrNull = null,
+  templateFalse: IGenericHTMLTemplateOrNull = null,
   transparent?: boolean,
 ): IReferenceNode {
   const referenceNode: IReferenceNode = createReferenceNode(`IF - ${ uuid() }`, transparent);
@@ -36,7 +38,7 @@ export function createReactiveIfNode(
           ? templateTrue
           : templateFalse
       ),
-      [],
+      {},
       getParentNode(referenceNode) as IParentNode,
       getNextSibling(referenceNode)
     );

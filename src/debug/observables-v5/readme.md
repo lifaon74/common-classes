@@ -98,7 +98,7 @@ and the RxJS's *components*.
 - a readable stream
   - [w3c streams](https://streams.spec.whatwg.org/#rs-class)
     - readable stream: [fromReadableStream](subscribe-function/from/readable-stream/w3c/from-readable-stream/from-readable-stream.md)
-    - readable stream reader ⚠: [fromReadableStreamReader](subscribe-function/from/readable-stream/w3c/from-readable-stream-reader/from-readable-stream-reader.ts)
+    - readable stream reader ⚠: [fromReadableStreamReader](subscribe-function/from/readable-stream/w3c/from-readable-stream-reader/from-readable-stream-reader.md)
   - nodejs: TODO
 
 - an http request
@@ -108,7 +108,7 @@ and the RxJS's *components*.
 - a blob (reads content): [readBlob](subscribe-function/from/dom/read-blob/read-blob.md)
   
 - many subscribe functions. When any value is received:
-  - re-emit it concurrently: [merge](subscribe-function/from/many/merge.ts)
+  - re-emit it concurrently: [merge](subscribe-function/from/many/merge/merge.ts)
   - combine the values in an array and emit it: [combine-latest](subscribe-function/from/many/combine-latest/combine-latest.md)
   - combine the values in an array, runs a function with these values, and emit distinct returned
     values: [reactiveFunction](subscribe-function/from/many/reactive-function/reactive-function.md)
@@ -149,7 +149,7 @@ and the RxJS's *components*.
 - filters received values: [filterSubscribePipe](subscribe-function/subscribe-pipe/emit-pipe-related/filter-subscribe-pipe.ts)
 - transforms received values: [mapSubscribePipe](subscribe-function/subscribe-pipe/emit-pipe-related/map-subscribe-pipe.ts)
 - reads received values, and re-emits them without transformations: [tapSubscribePipe](subscribe-function/subscribe-pipe/emit-pipe-related/tap-subscribe-pipe.ts)
-- allows one SubscribeFunction to emit its values to many SubscribeFunction: [shareSubscribePipe](subscribe-function/subscribe-pipe/source-related)
+- allows one SubscribeFunction to emit its values to many SubscribeFunction: [shareSubscribePipe](subscribe-function/subscribe-pipe/source-related/share-subscribe-pipe.ts)
 
 [comment]: <> (TODO better tree for source-related folder)
 

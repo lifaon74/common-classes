@@ -22,6 +22,7 @@ import { shareSubscribePipe } from '../../subscribe-function/subscribe-pipe/sour
 import { debounceFrameSubscribePipe } from '../../subscribe-function/subscribe-pipe/time-related/debounce-frame-subscribe-pipe';
 import { createUnicastReplayLastSource } from '../../source/replay-last-source/derived/create-unicast-replay-last-source';
 import { debugReactiveDOMCompiler } from './debug-reactive-dom-compiler';
+import { createReactiveSwitchNode } from '../reactive-dom/template/reactive-switch-node/create-reactive-switch-node';
 
 
 /*---*/
@@ -415,6 +416,34 @@ async function debugReactiveForLoopNode2() {
   // }, 5000);
 }
 
+
+async function debugReactiveSwitchNode1() {
+  let value: number = 0;
+  const subscribe = pipeSubscribeFunction(interval(1000), [
+    mapSubscribePipe<void, number>(() => (value = (value + 1) % 3)),
+  ]);
+
+  const node = createReactiveSwitchNode(subscribe, new Map([
+    [0, () => {
+      const fragment = createDocumentFragment();
+      nodeAppendChild(fragment, createTextNode(`=> 0`));
+      return fragment;
+    }],
+    [1, () => {
+      const fragment = createDocumentFragment();
+      nodeAppendChild(fragment, createTextNode(`=> 1`));
+      return fragment;
+    }]
+  ]), () => {
+    const fragment = createDocumentFragment();
+    nodeAppendChild(fragment, createTextNode(`default`));
+    return fragment;
+  });
+
+  nodeAppendChild(document.body, node);
+}
+
+
 /*----*/
 
 
@@ -438,6 +467,7 @@ export async function debugReactiveDOM() {
   // await debugReactiveIfNode1();
   // await debugReactiveForLoopNode1();
   // await debugReactiveForLoopNode2();
+  // await debugReactiveSwitchNode1();
 
   await debugReactiveDOMCompiler();
 }

@@ -14,16 +14,16 @@ export function attachTemplate<GArgument extends object>(
   return attachTemplateFragment(template(templateArgument), parentNode, referenceNode);
 }
 
-export function attachOptionalTemplate<GArguments extends any[]>(
-  template: IHTMLTemplate<GArguments> | null,
-  args: GArguments,
+export function attachOptionalTemplate<GArgument extends object>(
+  template: IHTMLTemplate<GArgument> | null,
+  templateArgument: GArgument,
   parentNode: Node,
   referenceNode?: Node | null,
 ): IHTMLTemplateNodeList {
   if (template === null) {
     return [];
   } else {
-    return attachTemplate<GArguments>(template, args, parentNode, referenceNode);
+    return attachTemplate<GArgument>(template, templateArgument, parentNode, referenceNode);
   }
 }
 

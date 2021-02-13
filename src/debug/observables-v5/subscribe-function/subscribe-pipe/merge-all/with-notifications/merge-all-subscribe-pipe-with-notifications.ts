@@ -34,10 +34,10 @@ export function mergeAllSubscribePipeWithNotifications<GValue>(
     return (emit: IEmitFunction<GOutNotificationsUnion>): IUnsubscribeFunction => {
       let running: boolean = true;
       const childrenUnsubscribeFunctions: IUnsubscribeFunction[] = [];
-      let parentComplet: boolean = false;
+      let parentComplete: boolean = false;
 
       const end = () => {
-        if (!running) {
+        if (running) {
           running = false;
           unsubscribe();
           for (let i = 0, l = childrenUnsubscribeFunctions.length; i < l; i++) {
@@ -47,7 +47,7 @@ export function mergeAllSubscribePipeWithNotifications<GValue>(
       };
 
       const complete = () => {
-        if (parentComplet && (childrenUnsubscribeFunctions.length === 0)) {
+        if (parentComplete && (childrenUnsubscribeFunctions.length === 0)) {
           end();
           emit(STATIC_COMPLETE_NOTIFICATION);
         }
@@ -88,7 +88,7 @@ export function mergeAllSubscribePipeWithNotifications<GValue>(
             break;
           }
           case 'complete': {
-            parentComplet = true;
+            parentComplete = true;
             complete();
             break;
           }

@@ -1,9 +1,6 @@
 import { createNextNotification } from '../../../../misc/notifications/built-in/next/create-next-notification';
 import { STATIC_COMPLETE_NOTIFICATION } from '../../../../misc/notifications/built-in/complete-notification';
 import {
-  createAbortErrorNotification, createErrorNotification
-} from '../../../../misc/notifications/built-in/error-notification';
-import {
   createProgressNotification, IProgressNotification
 } from '../../../../misc/notifications/built-in/progress-notification';
 import { IProgress } from '../../../../misc/progress/progress-interface';
@@ -13,6 +10,8 @@ import { createProgressFromProgressEvent } from '../../../../misc/progress/creat
 import { IEmitFunction } from '../../../../types/emit-function/emit-function.type';
 import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function.type';
 import { IDefaultNotificationsUnion } from '../../../../misc/notifications/default-notifications-union.type';
+import { createErrorNotification } from '../../../../misc';
+import { createAbortErrorNotification } from '../../../../misc/notifications/built-in/error/create-abort-error-notification';
 
 export interface IFileReaderFormatsToTypeMap {
   'data-url': string;

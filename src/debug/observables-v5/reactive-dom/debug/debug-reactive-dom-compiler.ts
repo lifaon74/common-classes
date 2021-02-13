@@ -3,7 +3,9 @@ import { pipeSubscribeFunction } from '../../functions/piping/pipe-subscribe-fun
 import { expression } from '../../subscribe-function/from/others/expression';
 import { interval } from '../../subscribe-function/from/time-related/interval/interval';
 import { ISubscribeFunction, IUnsubscribeFunction } from '../../types/subscribe-function/subscribe-function.type';
-import { sourceSubscribePipe } from '../../subscribe-function/subscribe-pipe/source-related/source-subscribe-pipe/source-subscribe-pipe';
+import {
+  ISourceSubscribePipeGetSource, sourceSubscribePipe
+} from '../../subscribe-function/subscribe-pipe/source-related/source-subscribe-pipe/source-subscribe-pipe';
 import {
   createUnicastReplayLastSource, IUnicastReplayLastSource
 } from '../../source/replay-last-source/derived/create-unicast-replay-last-source';
@@ -30,13 +32,33 @@ import { asyncUnsubscribe } from '../../misc/helpers/async-unsubscribe';
 import { createSubscribeFunctionProxy, ISubscribeFunctionProxy } from '../../others/create-subscribe-function-proxy';
 import { uuid } from '../../misc/helpers/uuid';
 import { createDocumentFragment } from '../light-dom/node/create/create-document-fragment';
-import { IReactiveTemplate } from '../reactive-dom/template/reactive-template-node/create-reactive-template-node';
-import { IEmitFunction } from '../../types';
-import { getFirstChild } from '../light-dom/node/properties/get-first-child';
+import { IReactiveContent } from '../reactive-dom/template/reactive-content-node/create-reactive-content-node';
+import { IEmitFunction, ISubscribePipeFunction } from '../../types';
 import { getFirstElementChild } from '../light-dom/node/properties/get-first-element-child';
-import { fromEventTarget } from '../../subscribe-function';
+import {
+  catchErrorSubscribePipe,
+  fromEventTarget, fromFetch, fromPromise, fromResizeObserver, IGenericMergeWithNotificationsSubscribeFunctions,
+  IMergeWithNotificationsSubscribeFunctionsValues,
+  ISubscribeFunctionFromFetchNotifications,
+  ISubscribeFunctionFromPromiseNotifications, mergeWithNotifications
+} from '../../subscribe-function';
 import { ISubscription } from '../../misc/subscription/subscription.type';
 import { Subscription } from '../../misc/subscription/subscription-class';
+import { createAbortError } from '../../misc/errors/abort-error/create-abort-error';
+import {
+  wrapFunctionWithAbortSignalAndThrow, wrapFunctionWithOptionalAbortSignalAndThrow
+} from '../../misc/abortable/wrap-function-with-abort-signal';
+import {
+  IDefaultNotificationsUnion, IGenericNotification, IInferDefaultNotificationsUnionGValue, INextNotification
+} from '../../misc';
+import { mergeMapSubscribePipeWithNotifications } from '../../subscribe-function/subscribe-pipe/merge-all/with-notifications/merge-map/merge-map-subscribe-pipe-with-notifications';
+import { TupleTypes } from '@lifaon/traits';
+import { toTypedEventTarget } from '../../misc/event-listener/to-typed-event-target';
+import { fromMatchMedia } from '../../subscribe-function/from/dom/from-match-media/from-match-media';
+import { generateConstantsToImportForComponentTemplateFromObject } from '../component/component-template/misc/generate-constants-to-import-for-component-template-from-object';
+import { wrapHTMLTemplateForComponentTemplate } from '../component/component-template/misc/wrap-html-template-for-component-template';
+import { noCORS } from '../../debug-observables-v5';
+import { compileHTMLAsHTMLTemplate } from '../reactive-html/compiler/to-lines/html/compile-html-as-html-template';
 
 
 const buttonStyle = `
@@ -170,12 +192,70 @@ async function debugReactiveDOMCompiler1() {
   //   </rx-container>
   // `;
 
-  const html = `
-    <rx-inject-template
-      template="$.template"
-    ></rx-inject-template>
-  `;
+  // const html = `
+  //   <rx-inject-content
+  //     content="$.content"
+  //   ></rx-inject-content>
+  // `;
 
+  // const html = `
+  //   <rx-template
+  //     name="templateReferenceA"
+  //   >
+  //     A
+  //   </rx-template>
+  //
+  //   <rx-template
+  //     name="templateReferenceB"
+  //   >
+  //     B
+  //   </rx-template>
+  //
+  //   <rx-template
+  //     name="templateReferenceC"
+  //   >
+  //     C
+  //   </rx-template>
+  //
+  //   <rx-switch
+  //     expression="$.switchValue"
+  //   >
+  //     <rx-switch-case
+  //       case="1"
+  //       template="templateReferenceA"
+  //     ></rx-switch-case>
+  //     <rx-switch-case
+  //       case="2"
+  //       template="templateReferenceB"
+  //     ></rx-switch-case>
+  //     <rx-switch-default
+  //       template="templateReferenceC"
+  //     ></rx-switch-default>
+  //   </rx-switch>
+  // `;
+
+
+  const html = `
+    <rx-switch
+      expression="$.switchValue"
+    >
+      <div
+        *switch-case="1"
+      >
+        A
+      </div>
+     <div
+        *switch-case="2"
+      >
+        B
+      </div>
+      <div
+        *switch-default
+      >
+        C
+      </div>
+    </rx-switch>
+  `;
 
   // const url = `http://info.cern.ch/hypertext/WWW/TheProject.html`;
   // const url = `https://streams.spec.whatwg.org/`;
@@ -208,30 +288,56 @@ async function debugReactiveDOMCompiler1() {
     items: $of([1, 2, 3].map($of)),
     trackByFn: (_: any) => _,
     clickCondition: clickSource.subscribe,
-    template: $of(compileReactiveHTMLAsComponentTemplate(`
+    content: $of(compileReactiveHTMLAsComponentTemplate(`
       hello world
-    `)({}))
+    `)({})),
+    switchValue: $of(3)
   };
+
   type GData = typeof data;
 
-  // console.log(compileHTMLAsTemplate(html, new Set()).join('\n'));
+  // console.log(compileHTMLAsHTMLTemplate(html).join('\n'));
 
-  console.time('compilation');
-  const template = compileReactiveHTMLAsComponentTemplate<GData>(html.trim());
-  console.timeEnd('compilation');
-  console.time('injection');
-  const node = template(data);
-  nodeAppendChild(document.body, node);
-  console.timeEnd('injection');
+  // console.time('compilation');
+  // const template = compileReactiveHTMLAsComponentTemplate<GData>(html.trim());
+  // console.timeEnd('compilation');
+  // console.time('injection');
+  // const node = template(data);
+  // nodeAppendChild(document.body, node);
+  // console.timeEnd('injection');
 
   // console.time('html-injection');
   // document.body.innerHTML = html;
   // console.timeEnd('html-injection');
 
   /**
-   * The compiled minified version is around 2 times bigger than the html
+   * The raw compiled minified version is around 2 times bigger than the html, and the gzipped version 10% bigger.
+   * The compilation of 250K of html takes approximately 200ms (~1250B/ms = 1.25MB/s)
+   * The injection of 250K of html takes approximately 80ms
+   *
+   * @example:  https://www.w3.org/TR/2021/WD-css-cascade-5-20210119/ (250K of html, 43.5k gzipped)
+   *
+   * compilation: 195.925048828125 ms
+   * minification: 2807.080078125 ms
+   * - html: 240325
+   * - compiled: 2287049 (html: 951%)
+   * - minified: 423652 (html: 176%, compiled: 18%) => 48.6K gzipped
+   * injection: 79.2978515625 ms
+   *
+   * aot compilation:
+   * - +10% size, but insignificant excess download time (mostly due to awaiting server instead of download time)
+   * - wins compiler size and compilation time
+   * - potentially less performant if user has a connection lower than 1.25Mb/s (125KB/s) (10% of 1.25MB/s - compile time)
    */
-  await compileReactiveHTMLAsModuleWithStats(html);
+  const componentCode: string = await compileReactiveHTMLAsModuleWithStats(html);
+  navigator.clipboard.writeText(componentCode);
+  const dataURL: string = `data:application/javascript;base64,${ btoa(unescape(encodeURIComponent(componentCode))) }`;
+  const module = await import(dataURL);
+  const template = wrapHTMLTemplateForComponentTemplate(module.default, DEFAULT_CONSTANTS_TO_IMPORT);
+  console.time('injection');
+  const node = template(data);
+  nodeAppendChild(document.body, node);
+  console.timeEnd('injection');
 }
 
 
@@ -658,6 +764,9 @@ async function debugReactiveDOMCompiler5() {
 }
 
 
+/**
+ * Popups - works !
+ */
 async function debugReactiveDOMCompiler6() {
 
   const CONSTANTS_TO_IMPORT = {
@@ -700,7 +809,7 @@ async function debugReactiveDOMCompiler6() {
 
     interface IPopup {
       component: AppPopupComponent<any>;
-      template: IReactiveTemplate;
+      template: IReactiveContent;
     }
 
 
@@ -905,6 +1014,201 @@ async function debugReactiveDOMCompiler6() {
 
 }
 
+/**
+ * Lazy loaded images - wip
+ */
+async function debugReactiveDOMCompiler7() {
+
+  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source
+
+  type IResourceLoader = ISubscribeFunction<IDefaultNotificationsUnion<Blob>>;
+
+  function parallelResourcesLoader(
+    resources: readonly IResourceLoader[],
+  ): IResourceLoader {
+    return mergeWithNotifications(resources, { errorOnFirstError: false, completeOnFirstComplete: true });
+  }
+
+  function httpResourceLoader(
+    src: string,
+  ): IResourceLoader {
+    return pipeSubscribeFunction(fromFetch(src), [
+      mergeMapSubscribePipeWithNotifications<ISubscribeFunctionFromFetchNotifications, Blob>((response: Response) => fromPromise(response.blob()))
+    ]);
+  }
+
+  function imageLoader(
+    src: string,
+  ): IResourceLoader {
+    return httpResourceLoader(src);
+  }
+
+  // INFO stopped there
+  // function matchesMedia(
+  //   query: string,
+  // ): ISubscribePipeFunction<any, any> {
+  //   const unsubscribe = fromMatchMedia(query)((value: boolean) => {
+  //     console.log('changed', value);
+  //   });
+  // }
+
+  // function supportsType(
+  //   src: string,
+  // ): IResourceLoader {
+  //   return httpResourceLoader(src);
+  // }
+
+
+  @Component({
+    name: 'app-image',
+  })
+  class AppImageComponent extends HTMLElement {
+    public readonly load: IResourceLoader;
+
+    constructor(
+      loader: IResourceLoader,
+    ) {
+      super();
+      this.load = loader;
+    }
+  }
+
+
+  const img = new AppImageComponent(parallelResourcesLoader([
+    imageLoader(noCORS('https://www.roadrunnerrecords.com/sites/g/files/g2000005056/f/Sample-image10-highres.jpg')),
+    imageLoader(noCORS('https://www.roadrunnerrecords.com/sites/g/files/g2000005056/f/sample_07_0.jpg')),
+    imageLoader(noCORS('https://www.roadrunnerrecords.com/sites/g/files/g2000005056/f/Sample%202_0.jpg')),
+  ]));
+
+
+  img.load((value: any) => {
+    console.log(value);
+  });
+
+  // nodeAppendChild(document.body, img);
+
+  // fromMatchMedia('(max-width: 600px)')((value: boolean) => {
+  //   console.log('changed', value);
+  // });
+  //
+  // fromResizeObserver(document.body)((value: ResizeObserverEntry) => {
+  //   console.log('resized', value);
+  // });
+}
+
+// async function debugReactiveDOMCompiler7() {
+//
+//   interface IOptionsWithAbortSignal {
+//     signal?: AbortSignal;
+//   }
+//
+//   interface IResourceLoader<GOptions extends IOptionsWithAbortSignal = IOptionsWithAbortSignal> {
+//     (options?: GOptions): Promise<Blob>;
+//   }
+//
+//   // class ResourcesLoader {
+//   //   protected _resources: readonly IResourceLoader[];
+//   //
+//   //   constructor(
+//   //     resources?: Iterable<IResourceLoader>,
+//   //   ) {
+//   //     this._resources = [];
+//   //     if (resources !== void 0) {
+//   //       this.setResources(resources)
+//   //     }
+//   //   }
+//   //
+//   //   getResources(): readonly IResourceLoader[] {
+//   //     return this._resources;
+//   //   }
+//   //
+//   //   setResources(resources: Iterable<IResourceLoader>): void {
+//   //     this._resources = Array.from(resources);
+//   //   }
+//   //
+//   //   load(options?: IOptionsWithAbortSignal): Promise<Blob> {
+//   //     return this._resources.reduce<Promise<Blob>>((promise: Promise<Blob>, resourceLoader: IResourceLoader): Promise<Blob> => {
+//   //       return promise.catch(wrapFunctionWithOptionalAbortSignalAndThrow(() => {
+//   //         return resourceLoader(options);
+//   //       }, options?.signal))
+//   //     }, Promise.reject(new Error(`No ressources`)));
+//   //   }
+//   // }
+//
+//   function sequentialResourcesLoader(
+//     resources: Pick<IResourceLoader[], 'reduce'>,
+//   ): IResourceLoader {
+//     return (options?: IOptionsWithAbortSignal): Promise<Blob> => {
+//       return resources.reduce<Promise<Blob>>((promise: Promise<Blob>, resourceLoader: IResourceLoader): Promise<Blob> => {
+//         return promise.catch(wrapFunctionWithOptionalAbortSignalAndThrow(() => {
+//           return resourceLoader(options);
+//         }, options?.signal))
+//       }, Promise.reject(new Error(`No ressources`)));
+//     }
+//   }
+//
+//   function httpResourceLoader(
+//     src: string,
+//   ): IResourceLoader {
+//     return (options?: IOptionsWithAbortSignal): Promise<Blob> => {
+//       return fetch(src, options)
+//         .then(wrapFunctionWithOptionalAbortSignalAndThrow((response: Response) => {
+//           return response.blob();
+//         }, options?.signal));
+//     };
+//   }
+//
+//   function imageLoader(
+//     src: string,
+//   ): IResourceLoader {
+//     return httpResourceLoader(src);
+//   }
+//
+//   function matchesMedia(
+//     load: IResourceLoader,
+//   ): IResourceLoader {
+//     const mediaQueryList = window.matchMedia('(max-width: 600px)');
+//     return (options?: IOptionsWithAbortSignal): Promise<Blob> => {
+//       if (mediaQueryList.matches) {
+//         return load(options);
+//       } else {
+//         throw new Error(`Doesn't match media`);
+//       }
+//     };
+//   }
+//
+//   function supportsType(
+//     src: string,
+//   ): IResourceLoader {
+//     return httpResourceLoader(src);
+//   }
+//
+//
+//   @Component({
+//     name: 'app-image',
+//   })
+//   class AppImageComponent extends HTMLElement {
+//     public readonly load: IResourceLoader;
+//
+//     constructor(
+//       loader: IResourceLoader,
+//     ) {
+//       super();
+//       this.load = loader;
+//     }
+//   }
+//
+//
+//   const img = new AppImageComponent(sequentialResourcesLoader([
+//     imageLoader('https://www.roadrunnerrecords.com/sites/g/files/g2000005056/f/Sample-image10-highres.jpg'),
+//     imageLoader('https://www.roadrunnerrecords.com/sites/g/files/g2000005056/f/sample_07_0.jpg'),
+//     imageLoader('https://www.roadrunnerrecords.com/sites/g/files/g2000005056/f/Sample%202_0.jpg'),
+//   ]));
+//
+//   console.log(await img.load());
+//
+//   nodeAppendChild(document.body, img);
+// }
 
 /*----*/
 
@@ -915,5 +1219,6 @@ export async function debugReactiveDOMCompiler() {
   // await debugReactiveDOMCompiler3();
   // await debugReactiveDOMCompiler4();
   // await debugReactiveDOMCompiler5();
-  await debugReactiveDOMCompiler6();
+  // await debugReactiveDOMCompiler6();
+  await debugReactiveDOMCompiler7();
 }
