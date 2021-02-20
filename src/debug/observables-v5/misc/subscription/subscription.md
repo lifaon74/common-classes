@@ -31,7 +31,6 @@ An *Subscription* is used to link a *SubscribeFunction* with an *EmitFunction* u
 #### Toggle a 'mousemove' SubscribeFunction on 'click'
 
 ```ts
-// creates 
 const subscription = new Subscription(
   fromEventTarget(window, 'mousemove'),
   (event: MouseEvent) => {

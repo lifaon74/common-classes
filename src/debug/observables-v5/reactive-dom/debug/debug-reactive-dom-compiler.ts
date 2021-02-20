@@ -3,9 +3,7 @@ import { pipeSubscribeFunction } from '../../functions/piping/pipe-subscribe-fun
 import { expression } from '../../subscribe-function/from/others/expression';
 import { interval } from '../../subscribe-function/from/time-related/interval/interval';
 import { ISubscribeFunction, IUnsubscribeFunction } from '../../types/subscribe-function/subscribe-function.type';
-import {
-  ISourceSubscribePipeGetSource, sourceSubscribePipe
-} from '../../subscribe-function/subscribe-pipe/source-related/source-subscribe-pipe/source-subscribe-pipe';
+import { sourceSubscribePipe } from '../../subscribe-function/subscribe-pipe/source-related/source-subscribe-pipe/source-subscribe-pipe';
 import {
   createUnicastReplayLastSource, IUnicastReplayLastSource
 } from '../../source/replay-last-source/derived/create-unicast-replay-last-source';
@@ -17,7 +15,7 @@ import {
 import { reactiveFunction } from '../../subscribe-function/from/many/reactive-function/reactive-function';
 import { mapSubscribePipe } from '../../subscribe-function/subscribe-pipe/emit-pipe-related/map-subscribe-pipe';
 import { numberFormatSubscribePipe } from '../../i18n/number-format/number-format-subscribe-pipe/number-format-subscribe-pipe';
-import { createLocalesSource } from '../../i18n/create-locales-source';
+import { createLocalesSource } from '../../i18n/locales/create-locales-source';
 import { Component } from '../component/component/component-decorator';
 import { OnConnect, OnCreate, OnDisconnect } from '../component/component/component-implements';
 import { dateTimeShortcutFormatSubscribePipe } from '../../i18n/date-time-format/date-time-shortcut-format/date-time-shortcut-format-subscribe-pipe';
@@ -36,29 +34,18 @@ import { IReactiveContent } from '../reactive-dom/template/reactive-content-node
 import { IEmitFunction, ISubscribePipeFunction } from '../../types';
 import { getFirstElementChild } from '../light-dom/node/properties/get-first-element-child';
 import {
-  catchErrorSubscribePipe,
-  fromEventTarget, fromFetch, fromPromise, fromResizeObserver, IGenericMergeWithNotificationsSubscribeFunctions,
-  IMergeWithNotificationsSubscribeFunctionsValues,
-  ISubscribeFunctionFromFetchNotifications,
-  ISubscribeFunctionFromPromiseNotifications, mergeWithNotifications
+  fromEventTarget, fromFetch, fromPromise, ISubscribeFunctionFromFetchNotifications, mergeWithNotifications
 } from '../../subscribe-function';
 import { ISubscription } from '../../misc/subscription/subscription.type';
 import { Subscription } from '../../misc/subscription/subscription-class';
-import { createAbortError } from '../../misc/errors/abort-error/create-abort-error';
-import {
-  wrapFunctionWithAbortSignalAndThrow, wrapFunctionWithOptionalAbortSignalAndThrow
-} from '../../misc/abortable/wrap-function-with-abort-signal';
-import {
-  IDefaultNotificationsUnion, IGenericNotification, IInferDefaultNotificationsUnionGValue, INextNotification
-} from '../../misc';
+import { IDefaultNotificationsUnion } from '../../misc';
 import { mergeMapSubscribePipeWithNotifications } from '../../subscribe-function/subscribe-pipe/merge-all/with-notifications/merge-map/merge-map-subscribe-pipe-with-notifications';
-import { TupleTypes } from '@lifaon/traits';
-import { toTypedEventTarget } from '../../misc/event-listener/to-typed-event-target';
 import { fromMatchMedia } from '../../subscribe-function/from/dom/from-match-media/from-match-media';
-import { generateConstantsToImportForComponentTemplateFromObject } from '../component/component-template/misc/generate-constants-to-import-for-component-template-from-object';
 import { wrapHTMLTemplateForComponentTemplate } from '../component/component-template/misc/wrap-html-template-for-component-template';
 import { noCORS } from '../../debug-observables-v5';
-import { compileHTMLAsHTMLTemplate } from '../reactive-html/compiler/to-lines/html/compile-html-as-html-template';
+import { conditionalSubscribePipe } from '../../subscribe-function/subscribe-pipe/experimental/conditional-subscribe-pipe';
+import { SubscriptionManager } from '../../misc/subscription/manager/subscription-manager-class';
+import { AppWindowComponent } from './window-component/window.component';
 
 
 const buttonStyle = `
@@ -1021,7 +1008,8 @@ async function debugReactiveDOMCompiler7() {
 
   // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source
 
-  type IResourceLoader = ISubscribeFunction<IDefaultNotificationsUnion<Blob>>;
+  type IResourceNotification = IDefaultNotificationsUnion<Blob>;
+  type IResourceLoader = ISubscribeFunction<IResourceNotification>;
 
   function parallelResourcesLoader(
     resources: readonly IResourceLoader[],
@@ -1044,13 +1032,11 @@ async function debugReactiveDOMCompiler7() {
   }
 
   // INFO stopped there
-  // function matchesMedia(
-  //   query: string,
-  // ): ISubscribePipeFunction<any, any> {
-  //   const unsubscribe = fromMatchMedia(query)((value: boolean) => {
-  //     console.log('changed', value);
-  //   });
-  // }
+  function matchesMedia<GValue>(
+    query: string,
+  ): ISubscribePipeFunction<GValue, GValue> {
+    return conditionalSubscribePipe<GValue>(fromMatchMedia(query));
+  }
 
   // function supportsType(
   //   src: string,
@@ -1075,9 +1061,11 @@ async function debugReactiveDOMCompiler7() {
 
 
   const img = new AppImageComponent(parallelResourcesLoader([
-    imageLoader(noCORS('https://www.roadrunnerrecords.com/sites/g/files/g2000005056/f/Sample-image10-highres.jpg')),
-    imageLoader(noCORS('https://www.roadrunnerrecords.com/sites/g/files/g2000005056/f/sample_07_0.jpg')),
-    imageLoader(noCORS('https://www.roadrunnerrecords.com/sites/g/files/g2000005056/f/Sample%202_0.jpg')),
+    pipeSubscribeFunction(imageLoader(noCORS('https://www.roadrunnerrecords.com/sites/g/files/g2000005056/f/Sample-image10-highres.jpg')), [
+      matchesMedia<IResourceNotification>('(max-width: 600px)'),
+    ]),
+    // imageLoader(noCORS('https://www.roadrunnerrecords.com/sites/g/files/g2000005056/f/sample_07_0.jpg')),
+    // imageLoader(noCORS('https://www.roadrunnerrecords.com/sites/g/files/g2000005056/f/Sample%202_0.jpg')),
   ]));
 
 
@@ -1087,9 +1075,9 @@ async function debugReactiveDOMCompiler7() {
 
   // nodeAppendChild(document.body, img);
 
-  // fromMatchMedia('(max-width: 600px)')((value: boolean) => {
-  //   console.log('changed', value);
-  // });
+  fromMatchMedia('(max-width: 600px)')((value: boolean) => {
+    console.log('changed', value);
+  });
   //
   // fromResizeObserver(document.body)((value: ResizeObserverEntry) => {
   //   console.log('resized', value);
@@ -1210,6 +1198,28 @@ async function debugReactiveDOMCompiler7() {
 //   nodeAppendChild(document.body, img);
 // }
 
+// const left = createMulticastReplayLastSource({ initialValue: 0 });
+// const left = createMulticastReplayLastSource({ initialValue: 0 });
+// const left = createMulticastReplayLastSource({ initialValue: 0 });
+// const left = createMulticastReplayLastSource({ initialValue: 0 });
+
+
+/**
+ * Window
+ */
+async function debugReactiveDOMCompiler8() {
+
+  const win = new AppWindowComponent();
+  nodeAppendChild(document.body, win);
+
+  // win.subscribeRight((value: number) => {
+  //   console.log('right', value);
+  // });
+
+
+  (window as any).win = win;
+}
+
 /*----*/
 
 
@@ -1220,5 +1230,6 @@ export async function debugReactiveDOMCompiler() {
   // await debugReactiveDOMCompiler4();
   // await debugReactiveDOMCompiler5();
   // await debugReactiveDOMCompiler6();
-  await debugReactiveDOMCompiler7();
+  // await debugReactiveDOMCompiler7();
+  await debugReactiveDOMCompiler8();
 }

@@ -4,14 +4,14 @@ import { createNetworkErrorFromResponse } from '../../../../misc/errors/network-
 
 
 export function loadAndCompileReactiveHTMLAsComponentTemplate<GData extends object>(
-  path: string,
+  url: string,
   constantsToImport?: object,
   dataName?: string,
 ): Promise<IHTMLTemplate<GData>> {
-  return fetch(path)
+  return fetch(url)
     .then((response: Response) => {
       if (response.ok) {
-        return response.json();
+        return response.text();
       } else {
         throw createNetworkErrorFromResponse(response);
       }

@@ -1,38 +1,40 @@
-# Reactive
+# ⚡ rx-js-light
 
 This library provides tools to generate and consume blazing fast Observables and Observers.
 
-However, it is not RxJS: it's faster, smaller, and tries to be simpler.
+However, it is not RxJS: **it's faster, smaller, and tries to be simpler.** Give it a try, and you'll love it !  
+Because it's extremely light and performant, you may include it even in your smallest projects.
+
 
 [<img src="https://img.shields.io/badge/-tutorial-brightgreen?style=for-the-badge" />](./examples/tutorial.md)
 
-Give it a try, and you'll love it !
 
 If you're not familiar with the concept of Observables you may
 check [the rxjs documentation](https://rxjs-dev.firebaseapp.com/guide/observable),
-or [this excellent tutorial](https://gist.github.com/staltz/868e7e9bc2a7b8c1f754)
+[this excellent tutorial](https://gist.github.com/staltz/868e7e9bc2a7b8c1f754), [or this one](https://x-team.com/blog/rxjs-observables/).
 
 The main purpose of Observables is to **react to changes**.
 
-*Example: display mouse position until we click*
+**If anything in your app happens asynchronously, there is a high chance that an Observable will make that easier for you.**
+
+*Example:*
 
 ```ts
-const subscribeToMouseMove = pipeSubscribeFunction(fromEventTarget<'mousemove', MouseEvent>(window, 'mousemove'), [
-  mapSubscribePipe<MouseEvent>((event: MouseEvent) => [event.clientX, event.clientY]),
-]);
+const subscription = new Subscription(
+  fromEventTarget(window, 'mousemove'),
+  (event: MouseEvent) => {
+    console.log(event.clientX, event.clientY);
+  },
+);
 
-const unsubscribeOfMouseMove = subscribeToMouseMove(([x, y]) => {
-  console.log(x, y);
-});
+const subscribe = fromEventTarget(window, 'click');
 
-const subscribeToMouseClick = fromEventTarget<'click', MouseEvent>(window, 'click');
-
-const unsubscribeOfMouseClick= subscribeToMouseClick(() => {
-  unsubscribeOfMouseMove();
-  unsubscribeOfMouseClick();
+subscribe(() => {
+  subscription.toggle();
 });
 ```
 
+This example displays the mouse position, with an *activate / deactivate* mechanism when we click.
 
 Differences with RxJS:
 
@@ -53,7 +55,7 @@ I chose deliberately to rename some of the RxJS's terms to do clearly the distin
 and the RxJS's *components*.
 
 
-## Documentation
+## 📕 Documentation
 
 - [SubscribeFunction](./types/subscribe-function/subscribe-function.md) (ak: Observable)
 - [EmitFunction](./types/emit-function/emit-function.md) (ak: Observer)
@@ -63,9 +65,11 @@ and the RxJS's *components*.
 - [Notification](./misc/notifications/notifications.md) (ak: *next*, *complete* and *error*)
 - [MulticastSource](./source/multicast-source/multicast-source.md) (ak: Subject)
 - [ReplayLastSource](./source/replay-last-source/replay-last-source.md) (ak: BehaviorSubject)
+- [Subscription](./misc/subscription) (kind of: Subscription)
 
+Most of public functions or interfaces have their own documentation into a `.md` file in their respective directories. 
 
-## Select the right function
+## 🔥️ Select the right function
 
 ### I want to:
 
@@ -89,7 +93,9 @@ and the RxJS's *components*.
   
 - an EventTarget: [fromEventTarget](subscribe-function/from/dom/from-event-target/from-event-target.md)
   
-- a list of values: [of](subscribe-function/from/others/of/of.md)
+- a list of values:
+  - without notifications: [of](subscribe-function/from/others/of/of.md)
+  - with notifications: [ofWithNotifications](subscribe-function/from/others/of/with-notifications/of-with-notifications.ts)
 
 - a promise
   - with a factory: [fromPromiseFactory](subscribe-function/from/promise/from-promise-factory/from-promise-factory.md)
@@ -104,7 +110,7 @@ and the RxJS's *components*.
 - an http request
   - using fetch: [fromFetch](subscribe-function/from/http/from-fetch/from-fetch.md)
   - using xhr: [fromXHR](subscribe-function/from/http/xhr/from-xhr/from-xhr.md)
-
+  
 - a blob (reads content): [readBlob](subscribe-function/from/dom/read-blob/read-blob.md)
   
 - many subscribe functions. When any value is received:
@@ -143,7 +149,7 @@ and the RxJS's *components*.
     - with only the last value: [toPromiseLast](subscribe-function/to/to-promise/last/to-promise-last.md)
     - with every value: [toPromiseAll](subscribe-function/to/to-promise/all/to-promise-all.md)
 
-#### create an SubscribePipeFunction which
+#### create a SubscribePipeFunction which
 
 - emits only distinct received values: [distinctSubscribePipe](subscribe-function/subscribe-pipe/emit-pipe-related/distinct-subscribe-pipe.ts)
 - filters received values: [filterSubscribePipe](subscribe-function/subscribe-pipe/emit-pipe-related/filter-subscribe-pipe.ts)
@@ -152,7 +158,17 @@ and the RxJS's *components*.
 - allows one SubscribeFunction to emit its values to many SubscribeFunction: [shareSubscribePipe](subscribe-function/subscribe-pipe/source-related/share-subscribe-pipe.ts)
 
 [comment]: <> (TODO better tree for source-related folder)
+[comment]: <> (TODO merge-all)
+[comment]: <> (TODO merge-map)
 
+#### emit a value myself => create a Source which emits values to
+
+- multiple EmitFunctions: [createMulticastSource](source/multicast-source/multicast-source.md)
+- only one EmitFunction: [createUnicastSource](source/unicast-source/unicast-source.md)
+- one or many EmitFunction and stores the last emitted value:
+  [createReplayLastSource](source/replay-last-source/replay-last-source.md),
+  [createMulticastReplayLastSource](source/replay-last-source/derived/create-multicast-replay-last-source.ts)
+  [createUnicastReplayLastSource](source/replay-last-source/derived/create-unicast-replay-last-source.ts)
 
 #### others
 
@@ -161,4 +177,6 @@ and the RxJS's *components*.
   SubscribeFunction: [pipeSubscribeFunction](functions/piping/pipe-subscribe-function/pipe-subscribe-function.ts)
 
 
+
+Can't find a function that suits your needs ? Open an issue, or create your own and share it !
 

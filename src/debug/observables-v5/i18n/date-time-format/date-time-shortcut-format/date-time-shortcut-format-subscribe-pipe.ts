@@ -1,10 +1,10 @@
-import { ISubscribeFunction } from '../../../types/subscribe-function/subscribe-function.type';
+import { ISubscribeFunction } from '../../../types';
 import {
   IDateTimeShortcutFormat
 } from './date-time-shortcut-format-to-date-time-format-options';
-import { ISubscribePipeFunction } from '../../../types/subscribe-pipe-function/subscribe-pipe-function.type';
+import { ISubscribePipeFunction } from '../../../types';
 import { IDateTimeFormatValue } from '../date-time-format.type';
-import { pipeSubscribeFunction } from '../../../functions/piping/pipe-subscribe-function/pipe-subscribe-function';
+import { pipeSubscribeFunction } from '../../../functions';
 import { dateTimeFormatSubscribePipe } from '../date-time-format-subscribe-pipe/date-time-format-subscribe-pipe';
 import { dateTimeShortcutFormatToDateTimeFormatOptionsSubscribePipe } from './date-time-shortcut-format-to-date-time-format-options-subscribe-pipe';
 import { ILocales } from '../../locales/locales.type';

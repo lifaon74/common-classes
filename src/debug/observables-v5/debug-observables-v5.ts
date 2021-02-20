@@ -11,7 +11,7 @@ import { createUnicastReplayLastSource } from './source/replay-last-source/deriv
 import { pipeSubscribeFunction } from './functions/piping/pipe-subscribe-function/pipe-subscribe-function';
 import { interval } from './subscribe-function/from/time-related/interval/interval';
 import { IDateTimeShortcutFormat } from './i18n/date-time-format/date-time-shortcut-format/date-time-shortcut-format-to-date-time-format-options';
-import { createLocalesSource } from './i18n/create-locales-source';
+import { createLocalesSource } from './i18n/locales/create-locales-source';
 import { dateTimeShortcutFormatSubscribePipe } from './i18n/date-time-format/date-time-shortcut-format/date-time-shortcut-format-subscribe-pipe';
 import {
   currencyFormatSubscribePipe, ICurrencyFormatOptions

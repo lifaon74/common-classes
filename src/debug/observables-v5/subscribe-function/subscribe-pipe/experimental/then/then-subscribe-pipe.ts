@@ -1,9 +1,9 @@
-import { ISubscribeFunction, IUnsubscribeFunction } from '../../../types/subscribe-function/subscribe-function.type';
-import { ISubscribePipeFunction } from '../../../types/subscribe-pipe-function/subscribe-pipe-function.type';
-import { IGenericNotification } from '../../../misc/notifications/notification.type';
-import { IEmitFunction } from '../../../types/emit-function/emit-function.type';
-import { IDefaultNotificationsUnion } from '../../../misc/notifications/default-notifications-union.type';
-import { toPromiseLast } from '../../to/to-promise/last/to-promise-last';
+import { ISubscribeFunction, IUnsubscribeFunction } from '../../../../types/subscribe-function/subscribe-function.type';
+import { ISubscribePipeFunction } from '../../../../types/subscribe-pipe-function/subscribe-pipe-function.type';
+import { IGenericNotification } from '../../../../misc/notifications/notification.type';
+import { IEmitFunction } from '../../../../types/emit-function/emit-function.type';
+import { IDefaultNotificationsUnion } from '../../../../misc/notifications/default-notifications-union.type';
+import { toPromiseLast } from '../../../to/to-promise/last/to-promise-last';
 
 
 export interface IThenSubscribePipeOnFulfilled<GInNextValue, GOut> {

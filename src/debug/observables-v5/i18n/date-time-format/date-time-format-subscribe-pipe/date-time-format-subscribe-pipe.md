@@ -7,6 +7,10 @@ function dateTimeFormatSubscribePipe(
 ): ISubscribePipeFunction<IDateTimeFormatValue, string>
 ```
 
+This SubscribePipe formats incoming number or date values into string according to a locale and some configuration.
+
+---
+
 ```ts
 function dateTimeShortcutFormatSubscribePipe(
   locales: ISubscribeFunction<ILocales>,
@@ -14,11 +18,14 @@ function dateTimeShortcutFormatSubscribePipe(
 ): ISubscribePipeFunction<IDateTimeFormatValue, string>
 ```
 
-This SubscribePipe formats incoming number or date values into string according to a locale and some configuration.
+Like `dateTimeFormatSubscribePipe` but accepts a `IDateTimeShortcutFormat` instead.
+
+`format` is similar to the [angular date pipe](https://angular.io/api/common/DatePipe)
+
 
 ### Examples
 
-#### Simple http request
+#### Display current date
 
 ```ts
 const $locales$ = createLocalesSource();

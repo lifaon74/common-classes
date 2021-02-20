@@ -50,27 +50,3 @@ export class Subscription<GValue> implements ISubscription<GValue> {
   }
 }
 
-/*----------------*/
-
-export interface ISubscriptionManager<GValue> {
-  // readonly subscriptions: ReadonlyMap<string, Subscription<GValue>>;
-
-  activateAll(): this;
-
-  deactivateAll(): this;
-
-  set<GSubscription extends Subscription<GValue>>(
-    key: string,
-    subscription: GSubscription,
-    mode?: 'skip' | 'replace' | 'throw',
-  ): GSubscription;
-
-  get(key: string): Subscription<GValue> | undefined;
-
-  get(key: string, mode: 'throw'): Subscription<GValue> | never;
-
-  has(key: string): boolean;
-
-  delete(key: string): void;
-}
-
